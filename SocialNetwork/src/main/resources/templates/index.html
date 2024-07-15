@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security5"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{_layout}">
+
+<head>
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+</head>
+<style>
+    .sticky {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+    }
+
+    div.fixed {
+        position: fixed;
+        margin-top: 0;
+        right: 0;
+        width: 300px;
+        border: 5px solid #73AD21;
+    }
+</style>
+
+<body>
+
+    <main layout:fragment="content">
+        <!-- Scroll to top start -->
+        <div class="scroll-top not-visible">
+            <i class="bi bi-finger-index"></i>
+        </div>
+        <!-- Scroll to Top End -->
+
+        <!-- footer area start -->
+        <footer class="d-none d-lg-block">
+            <div class="footer-area reveal-footer">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="footer-wrapper">
+                                <div style="visibility: hidden;" class="footer-card position-relative">
+
+                                </div>
+                                <div class="card card-small mb-0 active-profile-wrapper">
+                                    <div class="active-profiles-wrapper">
+                                        <div class="active-profile-carousel slick-row-20 slick-arrow-style">
+                                            <!-- profile picture end -->
+                                            <form id="usernameForm" class="d-flex mx-5" style="width: 100%;">
+                                                <div th:each="friend : ${listInfoFriendCurrently}" id="username-page">
+                                                    <div class="single-slide">
+                                                        <div th:if="${friend.activeStatus}"
+                                                            class="profile-thumb active profile-active mx-5"
+                                                            style="justify-content: space-evenly; align-items: center;">
+                                                            <button type="button"
+                                                                class="accent username-submit clickable-link"
+                                                                th:attr="data-username=${friend.username}, data-avatar=@{|${friend.avatar}|}, data-fullName = ${friend.fullName}">
+                                                                <figure class="profile-thumb-small">
+                                                                    <img th:src="@{|${friend.avatar}|}"
+                                                                        alt="profile picture">
+                                                                </figure>
+                                                            </button>
+                                                        </div>
+                                                        <div th:unless="${friend.activeStatus}"
+                                                            class="profile-thumb profile-active mx-5"
+                                                            style="justify-content: space-evenly; align-items: center;">
+                                                            <button type="button"
+                                                                class="accent username-submit clickable-link"
+                                                                th:attr="data-username=${friend.username}, data-avatar=@{|${friend.avatar}|}, data-fullName = ${friend.fullName}">
+                                                                <figure class="profile-thumb-small">
+                                                                    <img th:src="@{|${friend.avatar}|}"
+                                                                        alt="profile picture">
+                                                                </figure>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+
+
+
+
+                                            <!-- profile picture end -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="footer-card position-relative">
+                                    <div class="live-chat-inner">
+                                        <form action="#" id="messageForm" name="messageForm">
+                                            <div class="chat-text-field">
+                                                <textarea id="message" class="live-chat-field custom-scroll"
+                                                    placeholder="Text Message"></textarea>
+                                                <button class="chat-message-send" type="submit">
+                                                    <img src="user/assets/images/icons/plane.png" alt="">
+                                                </button>
+                                            </div>
+                                        </form>
+
+                                        <div class="chat-output-box">
+                                            <!-- profile picture end -->
+                                            <div class="live-chat-title" id="chat-output-box">
+                                                <div class="profile-thumb">
+                                                    <!-- Bỏ hoạt động -->
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img id="targetImage" alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <div class="posted-author">
+                                                    <h6 class="author" id="targetData1"></h6>
+                                                    <!-- <span class="active-pro">Đang hoạt động</span> -->
+                                                </div>
+                                                <div class="live-chat-settings ml-auto">
+                                                    <button class="close-btn" data-close="chat-output-box"><i
+                                                            class="flaticon-cross-out"></i></button>
+                                                </div>
+                                            </div>
+                                            <!-- <script>
+                                                document.querySelectorAll('.clickable-link').forEach(function (link) {
+                                                    link.addEventListener('click', function (event) {
+                                                        event.preventDefault();
+
+                                                        var data1 = this.getAttribute('data-username');
+                                                        var data2 = this.getAttribute('data-avatar');
+
+                                                        sendDataToDiv2(data1, data2);
+                                                    });
+                                                });
+
+                                                function sendDataToDiv2(data1, data2) {
+                                                    document.getElementById('targetData1').textContent = data1;
+                                                    document.getElementById('targetImage').src = data2;
+                                                }
+                                            </script> -->
+                                            <div class="message-list-inner" id="chat-page">
+                                                <ul class="message-list custom-scroll" id="messageArea">
+                                                    <li class="text-friends">
+                                                        <p>tin nhan tu ban be</p>
+                                                        <div class="message-time">10 minute ago</div>
+                                                    </li>
+                                                    <li class="chat-message text-author">
+                                                        <p>tin nhan cua toi</p>
+                                                        <div class="message-time">5 minute ago</div>
+                                                    </li>
+
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- footer area end -->
+
+        <div class="main-wrapper pt-80 mt-4">
+            <div class="row">
+                <div class="col-lg-2">
+                    <aside style="width: 16.7%; margin-top: 11vh;" class="widget-area sticky ml-4">
+                        <!-- widget single item start -->
+                        <div class="card card-profile widget-item p-0">
+                            <div class="profile-banner">
+                                <figure class="profile-banner-small">
+                                    <a th:href="@{|/profile/${userChosen.id}|}">
+                                        <img width="800px" height="150px" th:src="@{|${currentlyUser.coverPhoto}|}"
+                                            alt="">
+                                    </a>
+                                    <a th:href="@{|/profile/${currentlyUser.id}|}" class="profile-thumb-2">
+                                        <img th:src="@{|${currentlyUser.avatar}|}" alt="profile picture">
+                                    </a>
+                                </figure>
+                                <div class="profile-desc text-center">
+                                    <h6 class="author"><a th:href="@{|/profile/${currentlyUser.id}|}"
+                                            th:text="${currentlyUser.fullName}">USERNAME</a></h6>
+                                    <p th:text="${currentlyUser.bio}">BIO</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- widget single item start -->
+
+                        <!-- widget single item start -->
+                        <div class="card widget-item">
+                            <h4 class="widget-title">page you may like</h4>
+                            <div class="widget-body">
+                                <ul class="like-page-list-wrapper">
+                                    <li class="unorder-list">
+                                        <!-- profile picture end -->
+                                        <div class="profile-thumb">
+                                            <a href="#">
+                                                <figure class="profile-thumb-small">
+                                                    <img src="user/assets/images/profile/profile-small-5.jpg"
+                                                        alt="profile picture">
+                                                </figure>
+                                            </a>
+                                        </div>
+                                        <!-- profile picture end -->
+
+                                        <div class="unorder-list-info">
+                                            <h3 class="list-title"><a href="#">Travel The World</a></h3>
+                                            <p class="list-subtitle"><a href="#">adventure</a></p>
+                                        </div>
+                                        <button class="like-button active">
+                                            <img class="heart" src="user/assets/images/icons/heart.png" alt="">
+                                            <img class="heart-color" src="user/assets/images/icons/heart-color.png"
+                                                alt="">
+                                        </button>
+                                    </li>
+                                    <li class="unorder-list">
+                                        <!-- profile picture end -->
+                                        <div class="profile-thumb">
+                                            <a href="#">
+                                                <figure class="profile-thumb-small">
+                                                    <img src="user/assets/images/profile/profile-small-5.jpg"
+                                                        alt="profile picture">
+                                                </figure>
+                                            </a>
+                                        </div>
+                                        <!-- profile picture end -->
+
+                                        <div class="unorder-list-info">
+                                            <h3 class="list-title"><a href="#">Foodcort Nirala</a></h3>
+                                            <p class="list-subtitle"><a href="#">food</a></p>
+                                        </div>
+                                        <button class="like-button">
+                                            <img class="heart" src="user/assets/images/icons/heart.png" alt="">
+                                            <img class="heart-color" src="user/assets/images/icons/heart-color.png"
+                                                alt="">
+                                        </button>
+                                    </li>
+                                    <li class="unorder-list">
+                                        <!-- profile picture end -->
+                                        <div class="profile-thumb">
+                                            <a href="#">
+                                                <figure class="profile-thumb-small">
+                                                    <img src="user/assets/images/profile/profile-small-5.jpg"
+                                                        alt="profile picture">
+                                                </figure>
+                                            </a>
+                                        </div>
+                                        <!-- profile picture end -->
+
+                                        <div class="unorder-list-info">
+                                            <h3 class="list-title"><a href="#">Rolin Theitar</a></h3>
+                                            <p class="list-subtitle"><a href="#">drama</a></p>
+                                        </div>
+                                        <button class="like-button">
+                                            <img class="heart" src="user/assets/images/icons/heart.png" alt="">
+                                            <img class="heart-color" src="user/assets/images/icons/heart-color.png"
+                                                alt="">
+                                        </button>
+                                    </li>
+                                    <li class="unorder-list">
+                                        <!-- profile picture end -->
+                                        <div class="profile-thumb">
+                                            <a href="#">
+                                                <figure class="profile-thumb-small">
+                                                    <img src="user/assets/images/profile/profile-small-5.jpg"
+                                                        alt="profile picture">
+                                                </figure>
+                                            </a>
+                                        </div>
+                                        <!-- profile picture end -->
+
+                                        <div class="unorder-list-info">
+                                            <h3 class="list-title"><a href="#">Active Mind</a></h3>
+                                            <p class="list-subtitle"><a href="#">fitness</a></p>
+                                        </div>
+                                        <button class="like-button">
+                                            <img class="heart" src="user/assets/images/icons/heart.png" alt="">
+                                            <img class="heart-color" src="user/assets/images/icons/heart-color.png"
+                                                alt="">
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- widget single item end -->
+                    </aside>
+                </div>
+                <div class="col-lg-8">
+                    <div style="width: 50%; margin: 0 auto">
+                        <!-- share box start -->
+                        <div class="card card-small">
+                            <div class="share-box-inner">
+                                <!-- share content box start -->
+                                <div class="share-content-box w-100">
+                                    <div class="share-text-box">
+                                        <textarea name="share" class="share-text-field" aria-disabled="true"
+                                            placeholder="Bạn đang nghĩ gì?" data-toggle="modal" data-target="#textbox"
+                                            style="cursor: pointer" readonly></textarea>
+                                    </div>
+                                </div>
+                                <!-- share content box end -->
+
+                                <!-- Modal start -->
+                                <div class="modal fade" id="textbox" tabindex="-1" role="dialog"
+                                    aria-labelledby="textboxLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="textboxLabel">Tạo bài viết</h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <form class="modal-body custom-scroll" th:action="@{/post}" method="post"
+                                                enctype="multipart/form-data">
+                                                <div class="form-group">
+                                                    <textarea name="content"
+                                                        class="share-field-big custom-scroll form-control"
+                                                        placeholder="Chia sẻ suy nghĩ của bạn..."
+                                                        id="editor"></textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Chọn ảnh</label>
+                                                    <input type="file" name="images" multiple accept="image/*"
+                                                        class="form-control" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Chọn video</label>
+                                                    <input type="file" name="videos" multiple accept="video/*"
+                                                        class="form-control" />
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="post-share-btn btn btn-secondary"
+                                                        data-dismiss="modal">Hủy</button>
+                                                    <button type="submit"
+                                                        class="post-share-btn btn btn-primary">Đăng</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Modal end -->
+                            </div>
+                        </div>
+                        <!-- share box end -->
+
+                        <!-- post status start -->
+                        <div th:each="post : ${posts}" class="card">
+                            <!-- post title start -->
+                            <div class="post-title d-flex align-items-center">
+                                <!-- profile picture end -->
+                                <div class="profile-thumb">
+                                    <a href="#">
+                                        <figure class="profile-thumb-middle">
+                                            <img th:src="${post.user.avatar}" alt="profile picture">
+                                        </figure>
+                                    </a>
+                                </div>
+                                <!-- profile picture end -->
+
+                                <div class="posted-author">
+                                    <h6 class="author"><a th:href="@{|/profile/${post.user.id}|}"
+                                            th:text="${post.user.fullName}"></a></h6>
+                                    <span class="post-time"
+                                        th:text="${#temporals.format(post.timestamp, 'dd-MM-yyyy HH:mm')}">Posted time
+                                        ago</span>
+                                    <!-- <span class="post-time" th:text="${elapsedTime}">Posted time ago</span> -->
+                                </div>
+
+                                <div class="post-settings-bar">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                    <lspan></lspan>
+                                    <div class="post-settings arrow-shape">
+                                        <ul>
+                                            <li th:if="${currentlyUser.id.equals(post.user.id)}">
+                                                <button data-toggle="modal"
+                                                    th:data-target="'#editPost' + ${post.id}">Chỉnh sửa bài
+                                                    viết</button>
+                                            </li>
+                                            <li
+                                                th:if="${currentlyUser.id == post.user.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
+                                                <form th:action="@{/delete-post}" method="post">
+                                                    <input type="hidden" th:value="${post.id}" th:name="postId">
+                                                    <button type="submit" class="btn btn-danger">Xóa bài viết</button>
+                                                </form>
+                                            </li>
+                                            <li><button data-toggle="modal"
+                                                    th:data-target="'#reportPost' + ${post.id}">Báo cáo</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Modal edit post start -->
+                            <div class="modal fade" th:id="'editPost' + ${post.id}" tabindex="-1" role="dialog"
+                                aria-labelledby="textboxLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="textboxLabel">Chỉnh sửa bài viết</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <form class="modal-body custom-scroll" th:action="@{/edit-post}" method="post"
+                                            enctype="multipart/form-data">
+                                            <input type="hidden" name="postId" th:value="${post.id}" />
+                                            <div class="form-group">
+                                                <textarea th:text="${post.content}" name="content"
+                                                    class="share-field-big custom-scroll form-control ckeditor2"
+                                                    placeholder="Nhập nội dung"></textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Hình ảnh:</label>
+                                                <div th:if="${post.images != null}">
+                                                    <div class="d-flex flex-wrap">
+                                                        <div th:each="image : ${post.images}" class="p-1">
+                                                            <img th:src="${image.url}" alt="Image" class="img-thumbnail"
+                                                                style="max-width: 150px; max-height: 150px;" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="file" name="images" multiple accept="image/*"
+                                                            class="form-control" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group" th:if="${post.videos != null}">
+                                                <label>Videos:</label>
+                                                <div class="d-flex flex-wrap">
+                                                    <div th:each="video : ${post.videos}" class="p-1">
+                                                        <video th:src="${video.url}" controls class="video-thumbnail"
+                                                            style="max-width: 150px; max-height: 150px;"></video>
+                                                    </div>
+                                                </div>
+                                                <input type="file" name="videos" multiple accept="video/*"
+                                                    class="form-control" />
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="post-share-btn btn btn-secondary"
+                                                    data-dismiss="modal">Cancel</button>
+                                                <button type="submit"
+                                                    class="post-share-btn btn btn-primary">Post</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Modal edit post end -->
+
+                            <!-- Modal report starts -->
+                            <div class="modal fade" th:id="'reportPost' + ${post.id}" tabindex="-1" role="dialog"
+                                aria-labelledby="textboxLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="textboxLabel">Chỉnh sửa bài viết</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <form class="modal-body custom-scroll" th:action="@{/edit-post}" method="post"
+                                            enctype="multipart/form-data">
+                                            <input type="hidden" name="postId" th:value="${post.id}" />
+                                            <div class="form-group">
+                                                <textarea th:text="${post.content}" name="content"
+                                                    class="share-field-big custom-scroll form-control ckeditor2"
+                                                    placeholder="Nhập nội dung"></textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Hình ảnh:</label>
+                                                <div th:if="${post.images != null}">
+                                                    <div class="d-flex flex-wrap">
+                                                        <div th:each="image : ${post.images}" class="p-1">
+                                                            <img th:src="${image.url}" alt="Image" class="img-thumbnail"
+                                                                style="max-width: 150px; max-height: 150px;" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="file" name="images" multiple accept="image/*"
+                                                            class="form-control" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group" th:if="${post.videos != null}">
+                                                <label>Videos:</label>
+                                                <div class="d-flex flex-wrap">
+                                                    <div th:each="video : ${post.videos}" class="p-1">
+                                                        <video th:src="${video.url}" controls class="video-thumbnail"
+                                                            style="max-width: 150px; max-height: 150px;"></video>
+                                                    </div>
+                                                </div>
+                                                <input type="file" name="videos" multiple accept="video/*"
+                                                    class="form-control" />
+
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="post-share-btn btn btn-secondary"
+                                                    data-dismiss="modal">Cancel</button>
+                                                <button type="submit"
+                                                    class="post-share-btn btn btn-primary">Post</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Modal report ends -->
+
+                            <!-- post title start -->
+                            <!-- IMAGE AREA STARTS -->
+                            <div class="post-content">
+                                <p th:utext="${post.content}" class="post-desc"></p>
+                                <div
+                                    th:if="${post.images.size() + post.videos.size() == 1 || post.images.size() + post.videos.size() == 0}">
+                                    <div class="post-thumb-gallery">
+                                        <figure class="post-thumb img-popup" th:each="image : ${post.images}">
+                                            <a th:href="${image.url}">
+                                                <img width="510px" height="270px" th:src="${image.url}"
+                                                    alt="post image">
+                                            </a>
+                                        </figure>
+                                        <figure class="post-thumb img-popup" th:each="video : ${post.videos}">
+                                            <video width="510px" height="270px" controls th:src="${video.url}"
+                                                alt="post video"></video>
+                                        </figure>
+                                    </div>
+                                </div>
+                                <div th:if="${post.images.size() + post.videos.size() == 2}">
+                                    <div class="post-thumb-gallery img-gallery">
+                                        <div class="row no-gutters">
+                                            <div class="col-6 d-flex align-items-center justify-content-center"
+                                                th:each="image : ${post.images}">
+                                                <figure class="post-thumb mx-1">
+                                                    <a class="gallery-selector" th:href="${image.url}">
+                                                        <img width="255px" height="270px" th:src="${image.url}"
+                                                            alt="post image">
+                                                    </a>
+                                                </figure>
+                                            </div>
+                                            <div class="col-6 d-flex align-items-center justify-content-center"
+                                                th:each="video : ${post.videos}">
+                                                <figure class="post-thumb">
+                                                    <video style="object-fit: cover" width="255px" height="270px"
+                                                        controls th:src="${video.url}" alt="post video">
+                                                </figure>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${post.images.size() == 4}">
+                                    <div class="post-thumb-gallery img-gallery">
+                                        <div class="row no-gutters">
+                                            <div class="col-6 d-flex align-items-center justify-content-center">
+                                                <figure class="post-thumb mx-1">
+                                                    <a class="gallery-selector" th:href="${post.images.get(0).url}">
+                                                        <img width="339px" height="270px"
+                                                            th:src="${post.images.get(0).url}" alt="post image">
+                                                    </a>
+                                                </figure>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="row">
+                                                    <div class="col-12" th:each="image, iter : ${post.images}">
+                                                        <div th:if="${iter.index != 0}">
+                                                            <figure class="post-thumb">
+                                                                <a class="gallery-selector" th:href="${image.url}">
+                                                                    <img width="170px" height="90px"
+                                                                        th:src="${image.url}" alt="post image">
+                                                                </a>
+                                                            </figure>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="post-meta">
+                                <div layout:fragment="likeContent"></div>
+
+                                <ul class="comment-share-meta">
+                                    <li data-toggle="modal" th:attr="data-target='#commentModal-' + ${post.id}">
+                                        <button class="post-comment d-flex justify-content-center align-items-center">
+                                            <i class="bi bi-chat-bubble"></i>
+                                            <span th:text="${post.comments.size()}">0</span>
+                                        </button>
+                                    </li>
+                                    <div class="modal fade" th:id="'commentModal-' + ${post.id}" tabindex="-1"
+                                        role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content" style="max-height: 80vh;">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="commentModalLabel">Bình luận</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <form id="commentForm" th:action="@{/addComment}" method="post"
+                                                    class="modal-body custom-scroll myForm">
+                                                    <div class="form-group submittedContent">
+                                                        <ul class="custom-scroll" th:each="comment : ${post.comments}">
+                                                            <li class="p-3 content"
+                                                                style="background-color: rgb(199, 192, 192); width: 100%; border-radius: 15px">
+                                                                <h6 class="author">
+                                                                    <a th:href="@{|/profile/${userId}(userId=${comment.userId})}"
+                                                                        th:text="${comment.authorName}"></a>
+                                                                </h6>
+                                                                <p th:text="${comment.content}">Comment content</p>
+                                                            </li>
+                                                            <div class="d-flex">
+                                                                <p class="mr-3">like</p>
+                                                                <p class="mr-3">sua</p>
+                                                                <form th:action="@{/delete-comment}" method="post">
+                                                                    <input type="hidden" th:value="${comment.id}"
+                                                                        th:name="commentId">
+                                                                    <button type="submit">Xóa</button>
+                                                                </form>
+                                                            </div>
+
+                                                            <hr>
+                                                        </ul>
+                                                    </div>
+                                                    <input type="hidden" name="postId" th:value="${post.id}" />
+                                                    <input type="hidden" id="authorName" name="authorName"
+                                                        th:value="${currentlyUser.fullName}" />
+
+                                                    <div class="share-text-box">
+                                                        <textarea cols="70" id="content" name="content"
+                                                            placeholder="Nhập bình luận" class="contentComment"
+                                                            required></textarea>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button"
+                                                                class="post-share-btn btn btn-secondary"
+                                                                data-dismiss="modal">Hủy</button>
+                                                            <button type="submit"
+                                                                class="post-share-btn btn btn-primary">Đăng</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- post status end -->
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                    <aside style="width: 16.7%; position: fixed;right:45px" class="widget-area">
+
+                        <!-- widget single item start -->
+                        <div class="card widget-item">
+                            <h4 class="widget-title">Friends Zone</h4>
+                            <div class="widget-body">
+                                <ul class="like-page-list-wrapper" th:each="friend: ${listInfoFriendCurrently}">
+                                    <li style="height: 80px;" class="unorder-list">
+                                        <!-- profile picture end -->
+                                        <div style="height: 70px;" class="profile-thumb">
+                                            <a th:href="@{|/profile/${friend.id}|}">
+                                                <figure class="profile-thumb-small">
+                                                    <img th:src="${friend.avatar}" alt="profile picture">
+                                                </figure>
+                                            </a>
+                                        </div>
+                                        <!-- profile picture end -->
+
+                                        <div class="unorder-list-info">
+                                            <a th:href="@{|/profile/${friend.id}|}">
+                                                <h3 class="list-title" th:text="${friend.fullName}"></h3>
+                                            </a>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- widget single item end -->
+
+                    </aside>
+
+                </div>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <!-- <script th:src="@{|/js/main.js|}"></script> -->
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var currentlyUser = /*[[${currentlyUser.username}]]*/ 'anonymous';
+            var userChosen = /*[[${userChosen.username}]]*/ 'anonymous';
+            $(document).ready(function () {
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": true,
+                    "positionClass": "toast-bottom-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "swing",
+                    "showMethod": "slideDown",
+                    "hideMethod": "slideUp"
+                };
+                var successMessage = /*[[${message}]]*/ null;
+                if (successMessage) {
+                    toastr.success(successMessage);
+                }
+            });
+
+            /*]]>*/
+        </script>
+
+        <script>
+            'use strict';
+
+            var usernamePage = document.querySelector('#username-page');
+            var chatPage = document.querySelector('#chat-page');
+            var usernameForm = document.querySelector('#usernameForm');
+            var messageForm = document.querySelector('#messageForm');
+            var messageInput = document.querySelector('#message');
+            var messageArea = document.querySelector('#messageArea');
+
+            var stompClient = null;
+            var username = null;
+
+            // Attach event listeners only once
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.clickable-link').forEach(function (link) {
+                    link.addEventListener('click', function (event) {
+                        event.preventDefault();
+
+                        var data1 = this.getAttribute('data-username');
+                        var data2 = this.getAttribute('data-avatar');
+                        var data3 = this.getAttribute('data-fullName');
+
+                        sendDataToDiv2(data3, data2);
+                        username = data1;
+                        userChosen = data1; // Update the userChosen variable
+                        connect(event);
+                    });
+                });
+            });
+
+            function sendDataToDiv2(data3, data2) {
+                document.getElementById('targetData1').textContent = data3;
+                document.getElementById('targetImage').src = data2;
+            }
+
+            function connect(event) {
+                event.preventDefault(); // Prevent the form from submitting normally
+                console.log('Form submitted'); // Check if the submit event is triggered
+
+                console.log('Username:', username); // Check the value of the username
+
+                if (username) {
+                    usernamePage.classList.add('hidden');
+                    chatPage.classList.remove('hidden');
+                    console.log('Username page hidden, chat page shown'); // Check if the form is hidden and chat page is shown
+
+                    if (stompClient !== null) {
+                        stompClient.disconnect();
+                    }
+
+                    var socket = new SockJS('/ws');
+                    stompClient = Stomp.over(socket);
+
+                    stompClient.connect({}, onConnected, onError);
+                    console.log('WebSocket connection attempted'); // Check WebSocket connection
+
+                    // Fetch chat history
+                    // fetch('/history?username=' + username)
+                    //     .then(response => response.json())
+                    //     .then(messages => {
+                    //         messageArea.innerHTML = ''; // Clear previous messages
+                    //         messages.forEach(message => {
+                    //             displayMessage(message);
+                    //         });
+                    //     });
+
+                    fetch('/history?username=' + username)
+                        .then(response => response.json())
+                        .then(messages => {
+
+                            messageArea.innerHTML = ''; // Clear previous messages
+                            messages.forEach(message => {
+                                if (message.sender === username || message.recipient === username) {
+                                    displayMessage(message);
+                                }
+                            });
+                        });
+                }
+            }
+
+            function displayMessage(message) {
+                var messageElement = document.createElement('li');
+
+                if (message.sender === currentlyUser) {
+                    messageElement.classList.add('chat-message', 'text-author');
+                } else {
+                    messageElement.classList.add('text-friends');
+                }
+
+                var textElement = document.createElement('p');
+                var messageText = document.createTextNode(message.content);
+                textElement.appendChild(messageText);
+
+                messageElement.appendChild(textElement);
+
+                // Add the message time
+                var messageTime = document.createElement('div');
+                messageTime.classList.add('message-time');
+                var timeText = document.createTextNode(new Date(message.timestamp).toLocaleTimeString());
+                messageTime.appendChild(timeText);
+                messageElement.appendChild(messageTime);
+
+                messageArea.appendChild(messageElement);
+                messageArea.scrollTop = messageArea.scrollHeight;
+            }
+
+            function onConnected() {
+                console.log('Connected to WebSocket'); // Check if connected to WebSocket
+                // Subscribe to the Public Topic
+                stompClient.subscribe('/topic/public', onMessageReceived);
+
+                // Tell your username to the server
+                stompClient.send("/app/chat.addUser",
+                    {},
+                    JSON.stringify({ sender: username, type: 'JOIN' })
+                );
+
+            }
+
+            function onError(error) {
+                console.error('WebSocket connection error:', error);
+                connectingElement.textContent = 'Could not connect to WebSocket server. Please refresh this page to try again!';
+                connectingElement.style.color = 'red';
+            }
+
+            function sendMessage(event) {
+                event.preventDefault();
+                var messageContent = messageInput.value.trim();
+                if (messageContent && stompClient) {
+                    var chatMessage = {
+                        recipient: userChosen,
+                        sender: currentlyUser,
+                        content: messageInput.value,
+                        type: 'CHAT'
+                    };
+                    stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+                    messageInput.value = '';
+                }
+            }
+
+            function onMessageReceived(payload) {
+                var message = JSON.parse(payload.body);
+
+                if (message.type !== 'CHAT') {
+                    return; // Skip if it's not a CHAT message
+                }
+
+                var messageElement = document.createElement('li');
+
+                if (message.sender === currentlyUser) {
+                    messageElement.classList.add('chat-message', 'text-author');
+                } else {
+                    messageElement.classList.add('chat-message', 'text-friends');
+                }
+
+                var textElement = document.createElement('p');
+                var messageText = document.createTextNode(message.content);
+                textElement.appendChild(messageText);
+
+                messageElement.appendChild(textElement);
+
+                // Add the message time
+                var messageTime = document.createElement('div');
+                messageTime.classList.add('message-time');
+                var timeText = document.createTextNode(new Date().toLocaleTimeString());
+                messageTime.appendChild(timeText);
+                messageElement.appendChild(messageTime);
+
+                messageArea.appendChild(messageElement);
+                messageArea.scrollTop = messageArea.scrollHeight;
+            }
+
+            usernameForm.addEventListener('submit', connect, true);
+            messageForm.addEventListener('submit', sendMessage, true);
+
+            messageInput.addEventListener('keypress', function (event) {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    sendMessage(event);
+                }
+            });
+
+            $(document).ready(function () {
+                $('#commentForm').submit(function (e) {
+                    e.preventDefault(); // Ngăn chặn việc gửi form mặc định
+                    var formData = $(this).serialize();
+                    var url = $(this).attr('action');
+
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: formData,
+                        success: function (response) {
+                            // Load lại nội dung modal
+                            $.get(url + '?postId=' + response.post.id, function (data) {
+                                $('#commentModal-' + response.post.id + ' .modal-body').html(data);
+                                $('#commentModal-' + response.post.id).modal('show');
+                            });
+                        },
+                        error: function (error) {
+                            console.log('Lỗi:', error);
+                        }
+                    });
+                });
+
+                document.getElementById('commentForm').addEventListener('submit', function (event) {
+                    event.preventDefault(); // Ngăn chặn form gửi đi và reload trang
+
+                    // Lấy giá trị của textarea
+                    var inputContent = document.getElementById('content').value;
+
+                    if (inputContent) {
+                        // Lấy giá trị của authorName từ input ẩn
+                        var authorName = document.getElementById('authorName').value;
+
+                        // Tạo một phần tử li mới để chứa nội dung
+                        var newLi = document.createElement('li');
+                        newLi.classList.add('content', 'submitted-item', 'bg-light', 'w-100', 'rounded'); // Thêm lớp CSS cho phần tử mới
+
+                        // Tạo phần tử h6 chứa tên tác giả
+                        var authorTag = document.createElement('h6');
+                        var authorLink = document.createElement('a');
+                        authorLink.href = '/profile'; // Điều chỉnh đường dẫn tới profile tùy vào nhu cầu
+                        authorLink.textContent = authorName;
+                        authorTag.appendChild(authorLink);
+
+                        // Tạo phần tử p chứa nội dung bình luận
+                        var contentTag = document.createElement('p');
+                        contentTag.textContent = inputContent;
+
+                        // Thêm authorTag và contentTag vào newLi
+                        newLi.appendChild(authorTag);
+                        newLi.appendChild(contentTag);
+
+                        // Thêm newLi vào submittedContent
+                        var submittedContent = document.querySelector('.submittedContent ul');
+                        submittedContent.appendChild(newLi);
+                        submittedContent.appendChild(document.createElement('hr')); // Thêm dòng ngăn cách
+
+                        // Xóa nội dung trong textarea để chuẩn bị cho lần nhập tiếp theo
+                        document.getElementById('content').value = '';
+                    } else {
+                        console.error("Textarea is empty");
+                    }
+                });
+            });
+
+            ClassicEditor
+                .create(document.querySelector('#editor'))
+                .catch(error => {
+                    console.error(error);
+                });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.ckeditor2').forEach((textarea) => {
+                    ClassicEditor
+                        .create(textarea)
+                        .catch(error => {
+                            console.error('There was a problem initializing the editor:', error);
+                        });
+                });
+            });
+
+        </script>
+        <link rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    </main>
+</body>
+
+</html>

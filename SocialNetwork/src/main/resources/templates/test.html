@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toastr Example</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+</head>
+<body>
+    <button id="showSuccess" id="aaa">Show Success Toast</button>
+    <button id="showError">Show Error Toast</button>
+    <button id="showWarning" id="aaa">Show warning Toast</button>
+    <button id="showInfo">Show info Toast</button>
+    
+    <script>
+        $(document).ready(function() {
+            $("#showSuccess").click(function() {
+                toastr.success('This is a success message!', 'Success');
+            });
+
+            $("#showError").click(function() {
+                toastr.error('This is an error message!', 'Error');
+            });
+            $("#showWarning").click(function() {
+                toastr.warning('This is a success message!', 'Success');
+            });
+
+            $("#showInfo").click(function() {
+                toastr.info('This is an error message!', 'Error');
+            });
+        });
+    </script>
+</body>
+</html>

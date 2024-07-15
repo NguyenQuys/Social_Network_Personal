@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security5"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+    layout:decorate="~{admin/adminIndex}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lí người dùng</title>
+    <style>
+        .table {
+            display: table;
+            width: 100%;
+        }
+
+        .rowTable {
+            display: table-row;
+        }
+
+        .cell {
+            display: table-cell;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .heading {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <main layout:fragment="Admincontent">
+        <!-- Scroll to top start -->
+        <div class="scroll-top not-visible">
+            <i class="bi bi-finger-index"></i>
+        </div>
+        <!-- Scroll to Top End -->
+        <div class="content container mt-3">
+            <h1 class="text-center text-danger">Chi tiết người dùng</h1>
+            <hr>
+            <div class="table">
+                <div class="rowTable">
+                    <div class="cell heading">Username</div>
+                    <div class="cell data" th:text="${userChosen.username}"></div>
+                </div>
+                <div class="rowTable">
+                    <div class="cell heading">Họ tên</div>
+                    <div class="cell" th:text="${userChosen.fullName}"></div>
+                </div>
+                <div class="rowTable">
+                    <div class="cell heading">Ngày sinh</div>
+                    <div class="cell" th:text="${userChosen.dateOfBirth}"></div>
+                </div>
+                <div class="rowTable">
+                    <div class="cell heading">Giới tính</div>
+                    <div class="cell" th:text="${userChosen.gender}"></div>
+                </div>
+                <div class="rowTable">
+                    <div class="cell heading">Email</div>
+                    <div class="cell" th:text="${userChosen.email}"></div>
+                </div>
+                <div class="rowTable">
+                    <div class="cell heading">Ngày tham gia</div>
+                    <div class="cell" th:text="${userChosen.created_at}"></div>
+                </div>
+                <div class="rowTable">
+                    <div class="cell heading">Trạng thái tài khoản</div>
+                    <div class="cell">
+                        <form th:action="@{|/admin/user-list/detail-user/${userChosen.id}|}" method="post">
+                            <select name="accountStatus" onchange="this.form.submit()">
+                                <option value="1" th:selected="${userChosen.accountStatus}">Hoạt động</option>
+                                <option value="0" th:selected="!${userChosen.accountStatus}">Chặn</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+                <a style="background-color: green; padding: 10px;" class="btn btn-success mt-3" th:href="@{/admin/user-list}">Quay về</a>
+
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

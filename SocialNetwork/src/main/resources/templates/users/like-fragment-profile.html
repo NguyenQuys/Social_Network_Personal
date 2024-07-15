@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{profile}">
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:inline="javascript">
+        function loadContentLike(postId, button) {
+            $.get('/likePostProfile', { postId: postId }, function (data) {
+                var $button = $(button);
+                var $icon = $button.find('i');
+                var $likeCount = $button.find('span');
+                var currentLikes = parseInt($likeCount.text());
+
+                if ($icon.css('color') === 'rgb(255, 0, 0)') { // if red
+                    $icon.css('color', '');
+                    $likeCount.text(currentLikes - 1);
+                } else {
+                    $icon.css('color', 'red');
+                    $likeCount.text(currentLikes + 1);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $('button.post-meta-like').click(function () {
+                var postId = $(this).siblings('input[name="postId"]').val();
+                loadContentLike(postId, this);
+            });
+        });
+    </script>
+</head>
+<body>
+<div layout:fragment="likeContent">
+    <input type="hidden" name="postId" th:value="${post.id}"/>
+    <button class="post-meta-like d-flex justify-content-center align-items-center">
+        <i th:if="${#lists.contains(postsLikedByCurrentUser, post)}"
+           style="color: red;" class="material-symbols-outlined">
+            favorite
+        </i>
+        <i th:unless="${#lists.contains(postsLikedByCurrentUser, post)}"
+           class="material-symbols-outlined">
+            favorite
+        </i>
+        <span th:text="${post.likes}" id="countLike">0</span>
+    </button>
+</div>
+</body>
+</html>

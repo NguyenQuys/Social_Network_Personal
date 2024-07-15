@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security5"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Adda - Social Network HTML Template</title>
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="../../../user/assets/images/favicon.ico">
+    <!-- Icon Google -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <!-- CSS
+	============================================ -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- google fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900"
+        rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../../../user/assets/css/vendor/bootstrap.min.css">
+    <!-- Icon Font CSS -->
+    <link rel="stylesheet" href="../../../user/assets/css/vendor/bicon.min.css">
+    <!-- Flat Icon CSS -->
+    <link rel="stylesheet" href="../../../user/assets/css/vendor/flaticon.css">
+    <!-- audio & video player CSS -->
+    <link rel="stylesheet" href="../../../user/assets/css/plugins/plyr.css">
+    <!-- Slick CSS -->
+    <link rel="stylesheet" href="../../../user/assets/css/plugins/slick.min.css">
+    <!-- nice-select CSS -->
+    <link rel="stylesheet" href="../../../user/assets/css/plugins/nice-select.css">
+    <!-- perfect scrollbar css -->
+    <link rel="stylesheet" href="../../../user/assets/css/plugins/perfect-scrollbar.css">
+    <!-- light gallery css -->
+    <link rel="stylesheet" href="../../../user/assets/css/plugins/lightgallery.min.css">
+    <!-- Main Style CSS -->
+    <link rel="stylesheet" href="../../../user/assets/css/style.css">
+
+
+</head>
+
+<body>
+    <!-- header area start -->
+    <header>
+        <div class="header-top sticky bg-white d-none d-lg-block">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <!-- header top navigation start -->
+                        <div class="header-top-navigation">
+                            <nav>
+                                <ul>
+                                    <li class="active"><a th:href="@{/}">Trang chủ</a></li>
+                                    <li th:if="${amountFriendRequests != 0}" class="add-fre"><a
+                                            th:href="@{|/add-friend-request-list|}">Kết bạn <span
+                                                class="badge badge-danger"
+                                                th:text="${amountFriendRequests}">Quantity</span></a></li>
+                                    <li th:unless="${amountFriendRequests != 0}" class="add-fre"><a
+                                            th:href="@{|/add-friend-request-list|}">Kết bạn</a></li>
+                                    <li class="msg-trigger"><a class="msg-trigger-btn" href="#a">Tin nhắn</a>
+                                        <div class="message-dropdown" id="a">
+                                            <div class="dropdown-title">
+                                                <p class="recent-msg">recent message</p>
+                                                <div class="message-btn-group">
+                                                    <button>New group</button>
+                                                    <button>New Message</button>
+                                                </div>
+                                            </div>
+                                            <ul class="dropdown-msg-list">
+                                                <li class="msg-list-item d-flex justify-content-between">
+                                                    <!-- profile picture end -->
+                                                    <div class="profile-thumb">
+                                                        <figure class="profile-thumb-middle">
+                                                            <img th:src="@{|/user/assets/images/profile/${currentlyUser.avatar}|}"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </div>
+                                                    <!-- profile picture end -->
+
+                                                    <!-- message content start -->
+                                                    <div class="msg-content">
+                                                        <h6 class="author"><a th:href="@{/profile}">Mili Raoulin</a>
+                                                        </h6>
+                                                        <p>Many desktop publishing packages and web page editors now use
+                                                            Lorem Ipsum as their default</p>
+                                                    </div>
+                                                    <!-- message content end -->
+
+                                                    <!-- message time start -->
+                                                    <div class="msg-time">
+                                                        <p>25 Apr 2019</p>
+                                                    </div>
+                                                    <!-- message time end -->
+                                                </li>
+                                                <li class="msg-list-item d-flex justify-content-between">
+                                                    <!-- profile picture end -->
+                                                    <div class="profile-thumb">
+                                                        <figure class="profile-thumb-middle">
+                                                            <img src="../../../user/assets/images/profile/profile-small-4.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </div>
+                                                    <!-- profile picture end 
+
+                                                    message content start -->
+                                                    <div class="msg-content">
+                                                        <h6 class="author"><a href="profile.html">Jhon Doe</a></h6>
+                                                        <p>Many desktop publishing packages and web page editors now use
+                                                            Lorem Ipsum as their default</p>
+                                                    </div>
+                                                    <!-- message content end -->
+
+                                                    <!-- message time start -->
+                                                    <div class="msg-time">
+                                                        <p>15 May 2019</p>
+                                                    </div>
+                                                    <!-- message time end -->
+                                                </li>
+                                                <li class="msg-list-item d-flex justify-content-between">
+                                                    <!-- profile picture end -->
+                                                    <div class="profile-thumb">
+                                                        <figure class="profile-thumb-middle">
+                                                            <img src="../../../user/assets/images/profile/profile-small-5.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </div>
+                                                    <!-- profile picture end -->
+
+                                                    <!-- message content start -->
+                                                    <div class="msg-content">
+                                                        <h6 class="author"><a href="profile.html">Jon Wileyam</a></h6>
+                                                        <p>Many desktop publishing packages and web page editors now use
+                                                            Lorem Ipsum as their default</p>
+                                                    </div>
+                                                    <!-- message content end -->
+
+                                                    <!-- message time start -->
+                                                    <div class="msg-time">
+                                                        <p>20 Jun 2019</p>
+                                                    </div>
+                                                    <!-- message time end -->
+                                                </li>
+                                            </ul>
+                                            <div class="msg-dropdown-footer">
+                                                <button>See all in messenger</button>
+                                                <button>Mark All as Read</button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="notification-trigger">
+                                        <a class="msg-trigger-btn" href="#b" th:if="${notificationsUnread != 0}">Thông báo <span
+                                        class="badge badge-danger"
+                                        th:text="${notificationsUnread}">Quantity</span></a>
+                                        <a class="msg-trigger-btn" href="#b" th:unless="${notificationsUnread != 0}">Thông báo</a>
+                                        <div class="message-dropdown" id="b">
+                                            <div class="dropdown-title">
+                                                <p class="recent-msg">Thông báo</p>
+                                                <button>
+                                                    <i class="flaticon-settings"></i>
+                                                </button>
+                                            </div>
+                                            <div class="dropdown-msg-list" th:if="${notifications.size() == 0}">
+                                                <h5 class="d-flex align-items-center justify-content-center">Không có
+                                                    thông báo để hiển thị</h5>
+                                                <hr>
+                                            </div>
+                                            <ul class="dropdown-msg-list" th:each="noti : ${notifications}">
+                                                <li th:classappend="${noti.isRead} ? '' : 'unread-noti'"
+                                                    class="msg-list-item d-flex justify-content-between d-flex align-items-center justify-content-center p-3"
+                                                    style="border-radius: 5px; border-bottom: 0;">
+
+                                                    <!-- profile picture start -->
+                                                    <div class="profile-thumb">
+                                                        <figure class="profile-thumb-middle">
+                                                            <img th:src="${noti.requester.avatar}"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </div>
+                                                    <!-- profile picture end -->
+
+                                                    <!-- message content start -->
+                                                    <div class="msg-content notification-content">
+                                                        <h6><strong th:text="${noti.requester.fullName}"></strong></h6>
+                                                        <h6 th:text="${noti.content}"></h6>
+                                                    </div>
+                                                    <!-- message content end -->
+
+                                                    <!-- message time start -->
+                                                    <div class="msg-time">
+                                                        <p
+                                                            th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
+                                                        </p>
+                                                    </div>
+                                                    <!-- message time end -->
+                                                </li>
+                                                <hr>
+                                            </ul>
+                                            <style>
+                                                .unread-noti {
+                                                    background-color: rgb(238, 189, 132);
+                                                }
+                                            </style>
+                                            <div class="msg-dropdown-footer">
+                                                <form th:action="@{/notification/mark-all-as-read}" method="post">
+                                                    <button type="submit" style="float:right;">Đánh dấu tất cả đã đọc</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                        <!-- header top navigation start -->
+                    </div>
+
+                    <div class="col-md-1">
+                        <!-- brand logo start -->
+                        <div class="brand-logo text-center">
+                            <a th:href="@{/}">
+                                <img src="../../../user/assets/images/logo/logo.png" alt="brand logo">
+                            </a>
+                        </div>
+                        <!-- brand logo end -->
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="header-top-right d-flex align-items-center justify-content-end">
+                            <!-- header top search start -->
+                            <div class="header-top-search">
+                                <form th:action="@{/search}" class="top-search-box">
+                                    <input type="text" placeholder="Tìm kiếm" class="top-search-field" id="keyword"
+                                        name="query">
+                                    <button type="submit" class="top-search-btn"><i
+                                            class="flaticon-search"></i></button>
+                                </form>
+                                <ul id="search-results" style="display:none;"></ul>
+                            </div>
+                            <!-- header top search end -->
+                            <style>
+                                #search-results {
+                                    list-style-type: none;
+                                    margin: 0;
+                                    padding: 0;
+                                    border: 1px solid #ccc;
+                                    max-width: 200px;
+                                    position: absolute;
+                                    background-color: white;
+                                    z-index: 1000;
+                                    /* Ensure a high z-index */
+                                }
+
+                                #search-results li {
+                                    padding: 10px;
+                                    border-bottom: 1px solid #ccc;
+                                    cursor: pointer;
+                                }
+
+                                #search-results li:hover {
+                                    background-color: #f0f0f0;
+                                }
+                            </style>
+                            <script>
+                                $(document).ready(function () {
+                                    $('#keyword').on('keyup', function () {
+                                        var keyword = $(this).val();
+                                        if (keyword.length > 2) { // Start searching after 3 characters
+                                            $.ajax({
+                                                url: '/search-override',
+                                                type: 'GET',
+                                                data: { keyword: keyword },
+                                                success: function (users) {
+                                                    var results = $('#search-results');
+                                                    results.empty().show();
+                                                    if (users.length > 0) {
+                                                        users.forEach(function (user) {
+                                                            results.append('<li>' + user.username + '</li>');
+                                                        });
+                                                    } else {
+                                                        results.append('<li>No users found</li>');
+                                                    }
+                                                },
+                                                error: function (xhr, status, error) {
+                                                    console.error('Error fetching search results:', error);
+                                                }
+                                            });
+                                        } else {
+                                            $('#search-results').hide();
+                                        }
+                                    });
+                                });
+                            </script>
+
+                            <!-- profile picture start -->
+                            <div class="profile-setting-box">
+                                <div class="profile-thumb-small">
+                                    <a href="javascript:void(0)" class="profile-triger">
+                                        <figure>
+                                            <img th:src="@{|${currentlyUser.avatar}|}" alt="profile picture">
+                                        </figure>
+                                    </a>
+                                    <div class="profile-dropdown">
+                                        <div class="profile-head p-2">
+                                            <h3 class="name text-center text-danger"
+                                                th:text="${currentlyUser.fullName}">Name</h3>
+                                        </div>
+                                        <div class="profile-body">
+                                            <ul>
+                                                <li><a th:href="@{|/profile/${currentlyUser.id}|}"><i
+                                                            class="flaticon-user"></i>Trang cá nhân</a></li>
+                                                <!-- <li><a th:href="@{/chat}"><i class="flaticon-message"></i>Inbox</a></li> -->
+                                                <!-- <li><a href="#"><i class="flaticon-document"></i>Hoạt động gần đây</a>
+                                                </li> -->
+                                                <!-- <li><a href="#"><i class="flaticon-settings"></i>Cài đặt</a></li> -->
+                                            </ul>
+                                            <ul>
+                                                <li sec:authorize="hasAuthority('ADMIN')"><a href="/admin"><i
+                                                            class="material-symbols-outlined">contacts_product</i>Cài
+                                                        đặt người dùng</a></li>
+                                                <li style="margin-left: 20px;">
+                                                    <form th:action="@{/logout}" method="post">
+                                                        <button class="btn" type="submit"><i
+                                                                class="flaticon-unlock"></i> Đăng xuất</button>
+                                                    </form>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- profile picture end -->
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- header area end -->
+    <main layout:fragment="content">
+        <!-- Content here -->
+    </main>
+    <!-- JS
+============================================ -->
+
+    <!-- Modernizer JS -->
+    <script src="../../../user/assets/js/vendor/modernizr-3.6.0.min.js"></script>
+    <!-- jQuery JS -->
+    <script src="../../../user/assets/js/vendor/jquery-3.3.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="../../../user/assets/js/vendor/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../../user/assets/js/vendor/bootstrap.min.js"></script>
+    <!-- Slick Slider JS -->
+    <script src="../../../user/assets/js/plugins/slick.min.js"></script>
+    <!-- nice select JS -->
+    <script src="../../../user/assets/js/plugins/nice-select.min.js"></script>
+    <!-- audio video player JS -->
+    <script src="../../../user/assets/js/plugins/plyr.min.js"></script>
+    <!-- perfect scrollbar js -->
+    <script src="../../../user/assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <!-- light gallery js -->
+    <script src="../../../user/assets/js/plugins/lightgallery-all.min.js"></script>
+    <!-- image loaded js -->
+    <script src="../../../user/assets/js/plugins/imagesloaded.pkgd.min.js"></script>
+    <!-- isotope filter js -->
+    <script src="../../../user/assets/js/plugins/isotope.pkgd.min.js"></script>
+    <!-- Main JS -->
+    <script src="../../../user/assets/js/main.js"></script>
+
+    <!--    <script src="assets/js/likes-Ajax.js"></script>-->
+
+</body>
+
+</html>
