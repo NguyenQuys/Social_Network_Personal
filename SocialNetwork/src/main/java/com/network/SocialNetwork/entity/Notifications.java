@@ -2,6 +2,9 @@ package com.network.SocialNetwork.entity;
 
 import java.time.LocalDateTime;
 
+import org.springframework.cglib.core.Local;
+import org.springframework.context.annotation.Primary;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,10 @@ public class Notifications {
     @JoinColumn(name = "requester_id", nullable = false)
     private User requester;
 
+    @ManyToOne    
+    @JoinColumn(nullable = false)
+    private User addressee;
+
     @ManyToOne
     @JoinColumn
     private Post post;
@@ -40,8 +46,8 @@ public class Notifications {
     private String content;
 
     @Column(nullable = false)
-    private Boolean isRead;
+    private Boolean isRead = false;
 
     @Column(nullable = false)
-    private LocalDateTime created_at;
+    private LocalDateTime created_at = LocalDateTime.now();
 }

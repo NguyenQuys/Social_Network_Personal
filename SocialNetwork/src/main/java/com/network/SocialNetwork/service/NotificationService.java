@@ -1,24 +1,17 @@
 package com.network.SocialNetwork.service;
 
+import com.network.SocialNetwork.eenum.Role;
+import com.network.SocialNetwork.entity.*;
+import com.network.SocialNetwork.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.network.SocialNetwork.entity.Notifications;
-import com.network.SocialNetwork.entity.Post;
-import com.network.SocialNetwork.entity.User;
-import com.network.SocialNetwork.repository.NotificationRepository;
-import com.network.SocialNetwork.repository.PostRepository;
-import com.network.SocialNetwork.repository.UserRepository;
-
 @Service
 public class NotificationService {
-
-    @Autowired
-    private NotificationRepository notificationRepository;
 
     @Autowired
     private PostRepository postRepository;
@@ -26,9 +19,13 @@ public class NotificationService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private NotificationRepository notificationRepository;
+
     public Notifications likeNotification(Long idPost, Long idSender) {
         Post post = postRepository.findById(idPost).orElseThrow(() -> new RuntimeException("Post not found"));
         User requester = userRepository.findById(idSender).orElseThrow(() -> new RuntimeException("User not found"));
+        User addressee = userRepository.findById(post.getUser().getId()).orElseThrow(() -> new RuntimeException("User not found"));
 
         Notifications newNotification = new Notifications();
         newNotification.setPost(post);
@@ -36,7 +33,7 @@ public class NotificationService {
         newNotification.setType("LIKE");
         newNotification.setContent(" đã thích bài viết của bạn!");
         newNotification.setCreated_at(LocalDateTime.now());
-        newNotification.setIsRead(false);
+        newNotification.setAddressee(addressee);
         return notificationRepository.save(newNotification);
     }
 
@@ -51,7 +48,7 @@ public class NotificationService {
 
     public List<Notifications> markAllAsRead(Long currentIdUser) {
         List<Notifications> notifications = notificationRepository.findAll().stream()
-                .filter(noti -> noti.getPost().getUser().getId().equals(currentIdUser))
+                .filter(noti -> noti.getAddressee().getId().equals(currentIdUser))
                 .collect(Collectors.toList());
 
         notifications.forEach(noti -> noti.setIsRead(true));
@@ -73,4 +70,23 @@ public class NotificationService {
         return notificationRepository.save(newNotification);
     }
 
+    public void sendReportToAdmin(Long postId, String reason, Long userIdReport) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+        User userReport = userRepository.findById(userIdReport).orElseThrow(() -> new RuntimeException("User not found"));
+        List<User> adminUsers = userRepository.findUsersByRoleId(1L);
+
+        if (adminUsers.isEmpty()) {
+            throw new RuntimeException("Admin users not found");
+        }
+
+        for (User admin : adminUsers) {
+            Notifications newNotification = new Notifications();
+            newNotification.setRequester(userReport);
+            newNotification.setPost(post);
+            newNotification.setType(reason);
+            newNotification.setContent(" đã báo cáo 1 bài viết có liên quan đến " + reason);
+            newNotification.setAddressee(admin);
+            notificationRepository.save(newNotification);
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.network.SocialNetwork.repository;
 
+import com.network.SocialNetwork.eenum.Role;
 import com.network.SocialNetwork.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,4 +23,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // @Query("SELECT u FROM User u WHERE u.username or u.fullName = :keyword")
     List<User> findByFullNameContainingIgnoreCase(String keyword);
 
+    List<User> findByRole(Role role);
 }

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,7 +42,6 @@ import com.network.SocialNetwork.service.PostService;
 import com.network.SocialNetwork.service.UserService;
 
 @Controller
-@RequestMapping
 public class PostController {
     // ---------------REPOSITORIES START-----------------
     @Autowired
@@ -121,6 +121,18 @@ public class PostController {
         postService.savePost(content, currentlyUser, images, videos);
         redirectAttributes.addFlashAttribute("message", "Thêm bài viết thành công!");
         return "redirect:/";
+    }
+
+    @GetMapping("/post-detail/{postId}")
+    public String aa(Model model,@PathVariable("postId") Long postId)
+    {
+        Optional<User> currentlyUseroOptional = getCurrentUser();
+        User currentlyUser = currentlyUseroOptional.get();
+        Post post = postRepository.findById(postId).orElse(null);
+
+        model.addAttribute("postChosen", post);
+        model.addAttribute("currentlyUser", currentlyUser);
+        return "users/one-post";
     }
 
     @PostMapping("/edit-post")

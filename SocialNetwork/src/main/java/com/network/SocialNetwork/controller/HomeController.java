@@ -83,116 +83,115 @@ public class HomeController {
     }
 
     @GetMapping
-public String home(Model model, @RequestParam(value = "message", required = false) String message) {
-    if (message != null) {
-        model.addAttribute("message", message);
-    }
-
-    List<Long> listIdFriendUser = new ArrayList<>();
-    List<User> listInfoFriendCurrently = new ArrayList<>();
-
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication != null && authentication.isAuthenticated()
-            && !(authentication instanceof AnonymousAuthenticationToken)) {
-        Optional<User> optionalUser;
-
-        if (authentication.getPrincipal() instanceof OAuth2User) {
-            OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
-            String email = oauth2User.getAttribute("email");
-            optionalUser = userRepository.findByEmail(email);
-        } else {
-            optionalUser = userRepository.findByUsername(authentication.getName());
+    public String home(Model model, @RequestParam(value = "message", required = false) String message) {
+        if (message != null) {
+            model.addAttribute("message", message);
         }
 
-        if (optionalUser.isPresent()) {
-            User currentlyUser = optionalUser.get();
-            Long idCurrentlyUser = currentlyUser.getId();
+        List<Long> listIdFriendUser = new ArrayList<>();
+        List<User> listInfoFriendCurrently = new ArrayList<>();
 
-            // Prepare attributes in a map
-            Map<String, Object> attributes = new HashMap<>();
-            attributes.put("currentlyUser", currentlyUser);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            Optional<User> optionalUser;
 
-            // Lấy Userchosen ví dụ như vào trang cá nhân hoặc inbox
-            User userChosen = optionalUser.get();
-            attributes.put("userChosen", userChosen);
-            userChosen.setActiveStatus(true);
-            userRepository.save(userChosen);
-
-            // Để thống kê số lượt truy cập
-            Statistic newsStatistic = new Statistic();
-            newsStatistic.setVisitors(idCurrentlyUser);
-            newsStatistic.setVisitAt(LocalDate.now());
-            statisticRepository.save(newsStatistic);
-
-            // Mấy này đọc chắc hiểu
-            var getListFriend = friendRequestRepository.getListFriend(idCurrentlyUser);
-            List<FriendBlock> blockList = friendBlockRepository.findAll();
-
-            Set<Long> usersBlockedByCurrentUser = blockList.stream()
-                    .filter(block -> block.getRequester().getId().equals(idCurrentlyUser))
-                    .map(block -> block.getAddressee().getId())
-                    .collect(Collectors.toSet());
-
-            Set<Long> usersWhoBlockedCurrentUser = blockList.stream()
-                    .filter(block -> block.getAddressee().getId().equals(idCurrentlyUser))
-                    .map(block -> block.getRequester().getId())
-                    .collect(Collectors.toSet());
-
-            for (FriendRequest idFriendUser : getListFriend) {
-                Long friendId;
-                if (idFriendUser.getRequester().getId().equals(idCurrentlyUser)) {
-                    friendId = idFriendUser.getAddressee().getId();
-                } else {
-                    friendId = idFriendUser.getRequester().getId();
-                }
-                if (!usersBlockedByCurrentUser.contains(friendId)
-                        && !usersWhoBlockedCurrentUser.contains(friendId)) {
-                    listIdFriendUser.add(friendId);
-                }
-            }
-
-            // Này để hiển thị thanh bên dưới danh sách để chat
-            for (Long friendId : listIdFriendUser) {
-                Optional<User> friendUserOptional = userRepository.findById(friendId);
-                friendUserOptional.ifPresent(listInfoFriendCurrently::add);
-            }
-            attributes.put("listInfoFriendCurrently", listInfoFriendCurrently);
-
-            List<Post> sortedPosts;
-            if (currentlyUser.getRole().getAuthority().equals("ADMIN")) {
-                sortedPosts = postService.getAllPost()
-                        .stream()
-                        .sorted(Comparator.comparing(Post::getTimestamp).reversed())
-                        .collect(Collectors.toList());
+            if (authentication.getPrincipal() instanceof OAuth2User) {
+                OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+                String email = oauth2User.getAttribute("email");
+                optionalUser = userRepository.findByEmail(email);
             } else {
-                sortedPosts = postService.getAllPost()
-                        .stream()
-                        .filter(post -> (listInfoFriendCurrently.stream()
-                                .anyMatch(user -> user.getId().equals(post.getUser().getId())) ||
-                                post.getUser().getId().equals(idCurrentlyUser)) &&
-                                !usersBlockedByCurrentUser.contains(post.getUser().getId()) &&
-                                !usersWhoBlockedCurrentUser.contains(post.getUser().getId()))
-                        .sorted(Comparator.comparing(Post::getTimestamp).reversed())
-                        .collect(Collectors.toList());
+                optionalUser = userRepository.findByUsername(authentication.getName());
             }
-            attributes.put("posts", sortedPosts);
 
-            // Này để kiểm tra đã like bài chưa
-            List<Post> postsLikedByCurrentUser = sortedPosts.stream()
-                    .filter(post -> post.getLikedBy().stream()
-                            .anyMatch(user -> user.getId().equals(idCurrentlyUser)))
-                    .collect(Collectors.toList());
-            attributes.put("postsLikedByCurrentUser", postsLikedByCurrentUser);
+            if (optionalUser.isPresent()) {
+                User currentlyUser = optionalUser.get();
+                Long idCurrentlyUser = currentlyUser.getId();
 
-            // Add all attributes to the model
-            model.addAllAttributes(attributes);
-            
-            return "users/like-fragment"; // ko trả về index là do lấy riêng div like vs comment ra để reload div đó
+                // Prepare attributes in a map
+                Map<String, Object> attributes = new HashMap<>();
+                attributes.put("currentlyUser", currentlyUser);
+
+                // Lấy Userchosen ví dụ như vào trang cá nhân hoặc inbox
+                User userChosen = optionalUser.get();
+                attributes.put("userChosen", userChosen);
+                userChosen.setActiveStatus(true);
+                userRepository.save(userChosen);
+
+                // Để thống kê số lượt truy cập
+                Statistic newsStatistic = new Statistic();
+                newsStatistic.setVisitors(idCurrentlyUser);
+                newsStatistic.setVisitAt(LocalDate.now());
+                statisticRepository.save(newsStatistic);
+
+                // Mấy này đọc chắc hiểu
+                var getListFriend = friendRequestRepository.getListFriend(idCurrentlyUser);
+                List<FriendBlock> blockList = friendBlockRepository.findAll();
+
+                Set<Long> usersBlockedByCurrentUser = blockList.stream()
+                        .filter(block -> block.getRequester().getId().equals(idCurrentlyUser))
+                        .map(block -> block.getAddressee().getId())
+                        .collect(Collectors.toSet());
+
+                Set<Long> usersWhoBlockedCurrentUser = blockList.stream()
+                        .filter(block -> block.getAddressee().getId().equals(idCurrentlyUser))
+                        .map(block -> block.getRequester().getId())
+                        .collect(Collectors.toSet());
+
+                for (FriendRequest idFriendUser : getListFriend) {
+                    Long friendId;
+                    if (idFriendUser.getRequester().getId().equals(idCurrentlyUser)) {
+                        friendId = idFriendUser.getAddressee().getId();
+                    } else {
+                        friendId = idFriendUser.getRequester().getId();
+                    }
+                    if (!usersBlockedByCurrentUser.contains(friendId)
+                            && !usersWhoBlockedCurrentUser.contains(friendId)) {
+                        listIdFriendUser.add(friendId);
+                    }
+                }
+
+                // Này để hiển thị thanh bên dưới danh sách để chat
+                for (Long friendId : listIdFriendUser) {
+                    Optional<User> friendUserOptional = userRepository.findById(friendId);
+                    friendUserOptional.ifPresent(listInfoFriendCurrently::add);
+                }
+                attributes.put("listInfoFriendCurrently", listInfoFriendCurrently);
+
+                List<Post> sortedPosts;
+                if (currentlyUser.getRole().getAuthority().equals("ADMIN")) {
+                    sortedPosts = postService.getAllPost()
+                            .stream()
+                            .sorted(Comparator.comparing(Post::getTimestamp).reversed())
+                            .collect(Collectors.toList());
+                } else {
+                    sortedPosts = postService.getAllPost()
+                            .stream()
+                            .filter(post -> (listInfoFriendCurrently.stream()
+                                    .anyMatch(user -> user.getId().equals(post.getUser().getId())) ||
+                                    post.getUser().getId().equals(idCurrentlyUser)) &&
+                                    !usersBlockedByCurrentUser.contains(post.getUser().getId()) &&
+                                    !usersWhoBlockedCurrentUser.contains(post.getUser().getId()))
+                            .sorted(Comparator.comparing(Post::getTimestamp).reversed())
+                            .collect(Collectors.toList());
+                }
+                attributes.put("posts", sortedPosts);
+
+                // Này để kiểm tra đã like bài chưa
+                List<Post> postsLikedByCurrentUser = sortedPosts.stream()
+                        .filter(post -> post.getLikedBy().stream()
+                                .anyMatch(user -> user.getId().equals(idCurrentlyUser)))
+                        .collect(Collectors.toList());
+                attributes.put("postsLikedByCurrentUser", postsLikedByCurrentUser);
+
+                // Add all attributes to the model
+                model.addAllAttributes(attributes);
+
+                return "users/like-fragment"; // ko trả về index là do lấy riêng div like vs comment ra để reload div đó
+            }
         }
+        return "redirect:/login";
     }
-    return "redirect:/login";
-}
-
 
     // Để xuất ra kết quả tìm kiếm
     @GetMapping("/search")
