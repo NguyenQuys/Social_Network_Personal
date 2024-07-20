@@ -19,10 +19,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -72,7 +75,8 @@ public class CommentController {
         }
     }
 
-    @PostMapping("/addComment")
+    @GetMapping("/addComment")
+    @ResponseBody
     public String addComment(@RequestParam Long postId, @RequestParam String content, Model model) {
         Optional<Post> postOptional = postRepository.findById(postId);
         Optional<User> currentUser = getCurrentUser();
@@ -85,9 +89,13 @@ public class CommentController {
             if (!currentUser.get().getId().equals(post.getUser().getId())) {
                 notificationService.addComment(postId, currentUser.get().getId());
             }
+            return content; // Return the comment content
         }
-        return "redirect:/";
+        return null;
     }
+
+    
+
 
     @PostMapping("/delete-comment")
     public ResponseEntity<Map<String, String>> deleteComment(@RequestParam("commentId") Long commentId) {

@@ -28,9 +28,9 @@ public class NotificationService {
         User addressee = userRepository.findById(post.getUser().getId()).orElseThrow(() -> new RuntimeException("User not found"));
 
         Notifications newNotification = new Notifications();
-        newNotification.setPost(post);
         newNotification.setRequester(requester);
         newNotification.setType("LIKE");
+        newNotification.setPost(post);
         newNotification.setContent(" đã thích bài viết của bạn!");
         newNotification.setCreated_at(LocalDateTime.now());
         newNotification.setAddressee(addressee);
@@ -44,6 +44,13 @@ public class NotificationService {
         Notifications notification = notificationRepository
                 .findByPostAndRequesterAndType(post, requester, "LIKE");
         notificationRepository.delete(notification);
+    }
+
+    public Notifications markRead(Long notiId)
+    {
+        Notifications notification = notificationRepository.findById(notiId).orElse(null);
+        notification.setIsRead(true);
+        return notificationRepository.save(notification);
     }
 
     public List<Notifications> markAllAsRead(Long currentIdUser) {
@@ -63,6 +70,7 @@ public class NotificationService {
         Notifications newNotification = new Notifications();
         newNotification.setPost(post);
         newNotification.setRequester(requester);
+        newNotification.setAddressee(post.getUser());
         newNotification.setType("COMMENT");
         newNotification.setContent(" đã bình luận bài viết của bạn!");
         newNotification.setCreated_at(LocalDateTime.now());

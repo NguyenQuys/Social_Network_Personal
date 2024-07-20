@@ -12,8 +12,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.network.SocialNetwork.entity.Notifications;
 import com.network.SocialNetwork.entity.User;
@@ -57,16 +59,16 @@ public class NotificationController {
         }
     }
 
-    @PostMapping("/mark-all-as-read")
-    public String markAllAsRead(Model model) {
+    @GetMapping("/mark-all-as-read")
+    @ResponseBody
+    public void markAllAsRead(Model model) {
 
         String username = GetUserName();
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isPresent()) {
             User currentUser = optionalUser.get();
-            model.addAttribute("notifications", notificationService.markAllAsRead(currentUser.getId()));
+            notificationService.markAllAsRead(currentUser.getId());
         }
-        return "redirect:/";
     }
 
 }

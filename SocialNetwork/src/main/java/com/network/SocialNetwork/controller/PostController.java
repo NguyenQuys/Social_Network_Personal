@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -33,9 +34,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.network.SocialNetwork.entity.Image;
 import com.network.SocialNetwork.entity.Notifications;
 import com.network.SocialNetwork.entity.Post;
+import com.network.SocialNetwork.entity.Report;
 import com.network.SocialNetwork.entity.User;
 import com.network.SocialNetwork.entity.Video;
+import com.network.SocialNetwork.repository.NotificationRepository;
 import com.network.SocialNetwork.repository.PostRepository;
+import com.network.SocialNetwork.repository.ReportRepository;
 import com.network.SocialNetwork.repository.UserRepository;
 import com.network.SocialNetwork.service.NotificationService;
 import com.network.SocialNetwork.service.PostService;
@@ -49,6 +53,11 @@ public class PostController {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired ReportRepository reportRepository;
     // ---------------REPOSITORIES END-----------------
 
     // ---------------SERVICES START--------------------
@@ -117,22 +126,41 @@ public class PostController {
             }
         }
 
-        LocalDateTime currentTime = LocalDateTime.now();
+        // LocalDateTime currentTime = LocalDateTime.now();
         postService.savePost(content, currentlyUser, images, videos);
         redirectAttributes.addFlashAttribute("message", "Thêm bài viết thành công!");
         return "redirect:/";
     }
 
     @GetMapping("/post-detail/{postId}")
-    public String aa(Model model,@PathVariable("postId") Long postId)
-    {
-        Optional<User> currentlyUseroOptional = getCurrentUser();
-        User currentlyUser = currentlyUseroOptional.get();
+    public String postDetail(Model model,
+            @PathVariable("postId") Long postId,
+            @Param("notiId") Long notiId) {
+        Optional<User> currentlyUserOptional = getCurrentUser();
+        if (currentlyUserOptional.isEmpty()) {
+            return "redirect:/error"; 
+        }
+
+        User currentlyUser = currentlyUserOptional.get();
         Post post = postRepository.findById(postId).orElse(null);
 
+        if (post == null) {
+            return "redirect:/error"; 
+        }
+
+        if(notiId != null)
+        {
+            notificationService.markRead(notiId);
+        }
+
+        boolean isPostLikedByCurrentUser = post.getLikedBy().stream()
+                .anyMatch(user -> user.getId().equals(currentlyUser.getId()));
+
+        model.addAttribute("isPostLikedByCurrentUser", isPostLikedByCurrentUser);
         model.addAttribute("postChosen", post);
         model.addAttribute("currentlyUser", currentlyUser);
-        return "users/one-post";
+
+        return "users/like-fragment-one-post";
     }
 
     @PostMapping("/edit-post")
@@ -195,15 +223,13 @@ public class PostController {
             if (post.getLikedBy().contains(currentUser)) {
                 post.getLikedBy().remove(currentUser);
                 post.setLikes(post.getLikes() - 1);
-                if(currentUser.getId() != post.getUser().getId())
-                {
+                if (currentUser.getId() != post.getUser().getId()) {
                     notificationService.removeLikeNotifications(postId, currentUser.getId());
                 }
             } else {
                 post.getLikedBy().add(currentUser);
                 post.setLikes(post.getLikes() + 1);
-                if(currentUser.getId() != post.getUser().getId())
-                {
+                if (currentUser.getId() != post.getUser().getId()) {
                     notificationService.likeNotification(postId, currentUser.getId());
                 }
             }
@@ -225,15 +251,13 @@ public class PostController {
             if (post.getLikedBy().contains(currentUser)) {
                 post.getLikedBy().remove(currentUser);
                 post.setLikes(post.getLikes() - 1);
-                if(currentUser.getId() != post.getUser().getId())
-                {
+                if (currentUser.getId() != post.getUser().getId()) {
                     notificationService.removeLikeNotifications(postId, currentUser.getId());
                 }
             } else {
                 post.getLikedBy().add(currentUser);
                 post.setLikes(post.getLikes() + 1);
-                if(currentUser.getId() != post.getUser().getId())
-                {
+                if (currentUser.getId() != post.getUser().getId()) {
                     notificationService.likeNotification(postId, currentUser.getId());
                 }
             }
@@ -243,12 +267,73 @@ public class PostController {
         return "users/like-fragment-profile :: likeContent";
     }
 
+    @GetMapping("/likeChosenPost")
+    public String likeChosenPost(@RequestParam("postId") Long postId, Model model) {
+        Optional<Post> postOptional = postRepository.findById(postId);
+        Optional<User> currentUserOptional = getCurrentUser();
+
+        if (postOptional.isPresent() && currentUserOptional.isPresent()) {
+            Post post = postOptional.get();
+            User currentUser = currentUserOptional.get();
+
+            if (post.getLikedBy().contains(currentUser)) {
+                post.getLikedBy().remove(currentUser);
+                post.setLikes(post.getLikes() - 1);
+                if (currentUser.getId() != post.getUser().getId()) {
+                    notificationService.removeLikeNotifications(postId, currentUser.getId());
+                }
+            } else {
+                post.getLikedBy().add(currentUser);
+                post.setLikes(post.getLikes() + 1);
+                if (currentUser.getId() != post.getUser().getId()) {
+                    notificationService.likeNotification(postId, currentUser.getId());
+                }
+            }
+            postRepository.save(post);
+            model.addAttribute("post", post);
+        }
+        return "users/like-fragment-one-post :: likeContent";
+    }
+
     @PostMapping("/delete-post")
     public String deletePost(@RequestParam("postId") Long postId, RedirectAttributes redirectAttributes) {
-        postRepository.deleteById(postId);
+        Optional<User> currentlyUserOpt = getCurrentUser();
+        Optional<Post> postOptional = postRepository.findById(postId);
+    
+        if (!currentlyUserOpt.isPresent() || !postOptional.isPresent()) {
+            return "error"; // or some appropriate error page
+        }
+    
+        User currentlyUser = currentlyUserOpt.get();
+        Post post = postOptional.get();
+    
+        // Delete associated reports
+        List<Report> reports = reportRepository.findByPostId(postId);
+        reportRepository.deleteAll(reports);
+    
+        // Delete associated notifications
+        List<Notifications> notifications = notificationRepository.findByPostId(postId);
+        notificationRepository.deleteAll(notifications);
+    
+        if (!currentlyUser.getRole().getId().equals(1L)) {
+            postRepository.deleteById(postId);
+        } else {
+            Notifications newNotifications = new Notifications();
+            newNotifications.setRequester(currentlyUser);
+            newNotifications.setAddressee(post.getUser());
+            newNotifications.setType("DELETE POST");
+            newNotifications.setContent("Bài viết của bạn đã bị kiểm duyệt và bị xóa bởi Admin");
+    
+            notificationRepository.save(newNotifications);
+    
+            postRepository.deleteById(postId);
+        }
+    
         redirectAttributes.addFlashAttribute("message", "Xóa bài viết thành công!");
         return "redirect:/";
     }
+    
+
 
     private String saveFile(MultipartFile file, String uploadDir) {
         try {

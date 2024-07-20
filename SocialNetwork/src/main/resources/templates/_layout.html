@@ -165,51 +165,93 @@
                                                     thông báo để hiển thị</h5>
                                                 <hr>
                                             </div>
-                                            <ul class="dropdown-msg-list" th:each="noti : ${notifications}">
-                                                <a th:href="@{|/post-detail/${noti.post.id}|}" class="p-0">
+                                            <ul class="dropdown-msg-list" th:each="noti : ${notifications}" id="notificationList">
                                                 <li th:classappend="${noti.isRead} ? '' : 'unread-noti'"
-                                                    class="msg-list-item d-flex justify-content-between d-flex align-items-center justify-content-center p-0 m-0"
-                                                    style="border-radius: 5px; border-bottom: 0;">
-                                                        <!-- profile picture start -->
-                                                        <div class="profile-thumb">
-                                                            <figure class="profile-thumb-middle">
-                                                                <img th:src="${noti.requester.avatar}"
-                                                                    alt="profile picture">
-                                                            </figure>
-                                                        </div>
-                                                        <!-- profile picture end -->
+                                                    class="msg-list-item p-0 m-0"
+                                                    style="border-radius: 5px; border-bottom: 0; width: 100%;">
 
-                                                        <!-- message content start -->
-                                                        <div class="msg-content notification-content">
-                                                            <h6><strong th:text="${noti.requester.fullName}"></strong>
-                                                            </h6>
-                                                            <h6 th:text="${noti.content}"></h6>
-                                                        </div>
-                                                        <!-- message content end -->
+                                                    <!-- Conditional anchor tag -->
+                                                    <div th:if="${noti.post != null}">
+                                                        <a th:href="@{|/post-detail/${noti.post.id}?notiId=${noti.id}|}"
+                                                            class="p-0">
+                                                            <div class="row">
+                                                                <!-- profile picture start -->
+                                                                <div class="profile-thumb col-2">
+                                                                    <figure class="profile-thumb-middle">
+                                                                        <img th:src="${noti.requester.avatar}"
+                                                                            alt="profile picture">
+                                                                    </figure>
+                                                                </div>
+                                                                <!-- profile picture end -->
 
-                                                        <!-- message time start -->
-                                                        <div class="msg-time">
-                                                            <p
-                                                                th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
-                                                            </p>
+                                                                <!-- message content start -->
+                                                                <div class="msg-content notification-content col-8">
+                                                                    <h6><strong
+                                                                            th:text="${noti.requester.fullName}"></strong>
+                                                                    </h6>
+                                                                    <h6 th:text="${noti.content}"></h6>
+                                                                </div>
+                                                                <!-- message content end -->
+
+                                                                <!-- message time start -->
+                                                                <div class="msg-time col-2">
+                                                                    <p
+                                                                        th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
+                                                                    </p>
+                                                                </div>
+                                                                <!-- message time end -->
+                                                            </div>
+                                                        </a>
+                                                    </div>
+
+                                                    <!-- Display "AAAA" if noti.post is null -->
+                                                    <div th:unless="${noti.post != null}">
+                                                        <p class="p-0">
+                                                        <div class="row">
+                                                            <!-- profile picture start -->
+                                                            <div class="profile-thumb col-2">
+                                                                <figure class="profile-thumb-middle">
+                                                                    <img th:src="${noti.requester.avatar}"
+                                                                        alt="profile picture">
+                                                                </figure>
+                                                            </div>
+                                                            <!-- profile picture end -->
+
+                                                            <!-- message content start -->
+                                                            <div class="msg-content notification-content col-8">
+                                                                <h6><strong
+                                                                        th:text="${noti.requester.fullName}"></strong>
+                                                                </h6>
+                                                                <h6 th:text="${noti.content}"></h6>
+                                                            </div>
+                                                            <!-- message content end -->
+
+                                                            <!-- message time start -->
+                                                            <div class="msg-time col-2">
+                                                                <p
+                                                                    th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
+                                                                </p>
+                                                            </div>
+                                                            <!-- message time end -->
                                                         </div>
-                                                        <!-- message time end -->
-                                                        <p th:text="${noti.post.id}"></p>
+                                                        </p>
+                                                    </div>
                                                 </li>
-                                                
-                                                </a>
                                                 <hr>
                                             </ul>
+
                                             <style>
                                                 .unread-noti {
                                                     background-color: rgb(238, 189, 132);
                                                 }
                                             </style>
                                             <div class="msg-dropdown-footer">
-                                                <form th:action="@{/notification/mark-all-as-read}" method="post">
+                                                <!-- <form th:action="@{/notification/mark-all-as-read}" method="post">
                                                     <button type="submit" style="float:right;">Đánh dấu tất cả đã
                                                         đọc</button>
-                                                </form>
+                                                </form> -->
+                                                <button id="buttonMarkRead">Đánh dấu tất cả đã
+                                                    đọc</button>
                                             </div>
                                         </div>
                                     </li>
@@ -374,6 +416,26 @@
     <script src="../../../user/assets/js/main.js"></script>
 
     <!--    <script src="assets/js/likes-Ajax.js"></script>-->
+    <script>
+        $(document).ready(function() {
+            $('#buttonMarkRead').click(function() {
+                $.ajax({
+                    url: '/notification/mark-all-as-read',
+                    type: 'GET',
+                    success: function(response) {
+                        $('.unread-noti').removeClass('unread-noti');
+                        $('.badge.badge-danger').remove();
+
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                        $('#response').html('An error occurred: ' + error);
+                    }
+                });
+            });
+        });
+    </script>
+    
 
 </body>
 
