@@ -86,7 +86,7 @@ public class CommentController {
             post.getComments().add(comment);
             postRepository.save(post);
             model.addAttribute("post", post);
-            if (!currentUser.get().getId().equals(post.getUser().getId())) {
+            if (!currentUser.get().getId().equals(post.getSender().getId())) {
                 notificationService.addComment(postId, currentUser.get().getId());
             }
             return content; // Return the comment content

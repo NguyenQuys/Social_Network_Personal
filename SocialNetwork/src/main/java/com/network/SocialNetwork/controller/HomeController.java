@@ -168,10 +168,10 @@ public class HomeController {
                     sortedPosts = postService.getAllPost()
                             .stream()
                             .filter(post -> (listInfoFriendCurrently.stream()
-                                    .anyMatch(user -> user.getId().equals(post.getUser().getId())) ||
-                                    post.getUser().getId().equals(idCurrentlyUser)) &&
-                                    !usersBlockedByCurrentUser.contains(post.getUser().getId()) &&
-                                    !usersWhoBlockedCurrentUser.contains(post.getUser().getId()))
+                                    .anyMatch(user -> user.getId().equals(post.getSender().getId())) ||
+                                    post.getSender().getId().equals(idCurrentlyUser)) &&
+                                    !usersBlockedByCurrentUser.contains(post.getSender().getId()) &&
+                                    !usersWhoBlockedCurrentUser.contains(post.getSender().getId()))
                             .sorted(Comparator.comparing(Post::getTimestamp).reversed())
                             .collect(Collectors.toList());
                 }

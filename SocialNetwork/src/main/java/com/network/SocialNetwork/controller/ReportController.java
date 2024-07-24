@@ -104,7 +104,7 @@ public class ReportController {
 
         var newNotification = new Notifications();
         newNotification.setRequester(currentlyUser);
-        newNotification.setAddressee(postReported.getUser());
+        newNotification.setAddressee(postReported.getSender());
         newNotification.setPost(postReported);
         newNotification.setType("CENSORSHIP");
         newNotification.setContent("Chúng tôi đã xem xét bài viết đã bị report của bạn.");

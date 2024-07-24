@@ -56,7 +56,7 @@ public class NotificationService {
     public Notifications likeNotification(Long idPost, Long idSender) {
         Post post = postRepository.findById(idPost).orElseThrow(() -> new RuntimeException("Post not found"));
         User requester = userRepository.findById(idSender).orElseThrow(() -> new RuntimeException("User not found"));
-        User addressee = userRepository.findById(post.getUser().getId())
+        User addressee = userRepository.findById(post.getSender().getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Notifications newNotification = new Notifications();
@@ -100,7 +100,7 @@ public class NotificationService {
         Notifications newNotification = new Notifications();
         newNotification.setPost(post);
         newNotification.setRequester(requester);
-        newNotification.setAddressee(post.getUser());
+        newNotification.setAddressee(post.getSender());
         newNotification.setType("COMMENT");
         newNotification.setContent(" đã bình luận bài viết của bạn!");
         newNotification.setCreated_at(LocalDateTime.now());
@@ -147,6 +147,17 @@ public class NotificationService {
             return null; 
         }
     }
+
+    public Notifications postOnSBProfile(User sender, User receiver,Post post)
+    {
+        Notifications newNoti = new Notifications();
+        newNoti.setRequester(sender);
+        newNoti.setAddressee(receiver);
+        newNoti.setPost(post);
+        newNoti.setType("POST");
+        newNoti.setContent(sender.getFullName() + " đã đăng bài viết lên trang cá nhân của bạn");
+        return notificationRepository.save(newNoti);
+    }
     
 
     public void sendReportToAdmin(Long postId, String reason, Long userIdReport) {
@@ -168,5 +179,18 @@ public class NotificationService {
             newNotification.setAddressee(admin);
             notificationRepository.save(newNotification);
         }
+    }
+
+    public Notifications acceptFriendRequestNoti(Long idUserSendRequest,Long idAccepter)
+    {
+        User requester = userRepository.findById(idUserSendRequest).get();
+        User accepter = userRepository.findById(idAccepter).get();
+
+        Notifications newNoti = new Notifications();
+        newNoti.setRequester(accepter);
+        newNoti.setAddressee(requester);
+        newNoti.setType("ACCEPT FRIENDREQUEST");
+        newNoti.setContent(accepter.getFullName() + " đã chấp nhận lời mời kết bạn của bạn");
+        return notificationRepository.save(newNoti);
     }
 }

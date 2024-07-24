@@ -29,8 +29,8 @@ public class PostService {
     }
     //------------------------------------------------
 
-    public Post savePost(String content, User user, List<Image> images, List<Video> videos) {
-        Post post = new Post(content, user, user.getFullName(), images, videos);  // Pass the User object
+    public Post savePost(String content, User sender,User receiver , List<Image> images, List<Video> videos) {
+        Post post = new Post(content, sender, receiver, sender.getFullName(), images, videos);  // Pass the User object
         return postRepository.save(post);
     }
     

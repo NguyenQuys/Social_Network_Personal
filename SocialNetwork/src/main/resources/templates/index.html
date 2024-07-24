@@ -311,6 +311,7 @@
                                             </div>
                                             <form class="modal-body custom-scroll" th:action="@{/post}" method="post"
                                                 enctype="multipart/form-data">
+                                                <input type="hidden" th:value="${currentlyUser.id}" th:name="idReceiver">
                                                 <div class="form-group">
                                                     <textarea name="content"
                                                         class="share-field-big custom-scroll form-control"
@@ -350,15 +351,29 @@
                                 <div class="profile-thumb">
                                     <a href="#">
                                         <figure class="profile-thumb-middle">
-                                            <img th:src="${post.user.avatar}" alt="profile picture">
+                                            <img th:src="${post.sender.avatar}" alt="profile picture">
                                         </figure>
                                     </a>
                                 </div>
                                 <!-- profile picture end -->
 
                                 <div class="posted-author">
-                                    <h6 class="author"><a th:href="@{|/profile/${post.user.id}|}"
-                                            th:text="${post.user.fullName}"></a></h6>
+                                    <h6 class="author d-flex align-items-center" th:if="${post.sender.id != post.receiver.id}">
+                                        <a th:href="@{|/profile/${post.sender.id}|}"
+                                            th:text="${post.sender.fullName}">
+                                        </a>
+                                        <span class="material-symbols-outlined">
+                                            play_arrow
+                                        </span>
+                                        <a th:href="@{|/profile/${post.receiver.id}|}"
+                                        th:text="${post.receiver.fullName}">
+                                        </a>
+                                    </h6>
+                                    <h6 class="author d-flex align-items-center" th:unless="${post.sender.id != post.receiver.id}">
+                                        <a th:href="@{|/profile/${post.sender.id}|}"
+                                            th:text="${post.sender.fullName}">
+                                        </a>                                      
+                                    </h6>
                                     <span class="post-time"
                                         th:text="${#temporals.format(post.timestamp, 'dd-MM-yyyy HH:mm')}">Posted time
                                         ago</span>
@@ -372,13 +387,13 @@
                                     <lspan></lspan>
                                     <div class="post-settings arrow-shape">
                                         <ul>
-                                            <li th:if="${currentlyUser.id.equals(post.user.id)}">
+                                            <li th:if="${currentlyUser.id.equals(post.sender.id)}">
                                                 <button data-toggle="modal"
                                                     th:data-target="'#editPost' + ${post.id}">Chỉnh sửa bài
                                                     viết</button>
                                             </li>
                                             <li
-                                                th:if="${currentlyUser.id == post.user.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
+                                                th:if="${currentlyUser.id == post.sender.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
                                                 <form th:action="@{/delete-post}" method="post">
                                                     <input type="hidden" th:value="${post.id}" th:name="postId">
                                                     <button type="submit" class="btn btn-danger">Xóa bài viết</button>

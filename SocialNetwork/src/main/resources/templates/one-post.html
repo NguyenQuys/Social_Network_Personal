@@ -15,15 +15,15 @@
                     <div class="profile-thumb">
                         <a href="#">
                             <figure class="profile-thumb-middle">
-                                <img th:src="${postChosen.user.avatar}" alt="profile picture">
+                                <img th:src="${postChosen.sender.avatar}" alt="profile picture">
                             </figure>
                         </a>
                     </div>
                     <!-- profile picture end -->
 
                     <div class="posted-author">
-                        <h6 class="author"><a th:href="@{|/profile/${postChosen.user.id}|}"
-                                th:text="${postChosen.user.fullName}"></a></h6>
+                        <h6 class="author"><a th:href="@{|/profile/${postChosen.sender.id}|}"
+                                th:text="${postChosen.sender.fullName}"></a></h6>
                         <span class="post-time"
                             th:text="${#temporals.format(postChosen.timestamp, 'dd-MM-yyyy HH:mm')}">Posted time
                             ago</span>
@@ -37,13 +37,13 @@
                         <lspan></lspan>
                         <div class="post-settings arrow-shape">
                             <ul>
-                                <li th:if="${currentlyUser.id.equals(postChosen.user.id)}">
+                                <li th:if="${currentlyUser.id.equals(postChosen.sender.id)}">
                                     <button data-toggle="modal"
                                         th:data-target="'#editPost' + ${postChosen.id}">Chỉnh sửa bài
                                         viết</button>
                                 </li>
                                 <li
-                                    th:if="${currentlyUser.id == postChosen.user.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
+                                    th:if="${currentlyUser.id == postChosen.sender.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
                                     <form th:action="@{/delete-post}" method="post">
                                         <input type="hidden" th:value="${postChosen.id}" th:name="postId">
                                         <button type="submit" class="btn btn-danger">Xóa bài viết</button>

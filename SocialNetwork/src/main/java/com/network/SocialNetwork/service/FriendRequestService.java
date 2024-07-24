@@ -1,6 +1,7 @@
 package com.network.SocialNetwork.service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class FriendRequestService
         friendRequest.setRequester(sender);
         friendRequest.setAddressee(receiver);
         friendRequest.setStatus(Status.PENDING);
-        friendRequest.setRequestedAt(new Timestamp(System.currentTimeMillis()));
+        friendRequest.setRequestedAt(LocalDateTime.now());
 
         return friendRequestRepository.save(friendRequest);
     }
@@ -36,7 +37,7 @@ public class FriendRequestService
     public FriendRequest AcceptFriendRequest(Long senderId,Long receiverId)
     {
         FriendRequest friendRequest = friendRequestRepository.findByRequesterAndAddressee(senderId, receiverId);
-        friendRequest.setAcceptedAt(new Timestamp(System.currentTimeMillis()));
+        friendRequest.setAcceptedAt(LocalDateTime.now());
         friendRequest.setStatus(Status.ACCEPTED);
         return friendRequestRepository.save(friendRequest);
     }

@@ -8,9 +8,11 @@ import com.network.SocialNetwork.entity.User;
 import com.network.SocialNetwork.repository.FriendBlockRepository;
 import com.network.SocialNetwork.repository.FriendRequestRepository;
 import com.network.SocialNetwork.repository.UserRepository;
+import com.network.SocialNetwork.service.NotificationService;
 import com.network.SocialNetwork.service.PostService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +23,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,10 +50,14 @@ public class ProfileController {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public String GetUserName() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
             Object principal = authentication.getPrincipal();
 
             if (principal instanceof UserDetails) {
@@ -61,7 +66,8 @@ public class ProfileController {
             } else if (principal instanceof OAuth2User) {
                 // Handle OAuth2User (typically from OAuth2/OpenID Connect authentication)
                 return ((OAuth2User) principal).getAttribute("email");
-                // Replace "email" with the actual attribute you want to use (e.g., "name", "preferred_username")
+                // Replace "email" with the actual attribute you want to use (e.g., "name",
+                // "preferred_username")
             } else {
                 throw new IllegalStateException("Unknown principal type: " + principal.getClass());
             }
@@ -112,7 +118,13 @@ public class ProfileController {
     }
 
     @GetMapping("/{id}")
-    public String UserProfile(@PathVariable Long id, Model model) {
+    public String UserProfile(@PathVariable Long id,
+            @Param("notiId") Long notiId, // này lấy noti để trường hợp nhận thg báo sinh nhật
+            Model model) {
+
+        if (notiId != null) {
+            notificationService.markRead(notiId);
+        }
         Long idUser1Currently = null, idUserChosen = null;
         String usernameCurrently = GetUserName();
         Optional<User> currentlyUser = userRepository.findByUsername(usernameCurrently);
@@ -164,7 +176,8 @@ public class ProfileController {
 
         List<Post> listPosts = postService.getAllPost()
                 .stream()
-                .filter(m -> m.getUser().getId().equals(finalUserChosen))
+                .filter(m -> m.getSender().getId().equals(finalUserChosen)
+                        || m.getReceiver().getId().equals(finalUserChosen))
                 .sorted(Comparator.comparing(Post::getTimestamp).reversed())
                 .collect(Collectors.toList());
 

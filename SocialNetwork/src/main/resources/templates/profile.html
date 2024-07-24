@@ -13,6 +13,8 @@
             });
         }
     </script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <style>
         div.fixed {
@@ -51,22 +53,6 @@
                                         alt="profile picture">
                                 </a>
                             </div>
-
-                            <!-- <script>
-                                    const changeProfilePicture = document.getElementById('changeProfilePicture');
-                                    const fileInput = document.getElementById('fileInput');
-                                    const avatarForm = document.getElementById('avatarForm');
-
-                                    changeProfilePicture.addEventListener('click', function (event) {
-                                        event.preventDefault(); // Ngăn chặn hành vi mặc định của thẻ a
-                                        fileInput.click(); // Kích hoạt sự kiện click trên input file
-                                    });
-
-                                    fileInput.addEventListener('change', function () {
-                                        avatarForm.submit(); // Gửi biểu mẫu khi có sự thay đổi file
-                                    });
-                                </script> -->
-
                         </div>
                     </div>
                     <div class="col-lg-5 col-md-6 offset-lg-1">
@@ -483,25 +469,44 @@
                                 </div>
                                 <!-- share content box end -->
                                 <!-- Modal start -->
-                                <div class="modal fade" id="textbox" aria-labelledby="textbox">
-                                    <div class="modal-dialog">
+                                <div class="modal fade" id="textbox" tabindex="-1" role="dialog"
+                                    aria-labelledby="textboxLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title">Share Your Mood</h5>
+                                                <h5 class="modal-title" id="textboxLabel">Tạo bài viết</h5>
                                                 <button type="button" class="close" data-dismiss="modal"
                                                     aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
-                                            <div class="modal-body custom-scroll">
-                                                <textarea name="share" class="share-field-big custom-scroll"
-                                                    placeholder="Say Something"></textarea>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="post-share-btn"
-                                                    data-dismiss="modal">cancel</button>
-                                                <button type="button" class="post-share-btn">post</button>
-                                            </div>
+                                            <form class="modal-body custom-scroll" th:action="@{/post}" method="post"
+                                                enctype="multipart/form-data">
+                                                <input type="hidden" th:value="${userChosen.id}" th:name="idReceiver">
+                                                <input type="hidden" th:value="profile" th:name="sourcePage"> 
+                                                <div class="form-group">
+                                                    <textarea name="content"
+                                                        class="share-field-big custom-scroll form-control"
+                                                        placeholder="Chia sẻ suy nghĩ của bạn..."
+                                                        id="editor"></textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Chọn ảnh</label>
+                                                    <input type="file" name="images" multiple accept="image/*"
+                                                        class="form-control" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Chọn video</label>
+                                                    <input type="file" name="videos" multiple accept="video/*"
+                                                        class="form-control" />
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="post-share-btn btn btn-secondary"
+                                                        data-dismiss="modal">Hủy</button>
+                                                    <button type="submit"
+                                                        class="post-share-btn btn btn-primary">Đăng</button>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -526,7 +531,22 @@
                                     <!-- profile picture end -->
 
                                     <div class="posted-author">
-                                        <h6 class="author" th:text="${post.authorName}">Kate Palson</h6>
+                                        <h6 class="author d-flex align-items-center" th:if="${post.sender.id != post.receiver.id}">
+                                            <a th:href="@{|/profile/${post.sender.id}|}"
+                                                th:text="${post.sender.fullName}">
+                                            </a>
+                                            <span class="material-symbols-outlined">
+                                                play_arrow
+                                            </span>
+                                            <a th:href="@{|/profile/${post.receiver.id}|}"
+                                            th:text="${post.receiver.fullName}">
+                                            </a>
+                                        </h6>
+                                        <h6 class="author d-flex align-items-center" th:unless="${post.sender.id != post.receiver.id}">
+                                            <a th:href="@{|/profile/${post.sender.id}|}"
+                                                th:text="${post.sender.fullName}">
+                                            </a>                                      
+                                        </h6>
                                         <span class="post-time"
                                             th:text="${#temporals.format(post.timestamp, 'dd-MM-yyyy HH:mm')}">35 min
                                             ago</span>
@@ -537,12 +557,12 @@
                                         <span></span>
                                         <div class="post-settings arrow-shape">
                                             <ul>
-                                                <li th:if="${currentlyUser.id.equals(post.user.id)}"><button
+                                                <li th:if="${currentlyUser.id.equals(post.sender.id)}"><button
                                                         data-toggle="modal"
                                                         th:data-target="'#editPost' + ${post.id}">Chỉnh sửa bài
                                                         viết</button></li>
                                                 <li
-                                                    th:if="${currentlyUser.id == post.user.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
+                                                    th:if="${currentlyUser.id == post.sender.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
                                                     <form th:action="@{/delete-post}" method="post">
                                                         <input type="hidden" th:value="${post.id}" th:name="postId">
                                                         <button type="submit" class="btn btn-danger">Xóa bài
@@ -993,29 +1013,70 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
         <script th:inline="javascript">
-            $(document).ready(function() {
+            $(document).ready(function () {
                 toastr.options = {
-                "closeButton": true,
-                "debug": false,
-                "newestOnTop": false,
-                "progressBar": true,
-                "positionClass": "toast-bottom-right",
-                "preventDuplicates": false,
-                "onclick": null,
-                "showDuration": "300",
-                "hideDuration": "1000",
-                "timeOut": "5000",
-                "extendedTimeOut": "1000",
-                "showEasing": "swing",
-                "hideEasing": "swing",
-                "showMethod": "slideDown",
-                "hideMethod": "slideUp"
-            };
-            var successMessage = /*[[${message}]]*/ null;
-            if (successMessage) {
-                toastr.success(successMessage);
-            }
-        });
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": true,
+                    "positionClass": "toast-bottom-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "swing",
+                    "showMethod": "slideDown",
+                    "hideMethod": "slideUp"
+                };
+                var successMessage = /*[[${message}]]*/ null;
+                if (successMessage) {
+                    toastr.success(successMessage);
+                }
+            });
+
+            // custom-ckeditor-config.js
+            ClassicEditor
+                .create(document.querySelector('#editor'), {
+                    toolbar: {
+                        items: [
+                            'heading', '|',
+                            'bold', 'italic', 'link', '|',
+                            'bulletedList', 'numberedList', '|',
+                            'blockQuote', '|',
+                            'undo', 'redo'
+                        ]
+                    },
+                    link: {
+                        decorators: {
+                            isExternal: {
+                                mode: 'manual',
+                                label: 'Open in a new tab',
+                                attributes: {
+                                    target: '_blank',
+                                    rel: 'noopener noreferrer'
+                                }
+                            }
+                        }
+                    },
+                    // Allow all HTML content
+                    htmlSupport: {
+                        allow: [
+                            {
+                                name: /.*/,
+                                attributes: true,
+                                classes: true,
+                                styles: true
+                            }
+                        ],
+                        disallow: []
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
         </script>
     </main>
 </body>

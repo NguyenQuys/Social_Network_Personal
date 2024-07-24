@@ -21,6 +21,7 @@ import com.network.SocialNetwork.repository.FriendRequestRepository;
 import com.network.SocialNetwork.repository.UserRepository;
 import com.network.SocialNetwork.service.FriendBlockService;
 import com.network.SocialNetwork.service.FriendRequestService;
+import com.network.SocialNetwork.service.NotificationService;
 
 @Controller
 @RequestMapping("/add-friend")
@@ -37,6 +38,9 @@ public class FriendRequestController {
 
     @Autowired
     private FriendBlockService friendBlockService;
+
+    @Autowired 
+    private NotificationService notificationService;
 
     public String GetUserName() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -95,6 +99,8 @@ public class FriendRequestController {
 
         friendRequestService.AcceptFriendRequest(idUserHasBeenAccepted, idCurrentlyUser);
         redirectAttributes.addFlashAttribute("message", "Chúc mừng, bạn đã có thêm bạn 😍😍");
+        notificationService.acceptFriendRequestNoti(idUserHasBeenAccepted, idCurrentlyUser);
+        
         return "redirect:/add-friend-request-list";
     }
 

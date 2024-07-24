@@ -27,7 +27,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -95,6 +94,8 @@ public class PostController {
 
     @PostMapping("/post")
     public String shareContent(@RequestParam String content,
+            @Param("idReceiver") Long idReceiver,
+            @Param("sourcePage") String sourcePage,
             @RequestParam("images") List<MultipartFile> imageFiles,
             @RequestParam("videos") List<MultipartFile> videoFiles,
             RedirectAttributes redirectAttributes,
@@ -104,7 +105,8 @@ public class PostController {
         if (!currentlyUseroOptional.isPresent()) {
             return "error";
         }
-        User currentlyUser = currentlyUseroOptional.get();
+        User sender = currentlyUseroOptional.get();
+        User receiver = userRepository.findById(idReceiver).get();
 
         List<Image> images = new ArrayList<>();
         for (MultipartFile imageFile : imageFiles) {
@@ -126,10 +128,17 @@ public class PostController {
             }
         }
 
-        // LocalDateTime currentTime = LocalDateTime.now();
-        postService.savePost(content, currentlyUser, images, videos);
+        var postJustPost = postService.savePost(content, sender, receiver, images, videos);
+        if(!idReceiver.equals(sender.getId()))
+        {
+            notificationService.postOnSBProfile(sender, receiver, postJustPost);
+        }
         redirectAttributes.addFlashAttribute("message", "Thêm bài viết thành công!");
-        return "redirect:/";
+        if ("profile".equals(sourcePage)) {
+            return "redirect:/profile/" + idReceiver;
+        } else {
+            return "redirect:/";
+        }
     }
 
     @GetMapping("/post-detail/{postId}")
@@ -223,13 +232,13 @@ public class PostController {
             if (post.getLikedBy().contains(currentUser)) {
                 post.getLikedBy().remove(currentUser);
                 post.setLikes(post.getLikes() - 1);
-                if (currentUser.getId() != post.getUser().getId()) {
+                if (currentUser.getId() != post.getSender().getId()) {
                     notificationService.removeLikeNotifications(postId, currentUser.getId());
                 }
             } else {
                 post.getLikedBy().add(currentUser);
                 post.setLikes(post.getLikes() + 1);
-                if (currentUser.getId() != post.getUser().getId()) {
+                if (currentUser.getId() != post.getSender().getId()) {
                     notificationService.likeNotification(postId, currentUser.getId());
                 }
             }
@@ -251,13 +260,13 @@ public class PostController {
             if (post.getLikedBy().contains(currentUser)) {
                 post.getLikedBy().remove(currentUser);
                 post.setLikes(post.getLikes() - 1);
-                if (currentUser.getId() != post.getUser().getId()) {
+                if (currentUser.getId() != post.getSender().getId()) {
                     notificationService.removeLikeNotifications(postId, currentUser.getId());
                 }
             } else {
                 post.getLikedBy().add(currentUser);
                 post.setLikes(post.getLikes() + 1);
-                if (currentUser.getId() != post.getUser().getId()) {
+                if (currentUser.getId() != post.getSender().getId()) {
                     notificationService.likeNotification(postId, currentUser.getId());
                 }
             }
@@ -279,13 +288,13 @@ public class PostController {
             if (post.getLikedBy().contains(currentUser)) {
                 post.getLikedBy().remove(currentUser);
                 post.setLikes(post.getLikes() - 1);
-                if (currentUser.getId() != post.getUser().getId()) {
+                if (currentUser.getId() != post.getSender().getId()) {
                     notificationService.removeLikeNotifications(postId, currentUser.getId());
                 }
             } else {
                 post.getLikedBy().add(currentUser);
                 post.setLikes(post.getLikes() + 1);
-                if (currentUser.getId() != post.getUser().getId()) {
+                if (currentUser.getId() != post.getSender().getId()) {
                     notificationService.likeNotification(postId, currentUser.getId());
                 }
             }
@@ -320,7 +329,7 @@ public class PostController {
         } else {
             Notifications newNotifications = new Notifications();
             newNotifications.setRequester(currentlyUser);
-            newNotifications.setAddressee(post.getUser());
+            newNotifications.setAddressee(post.getSender());
             newNotifications.setType("DELETE POST");
             newNotifications.setContent("Bài viết của bạn đã bị kiểm duyệt và bị xóa bởi Admin");
     

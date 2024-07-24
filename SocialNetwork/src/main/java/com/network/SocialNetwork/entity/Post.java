@@ -27,11 +27,13 @@ public class Post {
     private int likes;
 
     @ManyToOne
-    @JoinColumn()
-    private User user; 
-    
-    private String authorName; 
+    @JoinColumn
+    private User sender; 
 
+    @ManyToOne
+    @JoinColumn
+    private User receiver;
+    
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
 
@@ -41,12 +43,10 @@ public class Post {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "post")
     private List<Comment> comments;
 
-
-
-    public Post(String content, User user, String authorName, List<Image> images, List<Video> videos) {
+    public Post(String content, User sender,User receiver, String authorName, List<Image> images, List<Video> videos) {
         this.content = content;
-        this.user = user;
-        this.authorName = authorName;
+        this.sender = sender;
+        this.receiver = receiver;
         this.timestamp = LocalDateTime.now();
         this.images = images;
         this.videos = videos;

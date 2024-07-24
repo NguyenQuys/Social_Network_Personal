@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import com.network.SocialNetwork.eenum.Status;
 
@@ -32,9 +33,9 @@ public class FriendRequest {
     private Status status;
 
     @Column(name = "requested_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private Timestamp requestedAt;
+    private LocalDateTime requestedAt;
 
     @Column(name = "accepted_at")
-    private Timestamp acceptedAt;
+    private LocalDateTime acceptedAt;
 }
 

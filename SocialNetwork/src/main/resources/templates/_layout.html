@@ -206,7 +206,7 @@
                                                     </div>
 
                                                     <!-- Display "AAAA" if noti.post is null -->
-                                                    <div th:unless="${noti.post != null}">
+                                                    <div th:if="${noti.post == null && noti.type != 'BIRTHDAY'}">
                                                         <p class="p-0">
                                                         <div class="row">
                                                             <!-- profile picture start -->
@@ -236,6 +236,38 @@
                                                             <!-- message time end -->
                                                         </div>
                                                         </p>
+                                                    </div>
+                                                    <div th:if="${noti.post == null && noti.type == 'BIRTHDAY'}">
+                                                        <a th:href="@{|/profile/${noti.requester.id}?notiId=${noti.id}|}"
+                                                            class="p-0">
+                                                            <div class="row">
+                                                                <!-- profile picture start -->
+                                                                <div class="profile-thumb col-2">
+                                                                    <figure class="profile-thumb-middle">
+                                                                        <img th:src="${noti.requester.avatar}"
+                                                                            alt="profile picture">
+                                                                    </figure>
+                                                                </div>
+                                                                <!-- profile picture end -->
+
+                                                                <!-- message content start -->
+                                                                <div class="msg-content notification-content col-8">
+                                                                    <h6><bold
+                                                                            th:text="${noti.requester.fullName}"></bold>
+                                                                    </h6>
+                                                                    <h6 th:utext="${noti.content}"></h6>
+                                                                </div>
+                                                                <!-- message content end -->
+
+                                                                <!-- message time start -->
+                                                                <div class="msg-time col-2">
+                                                                    <p
+                                                                        th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
+                                                                    </p>
+                                                                </div>
+                                                                <!-- message time end -->
+                                                            </div>
+                                                        </a>
                                                     </div>
                                                 </li>
                                                 <hr>

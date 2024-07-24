@@ -1,7 +1,6 @@
 package com.network.SocialNetwork.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,11 +10,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.network.SocialNetwork.eenum.Status;
-import com.network.SocialNetwork.entity.Comment;
-import com.network.SocialNetwork.entity.FriendBlock;
 import com.network.SocialNetwork.entity.FriendRequest;
 import com.network.SocialNetwork.entity.Notifications;
-import com.network.SocialNetwork.entity.Post;
 import com.network.SocialNetwork.entity.User;
 import com.network.SocialNetwork.repository.FriendBlockRepository;
 import com.network.SocialNetwork.repository.FriendRequestRepository;
@@ -32,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
