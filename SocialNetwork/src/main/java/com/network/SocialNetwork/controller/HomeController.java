@@ -110,7 +110,7 @@ public class HomeController {
 
                 // Prepare attributes in a map
                 Map<String, Object> attributes = new HashMap<>();
-                attributes.put("currentlyUser", currentlyUser);
+                // attributes.put("currentlyUser", currentlyUser);
 
                 // Lấy Userchosen ví dụ như vào trang cá nhân hoặc inbox
                 User userChosen = optionalUser.get();
@@ -250,6 +250,13 @@ public class HomeController {
         friendRequestList.removeIf(m -> m.getStatus().equals(Status.ACCEPTED));
         model.addAttribute("friendRequestList", friendRequestList);
         return "users/list-friend-request";
+    }
+
+    @GetMapping("/personal-account-settings")
+    public String accountSettings(Model model)
+    {
+        // return "dashboard/change-password";
+        return "account-settings";
     }
 
     // --------------------ERROR AREA STARTS------------------------------

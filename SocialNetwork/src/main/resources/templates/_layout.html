@@ -165,7 +165,8 @@
                                                     thông báo để hiển thị</h5>
                                                 <hr>
                                             </div>
-                                            <ul class="dropdown-msg-list" th:each="noti : ${notifications}" id="notificationList">
+                                            <ul class="dropdown-msg-list" th:each="noti : ${notifications}"
+                                                id="notificationList">
                                                 <li th:classappend="${noti.isRead} ? '' : 'unread-noti'"
                                                     class="msg-list-item p-0 m-0"
                                                     style="border-radius: 5px; border-bottom: 0; width: 100%;">
@@ -186,10 +187,10 @@
 
                                                                 <!-- message content start -->
                                                                 <div class="msg-content notification-content col-8">
-                                                                    <h6><strong
-                                                                            th:text="${noti.requester.fullName}"></strong>
+                                                                    <h6><bold
+                                                                            th:text="${noti.requester.fullName}"></bold>
                                                                     </h6>
-                                                                    <h6 th:text="${noti.content}"></h6>
+                                                                    <h6 th:utext="${noti.content}"></h6>
                                                                 </div>
                                                                 <!-- message content end -->
 
@@ -361,6 +362,10 @@
                                                 <!-- <li><a href="#"><i class="flaticon-settings"></i>Cài đặt</a></li> -->
                                             </ul>
                                             <ul>
+                                                <li><a th:href=@{/personal-account-settings}><i
+                                                            class="material-symbols-outlined">
+                                                            settings_accessibility
+                                                        </i>Cài đặt tài khoản</a></li>
                                                 <li sec:authorize="hasAuthority('ADMIN')"><a href="/admin"><i
                                                             class="material-symbols-outlined">contacts_product</i>Cài
                                                         đặt người dùng</a></li>
@@ -417,17 +422,17 @@
 
     <!--    <script src="assets/js/likes-Ajax.js"></script>-->
     <script>
-        $(document).ready(function() {
-            $('#buttonMarkRead').click(function() {
+        $(document).ready(function () {
+            $('#buttonMarkRead').click(function () {
                 $.ajax({
                     url: '/notification/mark-all-as-read',
                     type: 'GET',
-                    success: function(response) {
+                    success: function (response) {
                         $('.unread-noti').removeClass('unread-noti');
                         $('.badge.badge-danger').remove();
 
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         console.error('Error:', error);
                         $('#response').html('An error occurred: ' + error);
                     }
@@ -435,7 +440,7 @@
             });
         });
     </script>
-    
+
 
 </body>
 

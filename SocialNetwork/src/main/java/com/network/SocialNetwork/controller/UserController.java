@@ -7,11 +7,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -26,6 +28,28 @@ public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
+    private Optional<User> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            Object principal = authentication.getPrincipal();
+
+            if (principal instanceof UserDetails) {
+                // Handle UserDetails (typically from username/password authentication)
+                String username = ((UserDetails) principal).getUsername();
+                return userService.findByUsername(username);
+            } else if (principal instanceof OAuth2User) {
+                // Handle OAuth2User (typically from OAuth2/OpenID Connect authentication)
+                String email = ((OAuth2User) principal).getAttribute("email");
+                return userService.findByEmail(email);
+            } else {
+                throw new IllegalStateException("Unknown principal type: " + principal.getClass());
+            }
+        } else {
+            throw new IllegalStateException("User not authenticated");
+        }
+    }
+
     @GetMapping("/login")
     public String login() {
         return "users/login";
@@ -39,29 +63,27 @@ public class UserController {
 
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute("user") User user,
-                            BindingResult bindingResult,
-                            Model model,
-                            RedirectAttributes redirectAttributes) 
-    {       
-        if (bindingResult.hasErrors()) 
-        {
-            var errors = bindingResult.getAllErrors()  
-                        .stream() 
-                        .map(DefaultMessageSourceResolvable::getDefaultMessage) 
-                        .toArray(String[]::new);
-            model.addAttribute("errors", errors); 
+            BindingResult bindingResult,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            var errors = bindingResult.getAllErrors()
+                    .stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                    .toArray(String[]::new);
+            model.addAttribute("errors", errors);
             return "users/login";
         }
 
         try {
-            user.setCreated_at(LocalDate.now()); 
+            user.setCreated_at(LocalDate.now());
             userService.registerUser(user, passwordEncoder);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/login";
         }
-        redirectAttributes.addFlashAttribute("successMessage","Đăng kí tài khoản thành công");
-        return "redirect:/login"; 
+        redirectAttributes.addFlashAttribute("successMessage", "Đăng kí tài khoản thành công");
+        return "redirect:/login";
     }
 
     @GetMapping("/AOLoginSuccess")
@@ -80,4 +102,54 @@ public class UserController {
         }
         return "redirect:/";
     }
+
+    @PostMapping("/changePassword")
+    public String changePassword(@RequestParam String oldPassword,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
+            RedirectAttributes redirectAttributes) {
+        Optional<User> currentUserOpt = getCurrentUser();
+        if (currentUserOpt.isPresent()) {
+            User user = currentUserOpt.get();
+            if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu cũ không đúng");
+                return "redirect:/personal-account-settings#change-password";
+            }
+
+            if(oldPassword.equals(newPassword))
+            {
+                redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu mới và mật khẩu cũ phải khác nhau");
+                return "redirect:/personal-account-settings#change-password";
+            }
+
+            if (!newPassword.equals(confirmPassword)) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Mật khẩu mới và mật khẩu xác nhận không khớp");
+                return "redirect:/personal-account-settings#change-password";
+            }
+
+            user.setPassword(passwordEncoder.encode(newPassword));
+            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật mật khẩu thành công");
+            return "redirect:/personal-account-settings#change-password";
+        }
+        return "redirect:/error"; // Redirect to an error page or return an error view
+    }
+
+    @PostMapping("/updateInfo")
+    public String updateInfo(@ModelAttribute User updatedUser, RedirectAttributes redirectAttributes) {
+        Optional<User> userOpt = getCurrentUser();
+            
+        User currentUser = userOpt.get();
+        currentUser.setFullName(updatedUser.getFullName());
+        currentUser.setDateOfBirth(updatedUser.getDateOfBirth());
+        currentUser.setGender(updatedUser.isGender());
+        currentUser.setEmail(updatedUser.getEmail());
+        currentUser.setPhone(updatedUser.getPhone());
+    
+        userService.saveButNotHash(currentUser);
+    
+        redirectAttributes.addFlashAttribute("successMessage", "Thông tin đã được cập nhật thành công.");
+        return "redirect:/personal-account-settings#ChangeInfo";
+    }
+    
+
 }

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security5"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compact Dashboard Layout with Hover Effect</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            /* Prevent horizontal scroll */
+        }
+
+        .sidebar {
+            height: 100%;
+            background-color: #343a40;
+            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            /* Keep sidebar fixed on the left */
+            width: 25%;
+            /* 25% width for sidebar */
+            z-index: 1;
+            /* Ensure the sidebar is on top */
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+        }
+
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+
+        .sidebar a.active {
+            background-color: red;
+        }
+
+        .content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            /* Full viewport height */
+            padding: 20px;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="row no-gutters">
+        <div class="col-3">
+            <div class="sidebar" id="sidebar">
+                <h1 class="text-center">Cài đặt</h1>
+                <div class="mt-5">
+                    <ul class="px-3" style="list-style: none">
+                        <li>
+                            <a href="#ChangeInfo" onclick="showSection(event, 'ChangeInfo')">
+                                <h4>Chỉnh sửa thông tin</h4>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#change-password" onclick="showSection(event, 'change-password')">
+                                <h4>Thay đổi mật khẩu</h4>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#messages" onclick="showSection(event, 'messages')">Messages</a>
+                        </li>
+                        <li>
+                            <a href="#settings" onclick="showSection(event, 'settings')">Settings</a>
+                        </li>
+                        <li>
+                            <a href="#logout" onclick="showSection(event, 'logout')">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-9">
+            <div class="content">
+                <div id="ChangeInfo" class="content-section active">
+                    <div>
+                        <h1 class="text-danger m-3">Chỉnh sửa thông tin</h1>
+                    </div>
+                    <form th:action="@{/updateInfo}" th:object="${currentlyUser}" method="post">
+                        <div class="form-group">
+                            <label for="username">Tên tài khoản</label>
+                            <input type="text" class="form-control" id="username" th:field="*{username}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="fullName">Tên đầy đủ</label>
+                            <input type="text" class="form-control" id="fullName" th:field="*{fullName}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateOfBirth">Ngày sinh</label>
+                            <input type="date" class="form-control" id="dateOfBirth" th:field="*{dateOfBirth}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Giới tính</label>
+                            <select class="form-control" id="gender" th:field="*{gender}" required>
+                                <option th:value="true">Nam</option>
+                                <option th:value="false">Nữ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Số điện thoại</label>
+                            <input type="text" class="form-control" id="phone" th:field="*{phone}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </form>
+                </div>
+                <div id="change-password" class="content-section">
+                    <div>
+                        <h1 class="text-danger m-3">Thay đổi mật khẩu</h1>
+                    </div>
+                    <form th:action="@{/changePassword}" method="post" class="form-container">
+                        <div class="form-floating m-3">
+                            <label for="password">Nhập mật khẩu cũ</label>
+                            <input type="password" class="form-control" id="password" name="oldPassword" placeholder=""
+                                required>
+                        </div>
+                        <div class="form-floating m-3">
+                            <label for="newPassword">Nhập mật khẩu mới</label>
+                            <input type="password" class="form-control" name="newPassword" id="newPassword"
+                                placeholder="" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                title="Mật khẩu phải có ít nhất 8 ký tự, bao gồm ít nhất một chữ số, một chữ thường và một chữ hoa."
+                                required>
+                        </div>
+                        <div class="form-floating m-3">
+                            <label for="confirmPassword">Xác nhận mật khẩu mới</label>
+                            <input type="password" class="form-control" name="confirmPassword" id="confirmPassword"
+                                placeholder="" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                title="Mật khẩu phải có ít nhất 8 ký tự, bao gồm ít nhất một chữ số, một chữ thường và một chữ hoa."
+                                oninput="checkPasswordMatch();" required>
+                        </div>
+                        <button style="margin-left: 280px;" type="submit" class="btn btn-primary submit-button">Lưu
+                            thay đổi</button>
+                    </form>
+                </div>
+                <div id="messages" class="content-section">
+                    <h2>Messages</h2>
+                    <p>Messages content goes here.</p>
+                </div>
+                <div id="settings" class="content-section">
+                    <h2>Settings</h2>
+                    <p>Settings content goes here.</p>
+                </div>
+                <div id="logout" class="content-section">
+                    <h2>Logout</h2>
+                    <p>Logout content goes here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function showSection(event, sectionId) {
+            event.preventDefault();
+
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+
+            const targetSection = document.getElementById(sectionId);
+            targetSection.classList.add('active');
+
+            const links = document.querySelectorAll('.sidebar a');
+            links.forEach(link => link.classList.remove('active'));
+
+            event.currentTarget.classList.add('active');
+        }
+
+        // Check for URL hash and display the corresponding section
+        document.addEventListener("DOMContentLoaded", function () {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                const targetLink = document.querySelector(`.sidebar a[href="#${hash}"]`);
+                if (targetLink) {
+                    targetLink.click();
+                }
+            }
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        $(document).ready(function () {
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": true,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "slideDown",
+                "hideMethod": "slideUp"
+            };
+
+            var successMessage = /*[[${successMessage}]]*/ null;
+            var errorMessage = /*[[${errorMessage}]]*/ null;
+
+            if (successMessage) {
+                toastr.success(successMessage);
+            }
+
+            if (errorMessage) {
+                toastr.error(errorMessage);
+            }
+        });
+        /*]]>*/
+    </script>
+</body>
+
+</html>
