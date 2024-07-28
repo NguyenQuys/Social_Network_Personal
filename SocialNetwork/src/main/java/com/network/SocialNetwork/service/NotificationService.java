@@ -108,6 +108,42 @@ public class NotificationService {
         return notificationRepository.save(newNotification);
     }
 
+    public void notiPostRelevant(Post post, User userComment) {
+        User sender = post.getSender();
+        User receiver = post.getReceiver();
+    
+        // Nếu người bình luận là người gửi
+        if (userComment.getId().equals(sender.getId())) {
+            createAndSaveNotification(post, userComment, receiver);
+        }
+        // Nếu người bình luận là người nhận
+        else if (userComment.getId().equals(receiver.getId())) {
+            createAndSaveNotification(post, userComment, sender);
+        }
+        // Nếu người bình luận là người thứ ba
+        else {
+            createAndSaveNotification(post, userComment, sender);
+            createAndSaveNotification(post, userComment, receiver);
+        }
+    }
+    
+    private void createAndSaveNotification(Post post, User requester, User addressee) {
+        Notifications newNoti = new Notifications();
+        newNoti.setPost(post);
+        newNoti.setRequester(requester);
+        newNoti.setAddressee(addressee);
+        newNoti.setType("comment");
+        if(addressee.getId() == post.getSender().getId())
+        {
+            newNoti.setContent(requester.getFullName() + " đã bình luận bài viết của bạn");
+        }
+        else if(addressee.getId() == post.getReceiver().getId())
+        {
+            newNoti.setContent(requester.getFullName() + "đã bình luận về một bài viết liên quan đến bạn");
+        }
+        notificationRepository.save(newNoti);
+    }
+    
     public Notifications notiBirthday(List<User> usersHaveBirthday) {
         User currentUser = getCurrentUser().orElseThrow(() -> new IllegalStateException("User not authenticated"));
     

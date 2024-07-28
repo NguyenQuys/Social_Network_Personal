@@ -679,16 +679,31 @@
                                                     <form id="commentForm1" th:action="@{/addComment}" method="post"
                                                         class="modal-body custom-scroll myForm">
                                                         <div class="form-group submittedContent">
-                                                            <ul class="custom-scroll"
-                                                                th:each="comment : ${post.comments}">
+                                                            <ul th:each="comment : ${post.comments}">
                                                                 <li class="p-3 content"
                                                                     style="background-color: rgb(199, 192, 192); width: 100%; border-radius: 15px">
-                                                                    <h6 class="author">
-                                                                        <a th:href="@{|/profile/${userId}(userId=${comment.userId})}"
-                                                                            th:text="${comment.authorName}"></a>
-                                                                    </h6>
-                                                                    <p th:text="${comment.content}">Comment content</p>
+                                                                    <div class="row d-flex align-items-center">
+                                                                        <div class="col-2">
+                                                                            <img th:src="${comment.user.avatar}" style="border-radius: 50%">
+                                                                        </div>
+                                                                        <div class="col-10">
+                                                                            <h6 class="author">
+                                                                                <a th:href="@{|/profile/${userId}(userId=${comment.user.id})}"
+                                                                                    th:text="${comment.user.fullName}"></a>
+                                                                            </h6>
+                                                                            <p th:text="${comment.content}">Comment content</p>
+                                                                        </div>
+                                                                    </div>
                                                                 </li>
+                                                                <div class="d-flex">
+                                                                    <p class="mr-3">like</p>
+                                                                    <p class="mr-3">sua</p>
+                                                                    <form th:action="@{/delete-comment}" method="post">
+                                                                        <input type="hidden" th:value="${comment.id}"
+                                                                            th:name="commentId">
+                                                                        <button type="submit">Xóa</button>
+                                                                    </form>
+                                                                </div>
                                                                 <hr>
                                                             </ul>
                                                         </div>

@@ -21,10 +21,13 @@ public class CommentService {
     }
 
 
-    public Comment createComment(Optional<User> user, String content, Post post) {
-        User actualUser = user.orElseThrow(() -> new IllegalArgumentException("User cannot be empty"));
-        Comment comment = new Comment(actualUser.getId(), actualUser.getFullName(), content, post);
-        return commentRepository.save(comment);
+    public Comment createComment(User user, String content, Post post) 
+    {
+        Comment newComment = new Comment();
+        newComment.setUser(user);
+        newComment.setContent(content);
+        newComment.setPost(post);
+        return commentRepository.save(newComment);
     }
 
 

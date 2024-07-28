@@ -17,22 +17,16 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId; 
-    private String authorName; 
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private User user;
+
     private String content;
-    private LocalDateTime timestamp;
+
+    private LocalDateTime timestamp = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
-
-
-    public Comment(Long userId, String authorName, String content, Post post) {
-        this.userId = userId;
-        this.authorName = authorName;
-        this.content = content;
-        this.timestamp = LocalDateTime.now();
-        this.post = post;
-    }
 
 }

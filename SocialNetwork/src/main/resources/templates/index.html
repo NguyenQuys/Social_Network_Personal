@@ -311,7 +311,8 @@
                                             </div>
                                             <form class="modal-body custom-scroll" th:action="@{/post}" method="post"
                                                 enctype="multipart/form-data">
-                                                <input type="hidden" th:value="${currentlyUser.id}" th:name="idReceiver">
+                                                <input type="hidden" th:value="${currentlyUser.id}"
+                                                    th:name="idReceiver">
                                                 <div class="form-group">
                                                     <textarea name="content"
                                                         class="share-field-big custom-scroll form-control"
@@ -358,21 +359,21 @@
                                 <!-- profile picture end -->
 
                                 <div class="posted-author">
-                                    <h6 class="author d-flex align-items-center" th:if="${post.sender.id != post.receiver.id}">
-                                        <a th:href="@{|/profile/${post.sender.id}|}"
-                                            th:text="${post.sender.fullName}">
+                                    <h6 class="author d-flex align-items-center"
+                                        th:if="${post.sender.id != post.receiver.id}">
+                                        <a th:href="@{|/profile/${post.sender.id}|}" th:text="${post.sender.fullName}">
                                         </a>
                                         <span class="material-symbols-outlined">
                                             play_arrow
                                         </span>
                                         <a th:href="@{|/profile/${post.receiver.id}|}"
-                                        th:text="${post.receiver.fullName}">
+                                            th:text="${post.receiver.fullName}">
                                         </a>
                                     </h6>
-                                    <h6 class="author d-flex align-items-center" th:unless="${post.sender.id != post.receiver.id}">
-                                        <a th:href="@{|/profile/${post.sender.id}|}"
-                                            th:text="${post.sender.fullName}">
-                                        </a>                                      
+                                    <h6 class="author d-flex align-items-center"
+                                        th:unless="${post.sender.id != post.receiver.id}">
+                                        <a th:href="@{|/profile/${post.sender.id}|}" th:text="${post.sender.fullName}">
+                                        </a>
                                     </h6>
                                     <span class="post-time"
                                         th:text="${#temporals.format(post.timestamp, 'dd-MM-yyyy HH:mm')}">Posted time
@@ -651,19 +652,30 @@
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
-
-                                                <div class="form-group submittedContent">
-                                                    <ul class="custom-scroll" th:each="comment : ${post.comments}">
+                                                <style>
+                                                    .custom-scroll {
+                                                        width: 100%;
+                                                        max-height: 750px;
+                                                        overflow-y: scroll;
+                                                    }
+                                                </style>
+                                                <div class="form-group submittedContent container custom-scroll">
+                                                    <ul th:each="comment : ${post.comments}">
                                                         <li class="p-3 content"
                                                             style="background-color: rgb(199, 192, 192); width: 100%; border-radius: 15px">
-                                                            <h6 class="author">
-                                                                <a th:href="@{|/profile/${userId}(userId=${comment.userId})}"
-                                                                    th:text="${comment.authorName}"></a>
-                                                            </h6>
-                                                            <p th:text="${comment.content}">Comment content</p>
-                                                            <!-- <div id="displayContent"></div> -->
+                                                            <div class="row d-flex align-items-center">
+                                                                <div class="col-2">
+                                                                    <img th:src="${comment.user.avatar}" style="border-radius: 50%">
+                                                                </div>
+                                                                <div class="col-10">
+                                                                    <h6 class="author">
+                                                                        <a th:href="@{|/profile/${userId}(userId=${comment.user.id})}"
+                                                                            th:text="${comment.user.fullName}"></a>
+                                                                    </h6>
+                                                                    <p th:text="${comment.content}">Comment content</p>
+                                                                </div>
+                                                            </div>
                                                         </li>
-
                                                         <div class="d-flex">
                                                             <p class="mr-3">like</p>
                                                             <p class="mr-3">sua</p>
@@ -675,17 +687,17 @@
                                                         </div>
                                                         <hr>
                                                     </ul>
-
-                                                    <h1 th:text="${post.id}"></h1>
-                                                    <!-- Chèn giá trị vào thuộc tính data-id -->
                                                     <input type="hidden" class="postId" th:attr="data-id=${post.id}" />
-                                                    <div class="displayContent"></div>
-
+                                                    <div id="displayContent-[[${post.id}]]" class="displayContent">
+                                                    </div>
                                                 </div>
+
+
                                                 <!-- Input comment area starts-->
                                                 <div class="share-text-box">
                                                     <textarea cols="70" name="content" placeholder="Nhập bình luận"
-                                                        class="inputTextareaContent" th:attr="data-cmt=${post.id}" required></textarea>
+                                                        class="inputTextareaContent" th:attr="data-cmt=${post.id}"
+                                                        required></textarea>
                                                     <div class="modal-footer">
                                                         <button type="button" class="post-share-btn btn btn-secondary"
                                                             data-dismiss="modal">Hủy</button>
@@ -693,7 +705,7 @@
                                                             th:attr="data-id=${post.id}, data-cmt=${post.id}">Đăng</button>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <!-- input comment area ends  -->
                                             </div>
                                         </div>
@@ -750,6 +762,8 @@
             /*<![CDATA[*/
             var currentlyUser = /*[[${currentlyUser.username}]]*/ 'anonymous';
             var userChosen = /*[[${userChosen.username}]]*/ 'anonymous';
+            var currentName = /*[[${currentlyUser.fullName}]]*/ 'anonymous';
+
             $(document).ready(function () {
                 toastr.options = {
                     "closeButton": true,
@@ -775,6 +789,44 @@
             });
 
             /*]]>*/
+
+            $(document).ready(function () {
+                $('.post-share-btn').click(function () {
+                    var shareTextBox = $(this).closest('.share-text-box');
+                    var content = shareTextBox.find('.inputTextareaContent').val();
+                    var postId = $(this).data('id'); // Lấy giá trị từ data-id của nút
+
+                    // var content = $('.inputTextareaContent').val(); // Lấy giá trị của textarea
+                    // var postDiv = $(this).closest('.post'); // Tìm phần tử cha với class 'post'
+                    // var postId = postDiv.find('.postId').data('id'); // Lấy ID từ data-id của input bên trong phần tử cha
+
+                    console.log("nguoi gui:" + currentName);
+                    console.log("POST HIEN TAI: " + postId);
+                    console.log("BÌNH LUẬN: " + content);
+
+
+                    // Thực hiện AJAX nếu cần
+                    $.ajax({
+                        url: '/addComment',
+                        type: 'GET',
+                        data: { content: content, postId: postId },
+                        success: function (response) {
+                            var content = '<div style="background-color: rgb(199, 192, 192); padding: 10px; margin: 5px 0;border-radius: 15px">' +
+                                '<div>' + '<strong>' + currentName + '</strong>' + '</div>' +
+                                '<div>' + response + '</div>' +
+                                '</div>';
+                            $('.displayContent').append(content);
+                            $('.inputTextareaContent').val(''); // Clear the textarea after submission
+                        }
+
+                        // error: function (xhr, status, error) {
+                        //     console.error('Error:', error);
+                        //     $('.displayContent').append('<p>An error occurred: ' + error + '</p>');
+                        // }
+                    });
+                });
+            });
+
         </script>
 
         <script>
@@ -959,36 +1011,6 @@
                 }
             });
 
-            $(document).ready(function () {
-                $('.post-share-btn').click(function () {
-                    var shareTextBox = $(this).closest('.share-text-box');
-                    var content = shareTextBox.find('.inputTextareaContent').val();
-                    var postId = $(this).data('id'); // Lấy giá trị từ data-id của nút
-
-                    // var content = $('.inputTextareaContent').val(); // Lấy giá trị của textarea
-                    // var postDiv = $(this).closest('.post'); // Tìm phần tử cha với class 'post'
-                    // var postId = postDiv.find('.postId').data('id'); // Lấy ID từ data-id của input bên trong phần tử cha
-
-                    console.log("POST HIEN TAI: " + postId);
-                    console.log("BÌNH LUẬN: " + content);
-
-
-                    // Thực hiện AJAX nếu cần
-                    $.ajax({
-                        url: '/addComment',
-                        type: 'GET',
-                        data: { content: content, postId: postId },
-                        success: function (response) {
-                            $('.displayContent').append('<div>' + response + '</div>');
-                            $('.inputTextareaContent').val(''); // Clear the textarea after submission
-                        },
-                        // error: function (xhr, status, error) {
-                        //     console.error('Error:', error);
-                        //     $('.displayContent').append('<p>An error occurred: ' + error + '</p>');
-                        // }
-                    });
-                });
-            });
 
 
 

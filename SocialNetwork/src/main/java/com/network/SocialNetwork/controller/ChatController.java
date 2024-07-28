@@ -5,8 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import com.network.SocialNetwork.service.UserService;
+
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -39,6 +40,8 @@ public class ChatController {
     @Autowired
     private ChatMessageRepository chatMessageRepository;
 
+    String originalText;
+
     private Optional<User> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
@@ -70,8 +73,10 @@ public class ChatController {
     @MessageMapping("/chat.sendMessage")
     @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
-        chatMessage.setTimestamp(LocalDateTime.now());
-        chatMessageRepository.save(chatMessage);
+        originalText = chatMessage.getContent();
+        chatMessage.setContent(new String(Base64.encodeBase64String(chatMessage.getContent().getBytes())));
+        chatMessageRepository.save(chatMessage); // Này để lưu phần mã hóa trong db
+        chatMessage.setContent(originalText);
         return chatMessage;
     }
 
@@ -91,11 +96,14 @@ public class ChatController {
         // Check if the current user is either the sender or recipient
         if (chatMessageRepository.existsBySenderAndRecipient(username, currentUsername) ||
                 chatMessageRepository.existsBySenderAndRecipient(currentUsername, username)) {
-            return chatMessageRepository.findBySenderOrRecipient(currentUsername, currentUsername);
+                    var conversations = chatMessageRepository.findBySenderOrRecipient(currentUsername, currentUsername);
+                    for (ChatMessage chatMessage : conversations) {
+                        chatMessage.setContent(new String(Base64.decodeBase64(chatMessage.getContent())));
+                    }
+            // return chatMessageRepository.findBySenderOrRecipient(currentUsername, currentUsername);
+            return conversations;
         }
-
-        // Return an empty list or throw an exception if not found
-        return List.of(); // Or throw an exception
+        return List.of(); 
     }
 
 }

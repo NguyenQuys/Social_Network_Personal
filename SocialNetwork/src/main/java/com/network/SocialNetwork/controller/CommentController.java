@@ -9,7 +9,6 @@ import com.network.SocialNetwork.service.CommentService;
 import com.network.SocialNetwork.service.NotificationService;
 import com.network.SocialNetwork.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -23,9 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -78,24 +75,22 @@ public class CommentController {
     @GetMapping("/addComment")
     @ResponseBody
     public String addComment(@RequestParam Long postId, @RequestParam String content, Model model) {
-        Optional<Post> postOptional = postRepository.findById(postId);
-        Optional<User> currentUser = getCurrentUser();
-        if (postOptional.isPresent() && currentUser.isPresent()) {
-            Post post = postOptional.get();
+        Post post = postRepository.findById(postId).orElse(null);
+        User currentUser = getCurrentUser().get();
             Comment comment = commentService.createComment(currentUser, content, post);
+
+            
+            notificationService.notiPostRelevant(post, currentUser);
+            
             post.getComments().add(comment);
             postRepository.save(post);
             model.addAttribute("post", post);
-            if (!currentUser.get().getId().equals(post.getSender().getId())) {
-                notificationService.addComment(postId, currentUser.get().getId());
-            }
+            // if (!currentUser.get().getId().equals(post.getSender().getId())) {
+            //     notificationService.addComment(postId, currentUser.get().getId());
+            // }
             return content; // Return the comment content
-        }
-        return null;
+       
     }
-
-    
-
 
     @PostMapping("/delete-comment")
     public ResponseEntity<Map<String, String>> deleteComment(@RequestParam("commentId") Long commentId) {

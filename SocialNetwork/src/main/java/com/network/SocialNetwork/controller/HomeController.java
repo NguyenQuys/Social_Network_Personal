@@ -82,6 +82,11 @@ public class HomeController {
         }
     }
 
+    @GetMapping("/aa")
+    public String aa()
+    {
+        return "dingu";
+    }
     @GetMapping
     public String home(Model model, @RequestParam(value = "message", required = false) String message) {
         if (message != null) {

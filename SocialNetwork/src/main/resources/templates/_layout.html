@@ -39,7 +39,13 @@
     <link rel="stylesheet" href="../../../user/assets/css/plugins/lightgallery.min.css">
     <!-- Main Style CSS -->
     <link rel="stylesheet" href="../../../user/assets/css/style.css">
-
+    <style>
+        .custom-scroll {
+            width: 95%;
+            max-height: 750px;
+            overflow-y: scroll;
+        }
+    </style>
 
 </head>
 
@@ -149,7 +155,7 @@
                                             </div>
                                         </div>
                                     </li>
-                                    <li class="notification-trigger">
+                                    <li class="notification-trigger ">
                                         <a class="msg-trigger-btn" href="#b">Thông báo <span class="badge badge-danger"
                                                 th:if="${notificationsUnread != 0}"
                                                 th:text="${notificationsUnread}">Quantity</span></a>
@@ -165,81 +171,51 @@
                                                     thông báo để hiển thị</h5>
                                                 <hr>
                                             </div>
-                                            <ul class="dropdown-msg-list" th:each="noti : ${notifications}"
-                                                id="notificationList">
-                                                <li th:classappend="${noti.isRead} ? '' : 'unread-noti'"
-                                                    class="msg-list-item p-0 m-0"
-                                                    style="border-radius: 5px; border-bottom: 0; width: 100%;">
+                                            <div class="custom-scroll">
+                                                <ul class="dropdown-msg-list" th:each="noti : ${notifications}"
+                                                    id="notificationList">
+                                                    <li th:classappend="${noti.isRead} ? '' : 'unread-noti'"
+                                                        class="msg-list-item p-0 m-0"
+                                                        style="border-radius: 5px; border-bottom: 0; width: 100%;">
 
-                                                    <!-- Conditional anchor tag -->
-                                                    <div th:if="${noti.post != null}">
-                                                        <a th:href="@{|/post-detail/${noti.post.id}?notiId=${noti.id}|}"
-                                                            class="p-0">
-                                                            <div class="row">
-                                                                <!-- profile picture start -->
-                                                                <div class="profile-thumb col-2">
-                                                                    <figure class="profile-thumb-middle">
-                                                                        <img th:src="${noti.requester.avatar}"
-                                                                            alt="profile picture">
-                                                                    </figure>
+                                                        <!-- Conditional anchor tag -->
+                                                        <div th:if="${noti.post != null}">
+                                                            <a th:href="@{|/post-detail/${noti.post.id}?notiId=${noti.id}|}"
+                                                                class="p-0">
+                                                                <div class="row">
+                                                                    <!-- profile picture start -->
+                                                                    <div class="profile-thumb col-2">
+                                                                        <figure class="profile-thumb-middle">
+                                                                            <img th:src="${noti.requester.avatar}"
+                                                                                alt="profile picture">
+                                                                        </figure>
+                                                                    </div>
+                                                                    <!-- profile picture end -->
+
+                                                                    <!-- message content start -->
+                                                                    <div class="msg-content notification-content col-8">
+                                                                        <h6>
+                                                                            <bold th:text="${noti.requester.fullName}">
+                                                                            </bold>
+                                                                        </h6>
+                                                                        <h6 th:utext="${noti.content}"></h6>
+                                                                    </div>
+                                                                    <!-- message content end -->
+
+                                                                    <!-- message time start -->
+                                                                    <div class="msg-time col-2">
+                                                                        <p
+                                                                            th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
+                                                                        </p>
+                                                                    </div>
+                                                                    <!-- message time end -->
                                                                 </div>
-                                                                <!-- profile picture end -->
-
-                                                                <!-- message content start -->
-                                                                <div class="msg-content notification-content col-8">
-                                                                    <h6><bold
-                                                                            th:text="${noti.requester.fullName}"></bold>
-                                                                    </h6>
-                                                                    <h6 th:utext="${noti.content}"></h6>
-                                                                </div>
-                                                                <!-- message content end -->
-
-                                                                <!-- message time start -->
-                                                                <div class="msg-time col-2">
-                                                                    <p
-                                                                        th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
-                                                                    </p>
-                                                                </div>
-                                                                <!-- message time end -->
-                                                            </div>
-                                                        </a>
-                                                    </div>
-
-                                                    <!-- Display "AAAA" if noti.post is null -->
-                                                    <div th:if="${noti.post == null && noti.type != 'BIRTHDAY'}">
-                                                        <p class="p-0">
-                                                        <div class="row">
-                                                            <!-- profile picture start -->
-                                                            <div class="profile-thumb col-2">
-                                                                <figure class="profile-thumb-middle">
-                                                                    <img th:src="${noti.requester.avatar}"
-                                                                        alt="profile picture">
-                                                                </figure>
-                                                            </div>
-                                                            <!-- profile picture end -->
-
-                                                            <!-- message content start -->
-                                                            <div class="msg-content notification-content col-8">
-                                                                <h6><strong
-                                                                        th:text="${noti.requester.fullName}"></strong>
-                                                                </h6>
-                                                                <h6 th:text="${noti.content}"></h6>
-                                                            </div>
-                                                            <!-- message content end -->
-
-                                                            <!-- message time start -->
-                                                            <div class="msg-time col-2">
-                                                                <p
-                                                                    th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
-                                                                </p>
-                                                            </div>
-                                                            <!-- message time end -->
+                                                            </a>
                                                         </div>
-                                                        </p>
-                                                    </div>
-                                                    <div th:if="${noti.post == null && noti.type == 'BIRTHDAY'}">
-                                                        <a th:href="@{|/profile/${noti.requester.id}?notiId=${noti.id}|}"
-                                                            class="p-0">
+
+                                                        <!-- Display "AAAA" if noti.post is null -->
+                                                        <div th:if="${noti.post == null && noti.type != 'BIRTHDAY'}">
+                                                            <p class="p-0">
                                                             <div class="row">
                                                                 <!-- profile picture start -->
                                                                 <div class="profile-thumb col-2">
@@ -252,10 +228,10 @@
 
                                                                 <!-- message content start -->
                                                                 <div class="msg-content notification-content col-8">
-                                                                    <h6><bold
-                                                                            th:text="${noti.requester.fullName}"></bold>
+                                                                    <h6><strong
+                                                                            th:text="${noti.requester.fullName}"></strong>
                                                                     </h6>
-                                                                    <h6 th:utext="${noti.content}"></h6>
+                                                                    <h6 th:text="${noti.content}"></h6>
                                                                 </div>
                                                                 <!-- message content end -->
 
@@ -267,12 +243,45 @@
                                                                 </div>
                                                                 <!-- message time end -->
                                                             </div>
-                                                        </a>
-                                                    </div>
-                                                </li>
-                                                <hr>
-                                            </ul>
+                                                            </p>
+                                                        </div>
+                                                        <div th:if="${noti.post == null && noti.type == 'BIRTHDAY'}">
+                                                            <a th:href="@{|/profile/${noti.requester.id}?notiId=${noti.id}|}"
+                                                                class="p-0">
+                                                                <div class="row">
+                                                                    <!-- profile picture start -->
+                                                                    <div class="profile-thumb col-2">
+                                                                        <figure class="profile-thumb-middle">
+                                                                            <img th:src="${noti.requester.avatar}"
+                                                                                alt="profile picture">
+                                                                        </figure>
+                                                                    </div>
+                                                                    <!-- profile picture end -->
 
+                                                                    <!-- message content start -->
+                                                                    <div class="msg-content notification-content col-8">
+                                                                        <h6>
+                                                                            <bold th:text="${noti.requester.fullName}">
+                                                                            </bold>
+                                                                        </h6>
+                                                                        <h6 th:utext="${noti.content}"></h6>
+                                                                    </div>
+                                                                    <!-- message content end -->
+
+                                                                    <!-- message time start -->
+                                                                    <div class="msg-time col-2">
+                                                                        <p
+                                                                            th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
+                                                                        </p>
+                                                                    </div>
+                                                                    <!-- message time end -->
+                                                                </div>
+                                                            </a>
+                                                        </div>
+                                                    </li>
+                                                    <hr>
+                                                </ul>
+                                            </div>
                                             <style>
                                                 .unread-noti {
                                                     background-color: rgb(238, 189, 132);
