@@ -8,7 +8,7 @@
     <title>Compact Dashboard Layout with Hover Effect</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -63,6 +63,13 @@
         .content-section.active {
             display: block;
         }
+
+        .nav-list{
+            display: flex;
+            flex-direction: column;
+            height: 100vh; 
+            list-style: none;
+        }
     </style>
 </head>
 
@@ -72,7 +79,15 @@
             <div class="sidebar" id="sidebar">
                 <h1 class="text-center">Cài đặt</h1>
                 <div class="mt-5">
-                    <ul class="px-3" style="list-style: none">
+                    <ul class="px-3 nav-list">
+                        <li>
+                            <a th:href="@{/}" class="d-flex">
+                                <span class="material-symbols-outlined">
+                                    arrow_back
+                                    </span>
+                                <h4 class="ml-2">Quay về trang chủ</h4>
+                            </a>
+                        </li>
                         <li>
                             <a href="#ChangeInfo" onclick="showSection(event, 'ChangeInfo')">
                                 <h4>Chỉnh sửa thông tin</h4>

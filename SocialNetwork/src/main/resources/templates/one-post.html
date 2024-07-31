@@ -59,6 +59,7 @@
                                     th:if="${currentlyUser.id == postChosen.sender.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
                                     <form th:action="@{/delete-post}" method="post">
                                         <input type="hidden" th:value="${postChosen.id}" th:name="postId">
+                                        <input type="hidden" th:name="sourcePage" th:value="detail-post-page">
                                         <button type="submit" class="btn btn-danger">Xóa bài viết</button>
                                     </form>
                                 </li>
@@ -175,6 +176,8 @@
                                         <textarea id="otherReason" name="description" style="width: 100%;" rows="3"
                                             placeholder="Nhập mô tả..."></textarea><br>
                                     </div>
+
+                                    <input type="hidden" th:name="sourcePage" th:value="post-detail">
 
                                     <button class="p-2"
                                         style="background-color: #73AD21; color: white; border-radius: 5px; float: right;"

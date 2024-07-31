@@ -44,6 +44,8 @@ import com.network.SocialNetwork.service.NotificationService;
 import com.network.SocialNetwork.service.PostService;
 import com.network.SocialNetwork.service.UserService;
 
+import groovyjarjarantlr4.v4.parse.ANTLRParser.elementOptions_return;
+
 @Controller
 public class PostController {
     // ---------------REPOSITORIES START-----------------
@@ -305,12 +307,14 @@ public class PostController {
     }
 
     @PostMapping("/delete-post")
-    public String deletePost(@RequestParam("postId") Long postId, RedirectAttributes redirectAttributes) {
+    public String deletePost(@RequestParam("postId") Long postId,
+                            @RequestParam("sourcePage") String sourcePage,
+                             RedirectAttributes redirectAttributes) {
         Optional<User> currentlyUserOpt = getCurrentUser();
         Optional<Post> postOptional = postRepository.findById(postId);
     
         if (!currentlyUserOpt.isPresent() || !postOptional.isPresent()) {
-            return "error"; // or some appropriate error page
+            return "error"; 
         }
     
         User currentlyUser = currentlyUserOpt.get();
@@ -339,7 +343,15 @@ public class PostController {
         }
     
         redirectAttributes.addFlashAttribute("message", "Xóa bài viết thành công!");
-        return "redirect:/";
+        if(sourcePage.equals("profilePage"))
+        {
+            return "redirect:/profile/" + post.getSender().getId();
+        }
+        else if(sourcePage.equals("indexPage") || sourcePage.equals("detail-post-page"))
+        {
+            return "redirect:/";
+        }
+        return null;
     }
     
 

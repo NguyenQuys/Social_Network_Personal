@@ -22,7 +22,7 @@ public class Post {
     private String content;
     private LocalDateTime timestamp;
 
-    private String elapsedTime;
+    // private String elapsedTime;
 
     private int likes;
 

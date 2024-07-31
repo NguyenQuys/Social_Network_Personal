@@ -565,6 +565,7 @@
                                                     th:if="${currentlyUser.id == post.sender.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
                                                     <form th:action="@{/delete-post}" method="post">
                                                         <input type="hidden" th:value="${post.id}" th:name="postId">
+                                                        <input type="hidden" th:name="sourcePage" th:value="profilePage">
                                                         <button type="submit" class="btn btn-danger">Xóa bài
                                                             viết</button>
                                                     </form>

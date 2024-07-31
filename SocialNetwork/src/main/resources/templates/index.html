@@ -320,15 +320,114 @@
                                                         id="editor"></textarea>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label>Chọn ảnh</label>
+                                                    <!-- <label>Chọn ảnh</label>
                                                     <input type="file" name="images" multiple accept="image/*"
-                                                        class="form-control" />
+                                                        class="form-control" /> -->
+                                                    <input type="file" id="file-input" style="display: none;"
+                                                        name="images" multiple accept="image/*">
+                                                    <label for="file-input">
+                                                        <p>Chọn ảnh</p>
+                                                        <span class="material-symbols-outlined">
+                                                            image
+                                                        </span>
+                                                    </label>
+                                                    <div id="image-preview">
+                                                    </div>
+                                                    <style>
+                                                        .custom-file-upload {
+                                                            display: inline-block;
+                                                            cursor: pointer;
+                                                            padding: 10px;
+                                                            border: 1px solid #ccc;
+                                                            border-radius: 4px;
+                                                            background-color: #f8f8f8;
+                                                        }
+
+                                                        .custom-file-upload:hover {
+                                                            background-color: #e0e0e0;
+                                                        }
+
+                                                        #image-preview img {
+                                                            width: 100px;
+                                                            /* Adjust as needed */
+                                                            margin: 5px;
+                                                        }
+
+                                                        .custom-file-upload {
+                                                            display: inline-block;
+                                                            cursor: pointer;
+                                                            padding: 10px;
+                                                            border: 1px solid #ccc;
+                                                            border-radius: 4px;
+                                                            background-color: #f8f8f8;
+                                                        }
+
+                                                        .custom-file-upload:hover {
+                                                            background-color: #e0e0e0;
+                                                        }
+
+                                                        #video-preview video {
+                                                            max-width: 100%;
+                                                            /* Adjust as needed */
+                                                            margin: 5px;
+                                                        }
+                                                    </style>
+
                                                 </div>
                                                 <div class="form-group">
-                                                    <label>Chọn video</label>
-                                                    <input type="file" name="videos" multiple accept="video/*"
-                                                        class="form-control" />
+                                                    <!-- <input type="file" name="videos" multiple accept="video/*"
+                                                        class="form-control" /> -->
+                                                    <input type="file" id="video-input" style="display: none;"
+                                                        name="videos" multiple accept="video/*">
+                                                    <label for="video-input">
+                                                        <p>Chọn video</p>
+                                                        <span class="material-symbols-outlined">
+                                                            videocam
+                                                        </span>
+                                                    </label>
+                                                    <div id="video-preview">
+                                                        video se xuat hien o day
+                                                    </div>
                                                 </div>
+                                                <script>
+                                                    document.getElementById('file-input').addEventListener('change', function (event) {
+                                                        const files = event.target.files;
+                                                        const imagePreview = document.getElementById('image-preview');
+                                                        imagePreview.innerHTML = ''; // Clear any existing images
+
+                                                        Array.from(files).forEach(file => {
+                                                            if (file.type.startsWith('image/')) {
+                                                                const reader = new FileReader();
+                                                                reader.onload = function (e) {
+                                                                    const img = document.createElement('img');
+                                                                    img.src = e.target.result;
+                                                                    imagePreview.appendChild(img);
+                                                                }
+                                                                reader.readAsDataURL(file);
+                                                            }
+                                                        });
+                                                    });
+
+                                                    document.getElementById('video-input').addEventListener('change', function (event) {
+                                                        const files = event.target.files;
+                                                        const videoPreview = document.getElementById('video-preview');
+                                                        videoPreview.innerHTML = ''; // Clear any existing videos
+
+                                                        Array.from(files).forEach(file => {
+                                                            if (file.type.startsWith('video/')) {
+                                                                const reader = new FileReader();
+                                                                reader.onload = function (e) {
+                                                                    const video = document.createElement('video');
+                                                                    video.src = e.target.result;
+                                                                    video.controls = true;
+                                                                    videoPreview.appendChild(video);
+                                                                }
+                                                                reader.readAsDataURL(file);
+                                                            }
+                                                        });
+                                                    });
+
+                                                </script>
                                                 <div class="modal-footer">
                                                     <button type="button" class="post-share-btn btn btn-secondary"
                                                         data-dismiss="modal">Hủy</button>
@@ -397,6 +496,7 @@
                                                 th:if="${currentlyUser.id == post.sender.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
                                                 <form th:action="@{/delete-post}" method="post">
                                                     <input type="hidden" th:value="${post.id}" th:name="postId">
+                                                    <input type="hidden" th:name="sourcePage" th:value="indexPage">
                                                     <button type="submit" class="btn btn-danger">Xóa bài viết</button>
                                                 </form>
                                             </li>
@@ -510,6 +610,8 @@
                                                     <textarea id="otherReason" name="description" style="width: 100%;"
                                                         rows="3" placeholder="Nhập mô tả..."></textarea><br>
                                                 </div>
+
+                                                <input type="hidden" th:name="sourcePage" th:value="index">
 
                                                 <button class="p-2"
                                                     style="background-color: #73AD21; color: white; border-radius: 5px; float: right;"
@@ -665,7 +767,8 @@
                                                             style="background-color: rgb(199, 192, 192); width: 100%; border-radius: 15px">
                                                             <div class="row d-flex align-items-center">
                                                                 <div class="col-2">
-                                                                    <img th:src="${comment.user.avatar}" style="border-radius: 50%">
+                                                                    <img th:src="${comment.user.avatar}"
+                                                                        style="border-radius: 50%">
                                                                 </div>
                                                                 <div class="col-10">
                                                                     <h6 class="author">

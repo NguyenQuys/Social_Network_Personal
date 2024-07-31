@@ -76,13 +76,22 @@ public class ReportController {
                              @RequestParam("reason") String reason,
                              @RequestParam("userIdReport") Long userIdReport,
                              @Param("description") String description,
+                             @RequestParam("sourcePage") String sourcePage,
                              RedirectAttributes redirectAttributes)
     {
         reportService.createReport(postId, reason, userIdReport, description);
         notificationService.sendReportToAdmin(postId, reason, userIdReport);
 
         redirectAttributes.addFlashAttribute("message","Gửi report thành công");
-        return "redirect:/";
+        if(sourcePage.equals("index"))
+        {
+            return "redirect:/";
+        }
+        else if(sourcePage.equals("post-detail"))
+        {
+            return "redirect:/post-detail/" + postId;
+        }
+        return null;
     }
 
     @PostMapping("/send-warning")
