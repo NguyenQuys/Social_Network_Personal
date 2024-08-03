@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.network.SocialNetwork.eenum.Status;
 import com.network.SocialNetwork.entity.FriendBlock;
 import com.network.SocialNetwork.entity.FriendRequest;
+import com.network.SocialNetwork.entity.Group;
 import com.network.SocialNetwork.entity.Notifications;
 import com.network.SocialNetwork.entity.Post;
 import com.network.SocialNetwork.entity.Statistic;
@@ -30,6 +31,7 @@ import com.network.SocialNetwork.repository.FriendRequestRepository;
 import com.network.SocialNetwork.repository.NotificationRepository;
 import com.network.SocialNetwork.repository.StatisticRepository;
 import com.network.SocialNetwork.repository.UserRepository;
+import com.network.SocialNetwork.service.GroupService;
 import com.network.SocialNetwork.service.PostService;
 import com.network.SocialNetwork.service.UserService;
 
@@ -57,6 +59,9 @@ public class HomeController {
     private UserService userService;
 
     @Autowired
+    private GroupService groupService;
+
+    @Autowired
     private PostService postService;
 
     public String GetUserName() {
@@ -82,11 +87,6 @@ public class HomeController {
         }
     }
 
-    @GetMapping("/aa")
-    public String aa()
-    {
-        return "dingu";
-    }
     @GetMapping
     public String home(Model model, @RequestParam(value = "message", required = false) String message) {
         if (message != null) {
@@ -224,6 +224,10 @@ public class HomeController {
                     blockedRequesterIds.contains(user.getId()));
 
             model.addAttribute("usersResult", userResults);
+
+            List<Group> groupResults = groupService.search(query);
+
+            model.addAttribute("groupsResult", groupResults);
         } else {
             model.addAttribute("usersResult", Collections.emptyList());
         }

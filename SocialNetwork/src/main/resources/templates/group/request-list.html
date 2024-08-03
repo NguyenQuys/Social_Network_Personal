@@ -3,7 +3,7 @@
     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{_layout}">
 
 <head>
-    <title>Lời mời kết bạn</title>
+    <title>Danh sách yêu cầu tham gia nhóm</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <style>
         div.fixed {
@@ -20,32 +20,35 @@
 <body>
     <main layout:fragment="content">
         <div style="margin-top: 100px; width:40%" class="container">
-            <h2 class="mt-4 mb-3">Lời mời kết bạn<span class="text-danger"></span></h2>
-            <div th:if="${friendRequestList.size() == 0}">
+            <h2 class="mt-4 mb-3">Danh sách yêu cầu tham gia nhóm <span class="text-danger" th:text="${groupChosen.name}"></span></h2>
+            <div th:if="${listUserRequestToJoin.size() == 0}">
                 <h3>Bạn chưa có lời mời kết bạn nào🥲🥲 Hãy đi kết bạn thôi nào!!!</h3>
             </div>
-            <div class="row my-2" th:each="user : ${friendRequestList}">
-                <a th:href="@{|profile/${user.requester.id}|}" class="list-group-item list-group-item-action p-4">
+            <div class="row my-2" th:each="user : ${listUserRequestToJoin}">
+                <a th:href="@{|/profile/${user.id}|}" class="list-group-item list-group-item-action p-4">
                     <div class="row">
                         <div class="col-2 mx-3">
-                            <img th:src="@{|${user.requester.avatar}|}" alt="Avatar" class="rounded-circle"
+                            <img th:src="@{|${user.avatar}|}" alt="Avatar" class="rounded-circle"
                                 style="width: 80px; height: 80px;">
                         </div>
                         <div class=" col-5 d-flex align-items-center">
                             <div>
-                                <strong th:text="${user.requester.fullName}" class="ml-3 bold">Tên người dùng</strong>
-                                <p th:text="${user.requester.bio}" class="ml-3 bold">Bio</p>
+                                <strong th:text="${user.fullName}" class="ml-3 bold">Tên người dùng</strong>
+                                <p th:text="${user.bio}" class="ml-3 bold">Bio</p>
                             </div>
                         </div>
                         <div class="col-4 d-flex align-items-center">
                             <div class="mx-4 d-flex">
-                                <form th:action="@{|/add-friend/accept-request|}" method="post">
-                                    <input type="hidden" name="idUserHasBeenAccepted" th:value="${user.requester.id}">
-                                    <button style="background-color: green;" class="btn text-white p-2 mr-2"
-                                        type="submit">Đồng ý</button>
+                                <form th:action="@{/groups/accept-request}" method="post">
+                                    <input type="hidden" name="idUserHasBeenAccepted" th:value="${user.id}">
+                                    <input type="hidden" name="idGroup" th:value="${groupChosen.id}">
+                                    <button style="background-color: green;" class="btn text-white p-2 mr-2" type="submit">Đồng ý</button>
                                 </form>
-                                <form th:action="@{/add-friend/reject-request}" method="post">
-                                    <input type="hidden" name="idUserHasBeenReject" th:value="${user.requester.id}">
+                                
+                                <form th:action="@{/groups/reject-request}" method="post">
+                                    <input type="hidden" name="idSender" th:value="${user.id}">
+                                    <input type="hidden" name="idGroup" th:value="${groupChosen.id}">
+                                    <input type="hidden" th:name="fromRoleUser" th:value="adminGroup">
                                     <button style="background-color: red;" class="btn text-white p-2 ml-2"
                                         type="submit">Từ chối</button>
                                 </form>

@@ -39,6 +39,10 @@ public class Notifications {
     @JoinColumn
     private Post post;
 
+    @ManyToOne
+    @JoinColumn
+    private Group group;
+
     @Column(nullable = false)
     private String type;
 

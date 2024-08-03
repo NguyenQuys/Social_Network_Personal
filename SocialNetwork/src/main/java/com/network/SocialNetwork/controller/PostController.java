@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,12 +31,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.network.SocialNetwork.entity.Group;
 import com.network.SocialNetwork.entity.Image;
 import com.network.SocialNetwork.entity.Notifications;
 import com.network.SocialNetwork.entity.Post;
 import com.network.SocialNetwork.entity.Report;
 import com.network.SocialNetwork.entity.User;
 import com.network.SocialNetwork.entity.Video;
+import com.network.SocialNetwork.repository.GroupRepository;
 import com.network.SocialNetwork.repository.NotificationRepository;
 import com.network.SocialNetwork.repository.PostRepository;
 import com.network.SocialNetwork.repository.ReportRepository;
@@ -58,7 +61,11 @@ public class PostController {
     @Autowired
     private NotificationRepository notificationRepository;
 
-    @Autowired ReportRepository reportRepository;
+    @Autowired
+    private ReportRepository reportRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
     // ---------------REPOSITORIES END-----------------
 
     // ---------------SERVICES START--------------------
@@ -96,51 +103,65 @@ public class PostController {
 
     @PostMapping("/post")
     public String shareContent(@RequestParam String content,
-            @Param("idReceiver") Long idReceiver,
-            @Param("sourcePage") String sourcePage,
+            @RequestParam(required = false) Long idReceiver,
+            @RequestParam(required = false) Long idGroup,
+            @RequestParam String sourcePage,
             @RequestParam("images") List<MultipartFile> imageFiles,
             @RequestParam("videos") List<MultipartFile> videoFiles,
             RedirectAttributes redirectAttributes,
             Model model) {
 
-        Optional<User> currentlyUseroOptional = getCurrentUser();
-        if (!currentlyUseroOptional.isPresent()) {
+        Optional<User> currentlyUserOptional = getCurrentUser();
+        if (!currentlyUserOptional.isPresent()) {
             return "error";
         }
-        User sender = currentlyUseroOptional.get();
-        User receiver = userRepository.findById(idReceiver).get();
+        User sender = currentlyUserOptional.get();
+        User receiver = idReceiver != null ? userRepository.findById(idReceiver).orElse(null) : null;
+        Group group = idGroup != null ? groupRepository.findById(idGroup).orElse(null) : null;
 
-        List<Image> images = new ArrayList<>();
-        for (MultipartFile imageFile : imageFiles) {
-            if (imageFile.getOriginalFilename() == "") {
-                continue;
+        List<Image> images = imageFiles.stream()
+                .filter(file -> !file.getOriginalFilename().isEmpty())
+                .map(file -> new Image(saveFile(file, "src/main/resources/static/user/assets/images/post/")))
+                .collect(Collectors.toList());
+
+        List<Video> videos = videoFiles.stream()
+                .filter(file -> !file.getOriginalFilename().isEmpty())
+                .map(file -> new Video(saveFile(file, "src/main/resources/static/user/assets/images/post/")))
+                .collect(Collectors.toList());
+
+        Post postJustPosted = postService.savePost(content, sender, receiver, group, images, videos);
+
+        if (List.of("profile", "homePage").contains(sourcePage)) {
+            postJustPosted.setIsCensored(true);
+        }
+
+        if ("groupPage".equals(sourcePage)) {
+            if (sender.getId().equals(group.getAdmin().getId())) {
+                postJustPosted.setIsCensored(true);
+                postRepository.save(postJustPosted);
+                redirectAttributes.addFlashAttribute("message", "Thêm bài viết thành công!");
             } else {
-                String imageUrl = saveFile(imageFile, "src/main/resources/static/user/assets/images/post/");
-                images.add(new Image(imageUrl));
+                notificationService.sendRequestToPost(sender, group.getAdmin(), postJustPosted, group);
+                redirectAttributes.addFlashAttribute("message", "Gửi bài viết thành công!");
+                redirectAttributes.addFlashAttribute("subMessage", "Bài viết cần sự kiểm duyệt của Admin");
             }
         }
 
-        List<Video> videos = new ArrayList<>();
-        for (MultipartFile videoFile : videoFiles) {
-            if (videoFile.getOriginalFilename() == "") {
-                continue;
-            } else {
-                String videoUrl = saveFile(videoFile, "src/main/resources/static/user/assets/images/post/");
-                videos.add(new Video(videoUrl));
-            }
+        if (receiver != null && !idReceiver.equals(sender.getId())) {
+            notificationService.postOnSBProfile(sender, receiver, postJustPosted);
         }
 
-        var postJustPost = postService.savePost(content, sender, receiver, images, videos);
-        if(!idReceiver.equals(sender.getId()))
-        {
-            notificationService.postOnSBProfile(sender, receiver, postJustPost);
-        }
-        redirectAttributes.addFlashAttribute("message", "Thêm bài viết thành công!");
         if ("profile".equals(sourcePage)) {
+            redirectAttributes.addFlashAttribute("message", "Thêm bài viết thành công!");
             return "redirect:/profile/" + idReceiver;
-        } else {
+        } else if ("groupPage".equals(sourcePage)) {
+            return "redirect:/groups/" + idGroup;
+        } else if ("homePage".equals(sourcePage)) {
+            redirectAttributes.addFlashAttribute("message", "Thêm bài viết thành công!");
             return "redirect:/";
         }
+
+        return null;
     }
 
     @GetMapping("/post-detail/{postId}")
@@ -149,18 +170,17 @@ public class PostController {
             @Param("notiId") Long notiId) {
         Optional<User> currentlyUserOptional = getCurrentUser();
         if (currentlyUserOptional.isEmpty()) {
-            return "redirect:/error"; 
+            return "redirect:/error";
         }
 
         User currentlyUser = currentlyUserOptional.get();
         Post post = postRepository.findById(postId).orElse(null);
 
         if (post == null) {
-            return "redirect:/error"; 
+            return "redirect:/error";
         }
 
-        if(notiId != null)
-        {
+        if (notiId != null) {
             notificationService.markRead(notiId);
         }
 
@@ -308,26 +328,26 @@ public class PostController {
 
     @PostMapping("/delete-post")
     public String deletePost(@RequestParam("postId") Long postId,
-                            @RequestParam("sourcePage") String sourcePage,
-                             RedirectAttributes redirectAttributes) {
+            @RequestParam("sourcePage") String sourcePage,
+            RedirectAttributes redirectAttributes) {
         Optional<User> currentlyUserOpt = getCurrentUser();
         Optional<Post> postOptional = postRepository.findById(postId);
-    
+
         if (!currentlyUserOpt.isPresent() || !postOptional.isPresent()) {
-            return "error"; 
+            return "error";
         }
-    
+
         User currentlyUser = currentlyUserOpt.get();
         Post post = postOptional.get();
-    
+
         // Delete associated reports
         List<Report> reports = reportRepository.findByPostId(postId);
         reportRepository.deleteAll(reports);
-    
+
         // Delete associated notifications
         List<Notifications> notifications = notificationRepository.findByPostId(postId);
         notificationRepository.deleteAll(notifications);
-    
+
         if (!currentlyUser.getRole().getId().equals(1L)) {
             postRepository.deleteById(postId);
         } else {
@@ -336,25 +356,20 @@ public class PostController {
             newNotifications.setAddressee(post.getSender());
             newNotifications.setType("DELETE POST");
             newNotifications.setContent("Bài viết của bạn đã bị kiểm duyệt và bị xóa bởi Admin");
-    
+
             notificationRepository.save(newNotifications);
-    
+
             postRepository.deleteById(postId);
         }
-    
+
         redirectAttributes.addFlashAttribute("message", "Xóa bài viết thành công!");
-        if(sourcePage.equals("profilePage"))
-        {
+        if (sourcePage.equals("profilePage")) {
             return "redirect:/profile/" + post.getSender().getId();
-        }
-        else if(sourcePage.equals("indexPage") || sourcePage.equals("detail-post-page"))
-        {
+        } else if (sourcePage.equals("indexPage") || sourcePage.equals("detail-post-page")) {
             return "redirect:/";
         }
         return null;
     }
-    
-
 
     private String saveFile(MultipartFile file, String uploadDir) {
         try {

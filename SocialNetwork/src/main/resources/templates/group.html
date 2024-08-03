@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security5"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{_layout}">
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+
+</head>
+<!-- <main> -->
+    <main layout:fragment="content">
+        <div class="main-wrapper">
+            <div class="profile-banner-large bg-img" data-bg="assets/images/banner/profile-banner.jpg">
+            </div>
+            <div class="profile-menu-area bg-white">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-3 col-md-3">
+                            <div class="profile-picture-box">
+                                <figure class="profile-picture">
+                                    <a href="profile.html">
+                                        <img th:src="@{${groupChosen.avatar}}" alt="profile picture">
+                                    </a>
+                                </figure>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 offset-lg-1">
+                            <div class="profile-menu-wrapper">
+                                <div class="main-menu-inner header-top-navigation">
+                                    <nav>
+                                        <ul class="main-menu">
+                                            <li class="active"><a href="#">timeline</a></li>
+                                            <li><a href="about.html">Thông tin</a></li>
+                                            <li><a href="photos.html">Hình ảnh</a></li>
+                                            <!-- <li><a href="friends.html">friends</a></li> -->
+                                            <!-- <li><a href="about.html">more</a></li> -->
+                                            <!-- <li class="d-inline-block d-md-none"><a href="profile.html">edit profile</a></li> -->
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 d-none d-md-block">
+                            <!-- If checkIfSentRequest is null -->
+                            <div th:if="${checkIfSentRequest == null}" class="profile-edit-panel">
+                                <form th:action="@{/groups/send-request-to-join-group}" method="post">
+                                    <input type="hidden" th:name="idGroup" th:value="${groupChosen.id}">
+                                    <input type="hidden" th:name="idSender" th:value="${currentlyUser.id}">
+                                    <button class="edit-btn" type="submit">Tham gia nhóm</button>
+                                </form>
+                            </div>
+
+                            <!-- If checkIfSentRequest is true -->
+                            <div th:if="${checkIfSentRequest == true}" class="profile-edit-panel">
+                                <!-- Tai su dung ham reject request, khoi phai tao nhieu -->
+                                <form th:action="@{/groups/reject-request}" method="post">
+                                    <input type="hidden" th:name="idGroup" th:value="${groupChosen.id}">
+                                    <input type="hidden" th:name="idSender" th:value="${currentlyUser.id}">
+                                    <input type="hidden" th:name="fromRoleUser" th:value="leaveGroup">
+                                    <button class="edit-btn" type="submit">Rời nhóm</button>
+                                </form>
+                            </div>
+
+                            <!-- If checkIfSentRequest is false -->
+                            <div th:if="${checkIfSentRequest == false}" class="profile-edit-panel">
+                                <form th:action="@{/groups/reject-request}" method="post">
+                                    <input type="hidden" th:name="idGroup" th:value="${groupChosen.id}">
+                                    <input type="hidden" th:name="idSender" th:value="${currentlyUser.id}">
+                                    <input type="hidden" th:name="fromRoleUser" th:value="userJoint">
+                                    <button class="edit-btn" type="submit">Hủy yêu cầu</button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-3 order-2 order-lg-1">
+                            <aside class="widget-area profile-sidebar">
+                                <!-- widget single item start -->
+                                <div class="card widget-item">
+                                    <h4 class="widget-title" th:text="${groupChosen.name}"></h4>
+                                    <div class="widget-body">
+                                        <div class="about-author">
+                                            <p th:text="${groupChosen.description}">I Don’t know how? But i believe that
+                                                it is possible one day if i stay with my dream all time</p>
+                                            <ul class="author-into-list">
+                                                <li><a href="#"><i class="bi bi-office-bag"></i>Graphic Designer</a>
+                                                </li>
+                                                <li><a href="#"><i class="bi bi-home"></i>Melbourne, Australia</a></li>
+                                                <li><a href="#"><i class="bi bi-location-pointer"></i>Pulshar,
+                                                        Melbourne</a></li>
+                                                <li><a href="#"><i class="bi bi-heart-beat"></i>Travel, Swimming</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- widget single item end -->
+
+                                <!-- widget single item start -->
+                                <div class="card widget-item">
+                                    <h4 class="widget-title">Sweets Memories</h4>
+                                    <div class="widget-body">
+                                        <div class="sweet-galley img-gallery">
+                                            <div class="row row-5">
+                                                <div class="col-4">
+                                                    <div class="gallery-tem">
+                                                        <figure class="post-thumb">
+                                                            <a class="gallery-selector"
+                                                                href="assets/images/gallery/gallery-1.jpg">
+                                                                <img src="assets/images/gallery/gallery-1.jpg"
+                                                                    alt="sweet memory">
+                                                            </a>
+                                                        </figure>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="gallery-tem">
+                                                        <figure class="post-thumb">
+                                                            <a class="gallery-selector"
+                                                                href="assets/images/gallery/gallery-2.jpg">
+                                                                <img src="assets/images/gallery/gallery-2.jpg"
+                                                                    alt="sweet memory">
+                                                            </a>
+                                                        </figure>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="gallery-tem">
+                                                        <figure class="post-thumb">
+                                                            <a class="gallery-selector"
+                                                                href="assets/images/gallery/gallery-3.jpg">
+                                                                <img src="assets/images/gallery/gallery-3.jpg"
+                                                                    alt="sweet memory">
+                                                            </a>
+                                                        </figure>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="gallery-tem">
+                                                        <figure class="post-thumb">
+                                                            <a class="gallery-selector"
+                                                                href="assets/images/gallery/gallery-4.jpg">
+                                                                <img src="assets/images/gallery/gallery-4.jpg"
+                                                                    alt="sweet memory">
+                                                            </a>
+                                                        </figure>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="gallery-tem">
+                                                        <figure class="post-thumb">
+                                                            <a class="gallery-selector"
+                                                                href="assets/images/gallery/gallery-5.jpg">
+                                                                <img src="assets/images/gallery/gallery-5.jpg"
+                                                                    alt="sweet memory">
+                                                            </a>
+                                                        </figure>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="gallery-tem">
+                                                        <figure class="post-thumb">
+                                                            <a class="gallery-selector"
+                                                                href="assets/images/gallery/gallery-6.jpg">
+                                                                <img src="assets/images/gallery/gallery-6.jpg"
+                                                                    alt="sweet memory">
+                                                            </a>
+                                                        </figure>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="gallery-tem">
+                                                        <figure class="post-thumb">
+                                                            <a class="gallery-selector"
+                                                                href="assets/images/gallery/gallery-7.jpg">
+                                                                <img src="assets/images/gallery/gallery-7.jpg"
+                                                                    alt="sweet memory">
+                                                            </a>
+                                                        </figure>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="gallery-tem">
+                                                        <figure class="post-thumb">
+                                                            <a class="gallery-selector"
+                                                                href="assets/images/gallery/gallery-8.jpg">
+                                                                <img src="assets/images/gallery/gallery-8.jpg"
+                                                                    alt="sweet memory">
+                                                            </a>
+                                                        </figure>
+                                                    </div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div class="gallery-tem">
+                                                        <figure class="post-thumb">
+                                                            <a class="gallery-selector"
+                                                                href="assets/images/gallery/gallery-9.jpg">
+                                                                <img src="assets/images/gallery/gallery-9.jpg"
+                                                                    alt="sweet memory">
+                                                            </a>
+                                                        </figure>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- widget single item end -->
+
+                                <!-- widget single item start -->
+                                <div class="card widget-item">
+                                    <h4 class="widget-title">page you may like</h4>
+                                    <div class="widget-body">
+                                        <ul class="like-page-list-wrapper">
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-33.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">Travel The World</a></h3>
+                                                    <p class="list-subtitle"><a href="#">adventure</a></p>
+                                                </div>
+                                                <button class="like-button active">
+                                                    <img class="heart" src="assets/images/icons/heart.png" alt="">
+                                                    <img class="heart-color" src="assets/images/icons/heart-color.png"
+                                                        alt="">
+                                                </button>
+                                            </li>
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-30.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">Foodcort Nirala</a></h3>
+                                                    <p class="list-subtitle"><a href="#">food</a></p>
+                                                </div>
+                                                <button class="like-button">
+                                                    <img class="heart" src="assets/images/icons/heart.png" alt="">
+                                                    <img class="heart-color" src="assets/images/icons/heart-color.png"
+                                                        alt="">
+                                                </button>
+                                            </li>
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-5.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">Rolin Theitar</a></h3>
+                                                    <p class="list-subtitle"><a href="#">drama</a></p>
+                                                </div>
+                                                <button class="like-button">
+                                                    <img class="heart" src="assets/images/icons/heart.png" alt="">
+                                                    <img class="heart-color" src="assets/images/icons/heart-color.png"
+                                                        alt="">
+                                                </button>
+                                            </li>
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-29.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">Active Mind</a></h3>
+                                                    <p class="list-subtitle"><a href="#">fitness</a></p>
+                                                </div>
+                                                <button class="like-button">
+                                                    <img class="heart" src="assets/images/icons/heart.png" alt="">
+                                                    <img class="heart-color" src="assets/images/icons/heart-color.png"
+                                                        alt="">
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- widget single item end -->
+                            </aside>
+                        </div>
+
+                        <div class="col-lg-6 order-1 order-lg-2">
+                            <!-- share box start -->
+                            <div class="card card-small">
+                                <div class="share-box-inner">
+
+                                    <!-- share content box start -->
+                                    <div class="share-content-box w-100">
+                                        <form class="share-text-box">
+                                            <textarea name="share" class="share-text-field" aria-disabled="true"
+                                                placeholder="Say Something" data-toggle="modal" data-target="#textbox"
+                                                id="email"></textarea>
+                                            <button class="btn-share" type="submit">share</button>
+                                        </form>
+                                    </div>
+                                    <!-- share content box end -->
+                                    <!-- Modal start -->
+                                <div class="modal fade" id="textbox" tabindex="-1" role="dialog"
+                                aria-labelledby="textboxLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="textboxLabel">Tạo bài viết</h5>
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <form class="modal-body custom-scroll" th:action="@{/post}" method="post" enctype="multipart/form-data">
+                                            <input type="hidden" th:value="${groupChosen.id}" th:name="idGroup">
+                                            <input type="hidden" th:value="groupPage" th:name="sourcePage">
+                                            <div class="form-group">
+                                                <textarea name="content" class="share-field-big custom-scroll form-control"
+                                                          placeholder="Chia sẻ suy nghĩ của bạn..." id="editor"></textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Chọn ảnh</label>
+                                                <input type="file" name="images" multiple accept="image/*" class="form-control"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Chọn video</label>
+                                                <input type="file" name="videos" multiple accept="video/*" class="form-control"/>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="post-share-btn btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                                <button type="submit" class="post-share-btn btn btn-primary">Đăng</button>
+                                            </div>
+                                        </form>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Modal end -->
+                                </div>
+                            </div>
+                            <!-- share box end -->
+
+                            <!-- post status start -->
+                            <div th:each="post : ${listPosts}">
+                                <div class="card">
+                                    <!-- post title start -->
+                                    <div class="post-title d-flex align-items-center">
+                                        <!-- profile picture start -->
+                                        <div class="profile-thumb">
+                                            <a href="#">
+                                                <figure class="profile-thumb-middle">
+                                                    <img th:src="@{${post.sender.avatar}}" alt="profile picture">
+                                                </figure>
+                                            </a>
+                                        </div>
+                                        <!-- profile picture end -->
+                            
+                                        <div class="posted-author">
+                                            <h6 class="author d-flex align-items-center">
+                                                <a th:href="@{|/profile/${post.sender.id}|}" th:text="${post.sender.fullName}"></a>
+                                            </h6>
+                                            <span class="post-time" th:text="${#temporals.format(post.timestamp, 'dd-MM-yyyy HH:mm')}">35 min ago</span>
+                                        </div>
+                            
+                                        <div class="post-settings-bar">
+                                            <span></span>
+                                            <span></span>
+                                            <div class="post-settings arrow-shape">
+                                                <ul>
+                                                    <li th:if="${currentlyUser.id.equals(post.sender.id)}">
+                                                        <button data-toggle="modal" th:data-target="'#editPost' + ${post.id}">Chỉnh sửa bài viết</button>
+                                                    </li>
+                                                    <li th:if="${currentlyUser.id == post.sender.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
+                                                        <form th:action="@{/delete-post}" method="post">
+                                                            <input type="hidden" th:value="${post.id}" th:name="postId">
+                                                            <input type="hidden" th:name="sourcePage" th:value="profilePage">
+                                                            <button type="submit" class="btn btn-danger">Xóa bài viết</button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- post title end -->
+                            
+                                    <div class="post-content">
+                                        <p th:utext="${post.content}" class="post-desc"></p>
+                                        <div th:if="${post.images.size() + post.videos.size() == 1 || post.images.size() + post.videos.size() == 0}">
+                                            <div class="post-thumb-gallery">
+                                                <figure class="post-thumb img-popup" th:each="image : ${post.images}">
+                                                    <a th:href="'../'+${image.url}">
+                                                        <img width="510px" height="270px" th:src="'../'+${image.url}" alt="post image">
+                                                    </a>
+                                                </figure>
+                                                <figure class="post-thumb img-popup" th:each="video : ${post.videos}">
+                                                    <video width="510px" height="270px" controls th:src="'../'+${video.url}" alt="post video"></video>
+                                                </figure>
+                                            </div>
+                                        </div>
+                                        <div th:if="${post.images.size() + post.videos.size() == 2}">
+                                            <div class="post-thumb-gallery img-gallery">
+                                                <div class="row no-gutters">
+                                                    <div class="col-6 d-flex align-items-center justify-content-center" th:each="image : ${post.images}">
+                                                        <figure class="post-thumb mx-1">
+                                                            <a class="gallery-selector" th:href="'../'+${image.url}">
+                                                                <img width="255px" height="270px" th:src="'../'+${image.url}" alt="post image">
+                                                            </a>
+                                                        </figure>
+                                                    </div>
+                                                    <div class="col-6 d-flex align-items-center justify-content-center" th:each="video : ${post.videos}">
+                                                        <figure class="post-thumb">
+                                                            <video style="object-fit: cover" width="255px" height="270px" controls th:src="'../'+${video.url}" alt="post video"></video>
+                                                        </figure>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div th:if="${post.images.size() == 4}">
+                                            <div class="post-thumb-gallery img-gallery">
+                                                <div class="row no-gutters">
+                                                    <div class="col-6 d-flex align-items-center justify-content-center">
+                                                        <figure class="post-thumb mx-1">
+                                                            <a class="gallery-selector" th:href="'../'+${post.images.get(0).url}">
+                                                                <img width="339px" height="270px" th:src="'../'+${post.images.get(0).url}" alt="post image">
+                                                            </a>
+                                                        </figure>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="row">
+                                                            <div class="col-12" th:each="image, iter : ${post.images}">
+                                                                <div th:if="${iter.index != 0}">
+                                                                    <figure class="post-thumb">
+                                                                        <a class="gallery-selector" th:href="'../'+${image.url}">
+                                                                            <img width="170px" height="90px" th:src="'../'+${image.url}" alt="post image">
+                                                                        </a>
+                                                                    </figure>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            
+                                    <div class="post-meta">
+                                        <div layout:fragment="likeContent"></div>
+                                        <ul class="comment-share-meta">
+                                            <li data-toggle="modal" th:attr="data-target='#commentModal1-' + ${post.id}">
+                                                <button class="post-comment d-flex justify-content-center align-items-center">
+                                                    <i class="bi bi-chat-bubble"></i>
+                                                    <span th:text="${post.comments.size()}">0</span>
+                                                </button>
+                                            </li>
+                            
+                                            <div class="modal fade" th:id="'commentModal1-' + ${post.id}" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content" style="max-height: 80vh;">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="commentModalLabel">Bình luận</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <form id="commentForm1" th:action="@{/addComment}" method="post" class="modal-body custom-scroll myForm">
+                                                            <div class="form-group submittedContent">
+                                                                <ul th:each="comment : ${post.comments}">
+                                                                    <li class="p-3 content" style="background-color: rgb(199, 192, 192); width: 100%; border-radius: 15px">
+                                                                        <div class="row d-flex align-items-center">
+                                                                            <div class="col-2">
+                                                                                <img th:src="${comment.user.avatar}" style="border-radius: 50%">
+                                                                            </div>
+                                                                            <div class="col-10">
+                                                                                <h6 class="author">
+                                                                                    <a th:href="@{|/profile/${userId}(userId=${comment.user.id})}" th:text="${comment.user.fullName}"></a>
+                                                                                </h6>
+                                                                                <p th:text="${comment.content}">Comment content</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </li>
+                                                                    <div class="d-flex">
+                                                                        <p class="mr-3">like</p>
+                                                                        <p class="mr-3">sua</p>
+                                                                        <form th:action="@{/delete-comment}" method="post">
+                                                                            <input type="hidden" th:value="${comment.id}" th:name="commentId">
+                                                                            <button type="submit">Xóa</button>
+                                                                        </form>
+                                                                    </div>
+                                                                    <hr>
+                                                                </ul>
+                                                            </div>
+                                                            <input type="hidden" name="postId" th:value="${post.id}" />
+                                                            <input type="hidden" id="authorName1" name="authorName" th:value="${currentlyUser.fullName}" />
+                            
+                                                            <div class="share-text-box">
+                                                                <textarea cols="70" id="content1" name="content" placeholder="Nhập bình luận" class="contentComment" required></textarea>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="post-share-btn btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                                                    <button type="submit" class="post-share-btn btn btn-primary">Đăng</button>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <hr>
+                            </div>
+                            <!-- post status end -->
+
+                            
+                        </div>
+
+                        <div class="col-lg-3 order-3">
+                            <aside class="widget-area">
+                                <!-- widget single item start -->
+                                <div class="card widget-item">
+                                    <h4 class="widget-title">Recent Notifications</h4>
+                                    <div class="widget-body">
+                                        <ul class="like-page-list-wrapper">
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-9.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">Any one can join with us if you
+                                                            want</a></h3>
+                                                    <p class="list-subtitle">5 min ago</p>
+                                                </div>
+                                            </li>
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-35.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">Any one can join with us if you
+                                                            want</a></h3>
+                                                    <p class="list-subtitle">10 min ago</p>
+                                                </div>
+                                            </li>
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-15.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">Any one can join with us if you
+                                                            want</a></h3>
+                                                    <p class="list-subtitle">18 min ago</p>
+                                                </div>
+                                            </li>
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-6.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">Any one can join with us if you
+                                                            want</a></h3>
+                                                    <p class="list-subtitle">25 min ago</p>
+                                                </div>
+                                            </li>
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-34.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">Any one can join with us if you
+                                                            want</a></h3>
+                                                    <p class="list-subtitle">39 min ago</p>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- widget single item end -->
+
+                                <!-- widget single item start -->
+                                <div class="card widget-item">
+                                    <h4 class="widget-title">Advertizement</h4>
+                                    <div class="widget-body">
+                                        <div class="add-thumb">
+                                            <a href="#">
+                                                <img src="assets/images/banner/advertise.jpg" alt="advertisement">
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- widget single item end -->
+
+                                <!-- widget single item start -->
+                                <div class="card widget-item">
+                                    <h4 class="widget-title">Friends Zone</h4>
+                                    <div class="widget-body">
+                                        <ul class="like-page-list-wrapper">
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-10.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">arfim bolt</a></h3>
+                                                    <p class="list-subtitle"><a href="#">10 mutual</a></p>
+                                                </div>
+                                                <button class="like-button">
+                                                    <img class="heart" src="assets/images/icons/heart.png" alt="">
+                                                    <img class="heart-color" src="assets/images/icons/heart-color.png"
+                                                        alt="">
+                                                </button>
+                                            </li>
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-2.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">marry wither</a></h3>
+                                                    <p class="list-subtitle"><a href="#">02 mutual</a></p>
+                                                </div>
+                                                <button class="like-button active">
+                                                    <img class="heart" src="assets/images/icons/heart.png" alt="">
+                                                    <img class="heart-color" src="assets/images/icons/heart-color.png"
+                                                        alt="">
+                                                </button>
+                                            </li>
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-5.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">Rolin Theitar</a></h3>
+                                                    <p class="list-subtitle"><a href="#">drama</a></p>
+                                                </div>
+                                                <button class="like-button">
+                                                    <img class="heart" src="assets/images/icons/heart.png" alt="">
+                                                    <img class="heart-color" src="assets/images/icons/heart-color.png"
+                                                        alt="">
+                                                </button>
+                                            </li>
+                                            <li class="unorder-list">
+                                                <!-- profile picture end -->
+                                                <div class="profile-thumb">
+                                                    <a href="#">
+                                                        <figure class="profile-thumb-small">
+                                                            <img src="assets/images/profile/profile-small-14.jpg"
+                                                                alt="profile picture">
+                                                        </figure>
+                                                    </a>
+                                                </div>
+                                                <!-- profile picture end -->
+
+                                                <div class="unorder-list-info">
+                                                    <h3 class="list-title"><a href="#">Active Mind</a></h3>
+                                                    <p class="list-subtitle"><a href="#">fitness</a></p>
+                                                </div>
+                                                <button class="like-button">
+                                                    <img class="heart" src="assets/images/icons/heart.png" alt="">
+                                                    <img class="heart-color" src="assets/images/icons/heart-color.png"
+                                                        alt="">
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- widget single item end -->
+                            </aside>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Scroll to top start -->
+            <div class="scroll-top not-visible">
+                <i class="bi bi-finger-index"></i>
+            </div>
+            <!-- Scroll to Top End -->
+            <script th:inline="javascript">
+                $(document).ready(function () {
+                    toastr.options = {
+                        "closeButton": true,
+                        "debug": false,
+                        "newestOnTop": false,
+                        "progressBar": true,
+                        "positionClass": "toast-bottom-right",
+                        "preventDuplicates": false,
+                        "onclick": null,
+                        "showDuration": "300",
+                        "hideDuration": "1000",
+                        "timeOut": "5000",
+                        "extendedTimeOut": "1000",
+                        "showEasing": "swing",
+                        "hideEasing": "swing",
+                        "showMethod": "slideDown",
+                        "hideMethod": "slideUp"
+                    };
+                    var mainMessage = /*[[${message != null ? message : 'null'}]]*/ 'null';
+                    var subMessage = /*[[${subMessage != null ? subMessage : 'null'}]]*/ 'null';
+
+                    if (mainMessage !== 'null') {
+                        if (subMessage !== 'null') {
+                            toastr.success(subMessage, mainMessage);
+                        } else {
+                            toastr.success(mainMessage);
+                        }
+                    }
+
+                });
+
+                // custom-ckeditor-config.js
+                ClassicEditor
+                    .create(document.querySelector('#editor'), {
+                        toolbar: {
+                            items: [
+                                'heading', '|',
+                                'bold', 'italic', 'link', '|',
+                                'bulletedList', 'numberedList', '|',
+                                'blockQuote', '|',
+                                'undo', 'redo'
+                            ]
+                        },
+                        link: {
+                            decorators: {
+                                isExternal: {
+                                    mode: 'manual',
+                                    label: 'Open in a new tab',
+                                    attributes: {
+                                        target: '_blank',
+                                        rel: 'noopener noreferrer'
+                                    }
+                                }
+                            }
+                        },
+                        // Allow all HTML content
+                        htmlSupport: {
+                            allow: [
+                                {
+                                    name: /.*/,
+                                    attributes: true,
+                                    classes: true,
+                                    styles: true
+                                }
+                            ],
+                            disallow: []
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            </script>
+    </main>
+
+</html>

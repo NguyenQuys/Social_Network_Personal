@@ -1,5 +1,6 @@
 package com.network.SocialNetwork.service;
 
+import com.network.SocialNetwork.entity.Group;
 import com.network.SocialNetwork.entity.Image;
 import com.network.SocialNetwork.entity.Post;
 import com.network.SocialNetwork.entity.User;
@@ -29,10 +30,18 @@ public class PostService {
     }
     //------------------------------------------------
 
-    public Post savePost(String content, User sender,User receiver , List<Image> images, List<Video> videos) {
-        Post post = new Post(content, sender, receiver, sender.getFullName(), images, videos);  // Pass the User object
+    public Post savePost(String content, User sender, User receiver, Group group, List<Image> images, List<Video> videos) {
+        Post post = new Post();
+        post.setContent(content);
+        post.setSender(sender);
+        post.setReceiver(receiver);
+        post.setGroupReceive(group);
+        post.setImages(images);
+        post.setVideos(videos);
+        post.setTimestamp(LocalDateTime.now());
         return postRepository.save(post);
     }
+    
     
 
     public List<Post> getAllPost() {
@@ -78,5 +87,11 @@ public class PostService {
         }
 
         return postCounts;
+    }
+
+    public Post approvePost(Post post)
+    {
+        post.setIsCensored(true);
+        return postRepository.save(post);
     }
 }

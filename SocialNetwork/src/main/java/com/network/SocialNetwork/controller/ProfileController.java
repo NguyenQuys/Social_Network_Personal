@@ -118,30 +118,29 @@ public class ProfileController {
     }
 
     @GetMapping("/{id}")
-    public String UserProfile(@PathVariable Long id,
-            @Param("notiId") Long notiId, // này lấy noti để trường hợp nhận thg báo sinh nhật
-            Model model) {
+    public String UserProfile(@PathVariable Long id, @Param("notiId") Long notiId, Model model) {
 
         if (notiId != null) {
             notificationService.markRead(notiId);
         }
-        Long idUser1Currently = null, idUserChosen = null;
         String usernameCurrently = GetUserName();
-        Optional<User> currentlyUser = userRepository.findByUsername(usernameCurrently);
-        if (currentlyUser.isPresent()) {
-            User user1 = currentlyUser.get();
-            idUser1Currently = user1.getId();
-            model.addAttribute("currentlyUser", user1);
-        }
-
-        Optional<User> userChosen = userRepository.findById(id);
-        if (userChosen.isPresent()) {
-            User user2 = userChosen.get();
-            idUserChosen = user2.getId();
-            model.addAttribute("userChosen", user2);
-        } else {
+        Optional<User> currentlyUserOpt = userRepository.findByUsername(usernameCurrently);
+        if (!currentlyUserOpt.isPresent()) {
             return "redirect:/not-found-error";
         }
+
+        User currentlyUser = currentlyUserOpt.get();
+        Long idUser1Currently = currentlyUser.getId();
+        model.addAttribute("currentlyUser", currentlyUser);
+
+        Optional<User> userChosenOpt = userRepository.findById(id);
+        if (!userChosenOpt.isPresent()) {
+            return "redirect:/not-found-error";
+        }
+
+        User userChosen = userChosenOpt.get();
+        Long idUserChosen = userChosen.getId();
+        model.addAttribute("userChosen", userChosen);
 
         FriendBlock friendBlockFindByURL = friendBlockRepository.findByRequesterAndAddressee(idUserChosen,
                 idUser1Currently);
@@ -149,8 +148,8 @@ public class ProfileController {
             return "redirect:/not-found-error";
         }
 
-        FriendRequest friendRequest = null;
-        friendRequest = friendRequestRepository.findByRequesterAndAddressee(idUser1Currently, idUserChosen);
+        FriendRequest friendRequest = friendRequestRepository.findByRequesterAndAddressee(idUser1Currently,
+                idUserChosen);
         if (friendRequest == null) {
             friendRequest = friendRequestRepository.findByRequesterAndAddressee(idUserChosen, idUser1Currently);
         }
@@ -160,7 +159,7 @@ public class ProfileController {
         } else if (friendRequest != null && friendRequest.getStatus().equals(Status.ACCEPTED)) {
             model.addAttribute("checkIfExistInListFriendRequest", "accepted");
         } else {
-            model.addAttribute("checkIfExistInListFriendRequest");
+            model.addAttribute("checkIfExistInListFriendRequest", null);
         }
 
         FriendBlock friendBlock = friendBlockRepository.findByRequesterAndAddressee(idUser1Currently, idUserChosen);
@@ -170,14 +169,10 @@ public class ProfileController {
             model.addAttribute("blockFunction", false);
         }
 
-        // Make idUser1Currently final to use in lambda
-        final Long finalIdUser1Currently = idUser1Currently;
-        final Long finalUserChosen = idUserChosen;
-
-        List<Post> listPosts = postService.getAllPost()
-                .stream()
-                .filter(m -> m.getSender().getId().equals(finalUserChosen)
-                        || m.getReceiver().getId().equals(finalUserChosen))
+        List<Post> listPosts = postService.getAllPost().stream()
+                .filter(m -> (m.getSender().getId().equals(idUserChosen) && m.getGroupReceive() == null) ||
+                        (m.getReceiver() != null && m.getReceiver().getId().equals(idUserChosen)
+                                && m.getGroupReceive() == null))
                 .sorted(Comparator.comparing(Post::getTimestamp).reversed())
                 .collect(Collectors.toList());
 
@@ -185,12 +180,11 @@ public class ProfileController {
 
         List<Post> postsLikedByCurrentUser = listPosts.stream()
                 .filter(post -> post.getLikedBy().stream()
-                        .anyMatch(user -> user.getId().equals(finalIdUser1Currently)))
+                        .anyMatch(user -> user.getId().equals(idUser1Currently)))
                 .collect(Collectors.toList());
 
         model.addAttribute("postsLikedByCurrentUser", postsLikedByCurrentUser);
 
-        // return "profile";
         return "users/like-fragment-profile";
     }
 

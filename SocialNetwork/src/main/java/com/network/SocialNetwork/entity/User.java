@@ -11,9 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -45,7 +43,6 @@ public class User implements UserDetails {
     private boolean gender;
 
     @Column(name = "password", length = 250)
-//    @NotBlank
     private String password;
 
     @Column(name = "email", unique = true)
@@ -54,8 +51,6 @@ public class User implements UserDetails {
     private String email;
 
     @Column(name = "phoneNumber", length = 10, unique = true)
-//    @Length(min = 10, max = 10, message = "Số điện thoại phải có 10 chữ số")
-//    @NotBlank(message = "Số điện thoại đã được sử dụng")
     private String phone;
 
     @ManyToOne
@@ -70,6 +65,9 @@ public class User implements UserDetails {
 
     @Column
     private String coverPhoto;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<GroupMembership> groupMemberships = new ArrayList<>();
 
     @Transient
     private MultipartFile avatarFile;
@@ -90,6 +88,14 @@ public class User implements UserDetails {
     private boolean accountStatus = true; // bị chặn, ko bị chặn, để mặc định là bị chặn
 
     private LocalDateTime lastLogin;
+
+        // @ManyToMany
+    // @JoinTable(
+    //     name = "group_membership",
+    //     joinColumns = @JoinColumn(name = "user_id"),
+    //     inverseJoinColumns = @JoinColumn(name = "group_id")
+    // )
+    // private List<Group> groups;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

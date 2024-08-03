@@ -24,7 +24,7 @@
                     <!-- profile picture end -->
 
                     <div class="posted-author">
-                        <h6 class="author d-flex align-items-center" th:if="${postChosen.sender.id != postChosen.receiver.id}">
+                        <!-- <h6 class="author d-flex align-items-center" th:if="${postChosen.sender.id != postChosen.receiver.id}">
                             <a th:href="@{|/profile/${postChosen.sender.id}|}" th:text="${postChosen.sender.fullName}">
                             </a>
                             <span class="material-symbols-outlined">
@@ -35,6 +35,32 @@
                         </h6>
                         <h6 class="author d-flex align-items-center" th:unless="${postChosen.sender.id != postChosen.receiver.id}">
                             <a th:href="@{|/profile/${postChosen.sender.id}|}" th:text="${postChosen.sender.fullName}">
+                            </a>
+                        </h6> -->
+                        <h6 class="author d-flex align-items-center"
+                            th:if="${postChosen.groupReceive == null} and ${postChosen.sender.id != postChosen.receiver.id}">
+                            <a th:href="@{|/profile/${postChosen.sender.id}|}" th:text="${postChosen.sender.fullName}">
+                            </a>
+                            <span class="material-symbols-outlined">
+                                play_arrow
+                            </span>
+                            <a th:href="@{|/profile/${postChosen.receiver.id}|}" th:text="${postChosen.receiver.fullName}">
+                            </a>
+                        </h6>
+
+                        <h6 class="author d-flex align-items-center"
+                            th:if="${postChosen.groupReceive == null} and ${postChosen.sender.id == postChosen.receiver.id}">
+                            <a th:href="@{|/profile/${postChosen.sender.id}|}" th:text="${postChosen.sender.fullName}">
+                            </a>
+                        </h6>
+
+                        <h6 class="author d-flex align-items-center" th:if="${postChosen.groupReceive != null}">
+                            <a th:href="@{|/profile/${postChosen.sender.id}|}" th:text="${postChosen.sender.fullName}">
+                            </a>
+                            <span class="material-symbols-outlined">
+                                play_arrow
+                            </span>
+                            <a th:href="@{|/groups/${postChosen.groupReceive.id}|}" th:text="${postChosen.groupReceive.name}">
                             </a>
                         </h6>
                         <span class="post-time"
@@ -324,7 +350,8 @@
                                                     style="background-color: rgb(199, 192, 192); width: 100%; border-radius: 15px">
                                                     <div class="row d-flex align-items-center">
                                                         <div class="col-2">
-                                                            <img th:src="${comment.user.avatar}" style="border-radius: 50%">
+                                                            <img th:src="${comment.user.avatar}"
+                                                                style="border-radius: 50%">
                                                         </div>
                                                         <div class="col-10">
                                                             <h6 class="author">

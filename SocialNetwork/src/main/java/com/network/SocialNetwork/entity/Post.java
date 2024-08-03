@@ -33,6 +33,10 @@ public class Post {
     @ManyToOne
     @JoinColumn
     private User receiver;
+
+    @ManyToOne
+    @JoinColumn
+    private Group groupReceive;
     
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
@@ -42,6 +46,9 @@ public class Post {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "post")
     private List<Comment> comments;
+
+    @Column(nullable = false)
+    private Boolean isCensored = false;
 
     public Post(String content, User sender,User receiver, String authorName, List<Image> images, List<Video> videos) {
         this.content = content;

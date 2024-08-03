@@ -10,11 +10,12 @@
 <body>
     <main layout:fragment="content">
         <div style="margin-top: 100px; width:50%" class="container">
-            <div th:if="${usersResult.size() == 0}">
+            <div th:if="${usersResult.size() + groupsResult.size() == 0}">
                 <h1>Không có kết quả tìm kiếm cho <span class="text-danger" th:text="${query}"></span></h1>
             </div>
-            <div th:unless="${usersResult.size() == 0}">
+            <div th:unless="${usersResult.size() + groupsResult.size() == 0}">
                 <h2 class="mt-4 mb-3">Kết quả tìm kiếm cho <span class="text-danger" th:text="${query}"></span></h2>
+                <h1 class="mt-4 mb-3">Mọi người</h1>
                 <div class="row my-2" th:each="user : ${usersResult}">
                     <a th:href="@{|profile/${user.id}|}" class="list-group-item list-group-item-action p-4">
                         <div class="row">
@@ -26,6 +27,23 @@
                                 <div>
                                     <strong th:text="${user.fullName}" class="ml-3 bold">Tên người dùng</strong>
                                     <p th:text="${user.bio}" class="ml-3 bold">Tên người dùng</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <h1 class="mt-4 mb-3">Hội nhóm</h1>
+                <div class="row my-2" th:each="group : ${groupsResult}">
+                    <a th:href="@{|groups/${group.id}|}" class="list-group-item list-group-item-action p-4">
+                        <div class="row">
+                            <div class="mx-3">
+                                <img th:src="@{|${group.avatar}|}" alt="Avatar"
+                                    class="rounded-circle" style="width: 80px; height: 80px;">
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div>
+                                    <strong th:text="${group.name}" class="ml-3 bold">Tên group</strong>
+                                    <p th:text="${group.description}" class="ml-3 bold"></p>
                                 </div>
                             </div>
                         </div>

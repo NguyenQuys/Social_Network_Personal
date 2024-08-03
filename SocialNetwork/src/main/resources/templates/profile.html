@@ -74,28 +74,29 @@
                     <!-- ko phải khác với ko khác, này xét true false, nếu đúng thì hiện div này -->
                     <div th:if="${currentlyUser != userChosen}" class="col-lg-3 col-md-3 d-none d-md-block">
                         <div style="justify-content: space-evenly;" class="profile-edit-panel d-flex">
-                            <div th:if="${checkIfExistInListFriendRequest == 'pending'} ">
+                            <div th:if="${checkIfExistInListFriendRequest == 'pending'}">
                                 <form th:action="@{/add-friend/cancel-request}" method="post">
                                     <input type="hidden" name="requesterId" th:value="${currentlyUser.id}">
                                     <input type="hidden" name="addresseeId" th:value="${userChosen.id}">
-                                    <!-- <input type="hidden" name="friendRequestId" th:value="${param.friendRequestId}"> -->
                                     <button type="submit" class="edit-btn btn btn-primary mr-5">Hủy lời mời</button>
                                 </form>
                             </div>
 
-                            <div th:if="${checkIfExistInListFriendRequest == null} ">
+                            <div th:if="${checkIfExistInListFriendRequest == null}">
                                 <form th:action="@{/add-friend/send-request}" method="post">
                                     <input type="hidden" name="requesterId" th:value="${currentlyUser.id}">
                                     <input type="hidden" name="addresseeId" th:value="${userChosen.id}">
                                     <button type="submit" class="edit-btn btn btn-primary">Kết bạn</button>
                                 </form>
                             </div>
-                            <div th:if="${checkIfExistInListFriendRequest == 'accepted'} ">
+
+                            <div th:if="${checkIfExistInListFriendRequest == 'accepted'}">
                                 <div style="justify-content:space-evenly;" class="profile-edit-panel">
                                     <button class="edit-btn btn btn-primary" data-toggle="modal"
                                         data-target="#confirmUnfriend">Bạn bè</button>
                                 </div>
                             </div>
+
                             <div>
                                 <button th:if="${blockFunction}" class="edit-btn btn btn-primary" data-toggle="modal"
                                     data-target="#blockModal">Chặn</button>
@@ -104,10 +105,10 @@
                                     <input type="hidden" name="idUserBlocked" th:value="${userChosen.id}">
                                     <button class="edit-btn btn btn-primary" type="submit">Bỏ Chặn</button>
                                 </form>
-
                             </div>
                         </div>
                     </div>
+
                     <h1 th:text="${$blockFunction}"></h1>
                     <!-- Sai thì hiện div này -->
                     <div th:if="${currentlyUser == userChosen}" class="col-lg-3 col-md-3 d-none d-md-block">
@@ -483,7 +484,7 @@
                                             <form class="modal-body custom-scroll" th:action="@{/post}" method="post"
                                                 enctype="multipart/form-data">
                                                 <input type="hidden" th:value="${userChosen.id}" th:name="idReceiver">
-                                                <input type="hidden" th:value="profile" th:name="sourcePage"> 
+                                                <input type="hidden" th:value="profile" th:name="sourcePage">
                                                 <div class="form-group">
                                                     <textarea name="content"
                                                         class="share-field-big custom-scroll form-control"
@@ -531,7 +532,8 @@
                                     <!-- profile picture end -->
 
                                     <div class="posted-author">
-                                        <h6 class="author d-flex align-items-center" th:if="${post.sender.id != post.receiver.id}">
+                                        <h6 class="author d-flex align-items-center"
+                                            th:if="${post.groupReceive == null} and ${post.sender.id != post.receiver.id}">
                                             <a th:href="@{|/profile/${post.sender.id}|}"
                                                 th:text="${post.sender.fullName}">
                                             </a>
@@ -539,14 +541,30 @@
                                                 play_arrow
                                             </span>
                                             <a th:href="@{|/profile/${post.receiver.id}|}"
-                                            th:text="${post.receiver.fullName}">
+                                                th:text="${post.receiver.fullName}">
                                             </a>
                                         </h6>
-                                        <h6 class="author d-flex align-items-center" th:unless="${post.sender.id != post.receiver.id}">
+
+                                        <h6 class="author d-flex align-items-center"
+                                            th:if="${post.groupReceive == null} and ${post.sender.id == post.receiver.id}">
                                             <a th:href="@{|/profile/${post.sender.id}|}"
                                                 th:text="${post.sender.fullName}">
-                                            </a>                                      
+                                            </a>
                                         </h6>
+
+                                        <h6 class="author d-flex align-items-center"
+                                            th:if="${post.groupReceive != null}">
+                                            <a th:href="@{|/profile/${post.sender.id}|}"
+                                                th:text="${post.sender.fullName}">
+                                            </a>
+                                            <span class="material-symbols-outlined">
+                                                play_arrow
+                                            </span>
+                                            <a th:href="@{|/group/${post.groupReceive.id}|}"
+                                                th:text="${post.groupReceive.name}">
+                                            </a>
+                                        </h6>
+
                                         <span class="post-time"
                                             th:text="${#temporals.format(post.timestamp, 'dd-MM-yyyy HH:mm')}">35 min
                                             ago</span>
@@ -565,7 +583,8 @@
                                                     th:if="${currentlyUser.id == post.sender.id} or ${#authorization.expression('hasAuthority(''ADMIN'')')}">
                                                     <form th:action="@{/delete-post}" method="post">
                                                         <input type="hidden" th:value="${post.id}" th:name="postId">
-                                                        <input type="hidden" th:name="sourcePage" th:value="profilePage">
+                                                        <input type="hidden" th:name="sourcePage"
+                                                            th:value="profilePage">
                                                         <button type="submit" class="btn btn-danger">Xóa bài
                                                             viết</button>
                                                     </form>
@@ -685,14 +704,16 @@
                                                                     style="background-color: rgb(199, 192, 192); width: 100%; border-radius: 15px">
                                                                     <div class="row d-flex align-items-center">
                                                                         <div class="col-2">
-                                                                            <img th:src="${comment.user.avatar}" style="border-radius: 50%">
+                                                                            <img th:src="${comment.user.avatar}"
+                                                                                style="border-radius: 50%">
                                                                         </div>
                                                                         <div class="col-10">
                                                                             <h6 class="author">
                                                                                 <a th:href="@{|/profile/${userId}(userId=${comment.user.id})}"
                                                                                     th:text="${comment.user.fullName}"></a>
                                                                             </h6>
-                                                                            <p th:text="${comment.content}">Comment content</p>
+                                                                            <p th:text="${comment.content}">Comment
+                                                                                content</p>
                                                                         </div>
                                                                     </div>
                                                                 </li>

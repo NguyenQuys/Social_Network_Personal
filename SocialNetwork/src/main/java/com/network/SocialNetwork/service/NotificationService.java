@@ -195,7 +195,6 @@ public class NotificationService {
         return notificationRepository.save(newNoti);
     }
     
-
     public void sendReportToAdmin(Long postId, String reason, Long userIdReport) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
         User userReport = userRepository.findById(userIdReport)
@@ -227,6 +226,54 @@ public class NotificationService {
         newNoti.setAddressee(requester);
         newNoti.setType("ACCEPT FRIENDREQUEST");
         newNoti.setContent(accepter.getFullName() + " đã chấp nhận lời mời kết bạn của bạn");
+        return notificationRepository.save(newNoti);
+    }
+
+    public Notifications sendRequestToAdminGroup(Long idSender,Group group)
+    {
+        User sender = userRepository.findById(idSender).get();
+
+        Notifications newNoti = new Notifications();
+        newNoti.setRequester(sender);
+        newNoti.setAddressee(group.getAdmin());
+        newNoti.setType("REQUEST_TO_JOIN_GROUP");
+        newNoti.setContent("đã gửi yêu cầu tham gia nhóm " + group.getName());
+        newNoti.setGroup(group);
+        return notificationRepository.save(newNoti);
+    }
+
+    public Notifications notiForAcceptToRequester(User requester,Group group) // function này để thông báo khi cha
+    {
+        Notifications newNoti = new Notifications();
+        newNoti.setRequester(group.getAdmin());
+        newNoti.setAddressee(requester);
+        newNoti.setGroup(group);
+        newNoti.setType("ACCEPTED_JOINING_GROUP");
+        newNoti.setContent("Chúc mừng! Bạn đã là thành viên của nhóm " + group.getName() +"😍😍");
+        return notificationRepository.save(newNoti);
+    }
+
+    public Notifications sendRequestToPost(User sender, User receiver, Post post,Group group)
+    {
+        Notifications newNoti = new Notifications();
+        newNoti.setRequester(sender);
+        newNoti.setAddressee(receiver);
+        newNoti.setPost(post);
+        newNoti.setType("REVIEW_POST");
+        newNoti.setContent("đã gửi yêu cầu đăng bài trong nhóm " + group.getName());
+        newNoti.setGroup(group);
+        return notificationRepository.save(newNoti);
+    }
+    
+    public Notifications approvePost(User sender, User receiver, Post post,Group group)
+    {
+        Notifications newNoti = new Notifications();
+        newNoti.setRequester(sender);
+        newNoti.setAddressee(receiver);
+        newNoti.setPost(post);
+        newNoti.setGroup(group);
+        newNoti.setType("APPROVE_POST");
+        newNoti.setContent("Bài viết của bạn đã được chấp nhận");
         return notificationRepository.save(newNoti);
     }
 }

@@ -313,6 +313,7 @@
                                                 enctype="multipart/form-data">
                                                 <input type="hidden" th:value="${currentlyUser.id}"
                                                     th:name="idReceiver">
+                                                    <input type="hidden" th:value="homePage" th:name="sourcePage">
                                                 <div class="form-group">
                                                     <textarea name="content"
                                                         class="share-field-big custom-scroll form-control"
@@ -459,7 +460,7 @@
 
                                 <div class="posted-author">
                                     <h6 class="author d-flex align-items-center"
-                                        th:if="${post.sender.id != post.receiver.id}">
+                                        th:if="${post.groupReceive == null} and ${post.sender.id != post.receiver.id}">
                                         <a th:href="@{|/profile/${post.sender.id}|}" th:text="${post.sender.fullName}">
                                         </a>
                                         <span class="material-symbols-outlined">
@@ -469,11 +470,24 @@
                                             th:text="${post.receiver.fullName}">
                                         </a>
                                     </h6>
+
                                     <h6 class="author d-flex align-items-center"
-                                        th:unless="${post.sender.id != post.receiver.id}">
+                                        th:if="${post.groupReceive == null} and ${post.sender.id == post.receiver.id}">
                                         <a th:href="@{|/profile/${post.sender.id}|}" th:text="${post.sender.fullName}">
                                         </a>
                                     </h6>
+
+                                    <h6 class="author d-flex align-items-center" th:if="${post.groupReceive != null}">
+                                        <a th:href="@{|/profile/${post.sender.id}|}" th:text="${post.sender.fullName}">
+                                        </a>
+                                        <span class="material-symbols-outlined">
+                                            play_arrow
+                                        </span>
+                                        <a th:href="@{|/groups/${post.groupReceive.id}|}"
+                                            th:text="${post.groupReceive.name}">
+                                        </a>
+                                    </h6>
+
                                     <span class="post-time"
                                         th:text="${#temporals.format(post.timestamp, 'dd-MM-yyyy HH:mm')}">Posted time
                                         ago</span>

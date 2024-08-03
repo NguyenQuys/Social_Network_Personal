@@ -108,7 +108,7 @@
                                                                 alt="profile picture">
                                                         </figure>
                                                     </div>
-                                                    <!-- profile picture end 
+                                                    <!-- profile picture end
 
                                                     message content start -->
                                                     <div class="msg-content">
@@ -179,14 +179,21 @@
                                                         style="border-radius: 5px; border-bottom: 0; width: 100%;">
 
                                                         <!-- Conditional anchor tag -->
-                                                        <div th:if="${noti.post != null}">
+                                                        <!-- LIKE POST and cmt-->
+                                                        <div th:if="${noti.type == 'LIKE' || noti.type == 'COMMENT' || noti.type =='APPROVE_POST'}">
                                                             <a th:href="@{|/post-detail/${noti.post.id}?notiId=${noti.id}|}"
                                                                 class="p-0">
                                                                 <div class="row">
                                                                     <!-- profile picture start -->
-                                                                    <div class="profile-thumb col-2">
+                                                                    <div th:if="${noti.type == 'LIKE' || noti.type == 'COMMENT'}" class="profile-thumb col-2">
                                                                         <figure class="profile-thumb-middle">
                                                                             <img th:src="${noti.requester.avatar}"
+                                                                                alt="profile picture">
+                                                                        </figure>
+                                                                    </div>
+                                                                    <div th:if="${noti.type == 'APPROVE_POST'}" class="profile-thumb col-2">
+                                                                        <figure class="profile-thumb-middle">
+                                                                            <img th:src="${noti.group.avatar}"
                                                                                 alt="profile picture">
                                                                         </figure>
                                                                     </div>
@@ -212,9 +219,8 @@
                                                                 </div>
                                                             </a>
                                                         </div>
-
-                                                        <!-- Display "AAAA" if noti.post is null -->
-                                                        <div th:if="${noti.post == null && noti.type != 'BIRTHDAY'}">
+                                                        <!-- ADMIN kiểm duyệt -->
+                                                        <div th:if="${noti.type == 'DELETE POST'}">
                                                             <p class="p-0">
                                                             <div class="row">
                                                                 <!-- profile picture start -->
@@ -245,7 +251,8 @@
                                                             </div>
                                                             </p>
                                                         </div>
-                                                        <div th:if="${noti.post == null && noti.type == 'BIRTHDAY'}">
+                                                        <!-- Birthay notification and ACCEPT FRIEND REQUEST-->
+                                                        <div th:if="${noti.type == 'BIRTHDAY' || noti.type == 'ACCEPT FRIENDREQUEST'}">
                                                             <a th:href="@{|/profile/${noti.requester.id}?notiId=${noti.id}|}"
                                                                 class="p-0">
                                                                 <div class="row">
@@ -278,6 +285,109 @@
                                                                 </div>
                                                             </a>
                                                         </div>
+                                                        <!-- REQUEST_TO_JOIN_GROUP -->
+                                                        <div th:if="${noti.type == 'REQUEST_TO_JOIN_GROUP'}">
+                                                            <a th:href="@{|/groups/list-request/${noti.group.id}?notiId=${noti.id}|}"
+                                                                class="p-0">
+                                                                <div class="row">
+                                                                    <!-- profile picture start -->
+                                                                    <div class="profile-thumb col-2">
+                                                                        <figure class="profile-thumb-middle">
+                                                                            <img th:src="${noti.requester.avatar}"
+                                                                                alt="profile picture">
+                                                                        </figure>
+                                                                    </div>
+                                                                    <!-- profile picture end -->
+
+                                                                    <!-- message content start -->
+                                                                    <div class="msg-content notification-content col-8">
+                                                                        <h6>
+                                                                            <bold th:text="${noti.requester.fullName}">
+                                                                            </bold>
+                                                                        </h6>
+                                                                        <h6 th:utext="${noti.content}"></h6>
+                                                                    </div>
+                                                                    <!-- message content end -->
+
+                                                                    <!-- message time start -->
+                                                                    <div class="msg-time col-2">
+                                                                        <p
+                                                                            th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
+                                                                        </p>
+                                                                    </div>
+                                                                    <!-- message time end -->
+                                                                </div>
+                                                            </a>
+                                                        </div>
+                                                        <!-- ACCEPTED_JOINING_GROUP -->
+                                                        <div th:if="${noti.type == 'ACCEPTED_JOINING_GROUP'}">
+                                                            <a th:href="@{|/groups/${noti.group.id}?notiId=${noti.id}|}"
+                                                                class="p-0">
+                                                                <div class="row">
+                                                                    <!-- profile picture start -->
+                                                                    <div class="profile-thumb col-2">
+                                                                        <figure class="profile-thumb-middle">
+                                                                            <img th:src="${noti.group.avatar}"
+                                                                                alt="profile picture">
+                                                                        </figure>
+                                                                    </div>
+                                                                    <!-- profile picture end -->
+
+                                                                    <!-- message content start -->
+                                                                    <div class="msg-content notification-content col-8">
+                                                                        <h6>
+                                                                            <bold th:text="${noti.group.name}">
+                                                                            </bold>
+                                                                        </h6>
+                                                                        <h6 th:utext="${noti.content}"></h6>
+                                                                    </div>
+                                                                    <!-- message content end -->
+
+                                                                    <!-- message time start -->
+                                                                    <div class="msg-time col-2">
+                                                                        <p
+                                                                            th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
+                                                                        </p>
+                                                                    </div>
+                                                                    <!-- message time end -->
+                                                                </div>
+                                                            </a>
+                                                        </div>
+                                                        <!-- REVIEW POST -->
+                                                        <div th:if="${noti.type == 'REVIEW_POST'}">
+                                                            <a th:href="@{|/groups/${noti.group.id}/review-list-post?notiId=${noti.id}|}"
+                                                                class="p-0">
+                                                                <div class="row">
+                                                                    <!-- profile picture start -->
+                                                                    <div class="profile-thumb col-2">
+                                                                        <figure class="profile-thumb-middle">
+                                                                            <img th:src="${noti.requester.avatar}"
+                                                                                alt="profile picture">
+                                                                        </figure>
+                                                                    </div>
+                                                                    <!-- profile picture end -->
+
+                                                                    <!-- message content start -->
+                                                                    <div class="msg-content notification-content col-8">
+                                                                        <h6>
+                                                                            <bold th:text="${noti.requester.fullName}">
+                                                                            </bold>
+                                                                        </h6>
+                                                                        <h6 th:utext="${noti.content}"></h6>
+                                                                    </div>
+                                                                    <!-- message content end -->
+
+                                                                    <!-- message time start -->
+                                                                    <div class="msg-time col-2">
+                                                                        <p
+                                                                            th:text="${#temporals.format(noti.created_at, 'dd-MM-yyyy HH:mm')}">
+                                                                        </p>
+                                                                    </div>
+                                                                    <!-- message time end -->
+                                                                </div>
+                                                            </a>
+                                                        </div>
+                                                        
                                                     </li>
                                                     <hr>
                                                 </ul>

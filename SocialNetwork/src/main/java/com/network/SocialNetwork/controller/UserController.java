@@ -131,7 +131,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật mật khẩu thành công");
             return "redirect:/personal-account-settings#change-password";
         }
-        return "redirect:/error"; // Redirect to an error page or return an error view
+        return "redirect:/error"; 
     }
 
     @PostMapping("/updateInfo")
