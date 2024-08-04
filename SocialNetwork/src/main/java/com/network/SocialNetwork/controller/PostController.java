@@ -298,6 +298,34 @@ public class PostController {
         return "users/like-fragment-profile :: likeContent";
     }
 
+    @GetMapping("/likePostGroup")
+    public String likePostGroup(@RequestParam("postId") Long postId, Model model) {
+        Optional<Post> postOptional = postRepository.findById(postId);
+        Optional<User> currentUserOptional = getCurrentUser();
+
+        if (postOptional.isPresent() && currentUserOptional.isPresent()) {
+            Post post = postOptional.get();
+            User currentUser = currentUserOptional.get();
+
+            if (post.getLikedBy().contains(currentUser)) {
+                post.getLikedBy().remove(currentUser);
+                post.setLikes(post.getLikes() - 1);
+                if (currentUser.getId() != post.getSender().getId()) {
+                    notificationService.removeLikeNotifications(postId, currentUser.getId());
+                }
+            } else {
+                post.getLikedBy().add(currentUser);
+                post.setLikes(post.getLikes() + 1);
+                if (currentUser.getId() != post.getSender().getId()) {
+                    notificationService.likeNotification(postId, currentUser.getId());
+                }
+            }
+            postRepository.save(post);
+            model.addAttribute("post", post);
+        }
+        return "users/like-fragment-profile :: likeContent";
+    }
+
     @GetMapping("/likeChosenPost")
     public String likeChosenPost(@RequestParam("postId") Long postId, Model model) {
         Optional<Post> postOptional = postRepository.findById(postId);

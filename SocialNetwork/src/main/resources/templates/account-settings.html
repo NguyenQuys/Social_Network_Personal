@@ -104,7 +104,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#settings" onclick="showSection(event, 'settings')">Settings</a>
+                            <a href="#list-group" onclick="showSection(event, 'list-group')">Danh sách nhóm</a>
                         </li>
                         <li>
                             <a href="#logout" onclick="showSection(event, 'logout')">Logout</a>
@@ -199,9 +199,13 @@
                         <button type="submit" class="btn btn-primary">Tạo nhóm</button>
                     </form>                    
                 </div>
-                <div id="settings" class="content-section">
-                    <h2>Settings</h2>
-                    <p>Settings content goes here.</p>
+                <div id="list-group" class="content-section">
+                    <h2>Danh sách nhóm</h2>
+                    <ul>
+                        <li th:each="group : ${listGroup}">
+                            <a th:href="@{/groups/{id}(id=${group.id})}" th:text="${group.name}">Group Name</a>
+                        </li>
+                    </ul>
                 </div>
                 <div id="logout" class="content-section">
                     <h2>Logout</h2>

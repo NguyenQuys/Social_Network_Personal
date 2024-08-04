@@ -278,8 +278,8 @@
                                 <div class="col-6 d-flex align-items-center justify-content-center"
                                     th:each="image : ${postChosen.images}">
                                     <figure class="post-thumb mx-1">
-                                        <a class="gallery-selector" th:href="${image.url}">
-                                            <img width="255px" height="270px" th:src="${image.url}" alt="post image">
+                                        <a class="gallery-selector" th:href="@{|../${image.url}|}">
+                                            <img width="255px" height="270px" th:src="@{|../${image.url}|}" alt="post image">
                                         </a>
                                     </figure>
                                 </div>

@@ -1,5 +1,8 @@
 package com.network.SocialNetwork.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -7,12 +10,16 @@ import com.network.SocialNetwork.entity.Group;
 import com.network.SocialNetwork.entity.GroupMembership;
 import com.network.SocialNetwork.entity.User;
 import com.network.SocialNetwork.repository.GroupMembershipRepository;
+import com.network.SocialNetwork.repository.GroupRepository;
 
 @Service
 public class GroupMembershipService {
 
     @Autowired
     private GroupMembershipRepository groupMembershipRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
     
     public GroupMembership createGroup(Group group)
     {
@@ -50,5 +57,17 @@ public class GroupMembershipService {
     {
         var request = groupMembershipRepository.findByGroupAndUser(group, idUserHasBeenReject);
         groupMembershipRepository.delete(request);
+    }
+
+    public List<User> getMember(Long idGroup)
+    {
+        Group group = groupRepository.findById(idGroup).get();
+        groupMembershipRepository.findByGroup(group);
+
+        Long idAdmin = group.getAdmin().getId();
+        List<GroupMembership> groupMemberships = groupMembershipRepository.findByGroup(group).stream()
+                                                 .filter(member -> !member.getUser().getId().equals(idAdmin))
+                                                 .toList();
+        return groupMemberships.stream().map(GroupMembership::getUser).collect(Collectors.toList());
     }
 }

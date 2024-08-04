@@ -11,4 +11,5 @@ import com.network.SocialNetwork.entity.User;
 public interface GroupMembershipRepository extends JpaRepository<GroupMembership,Long>{
     GroupMembership findByGroupAndUserAndIsCensored(Group group,User user,Boolean isCensored);
     GroupMembership findByGroupAndUser(Group group,User user);
+    List<GroupMembership> findByGroup(Group group);
 }

@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.codehaus.groovy.runtime.StringGroovyMethods;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,7 +96,13 @@ public class GroupController {
     }
 
     @GetMapping("/{id}")
-    public String groupProfile(@PathVariable Long id, Model model) {
+    public String groupProfile(@PathVariable Long id,
+            @Param("notiId") Long notiId,
+            Model model) {
+        if (notiId != null) {
+            notificationService.markRead(notiId);
+        }
+
         Group groupChosen = groupRepository.findById(id).orElse(null);
         if (groupChosen == null) {
             return "redirect:/not-found-error";
@@ -110,6 +117,12 @@ public class GroupController {
                 .toList();
 
         model.addAttribute("listPosts", listPosts);
+
+        List<Post> postsLikedByCurrentUser = listPosts.stream()
+                .filter(post -> post.getLikedBy().stream()
+                        .anyMatch(user -> user.getId().equals(getCurrentUser().get().getId())))
+                .collect(Collectors.toList());
+        model.addAttribute("postsLikedByCurrentUser", postsLikedByCurrentUser);
 
         var checkIfSentRequest = groupMembershipService.specificGroupMembership(groupChosen,
                 getCurrentUser().orElse(null));
@@ -169,6 +182,11 @@ public class GroupController {
         Group groupChosen = groupRepository.findById(id).get();
         model.addAttribute("groupChosen", groupChosen);
 
+        var currentUser = getCurrentUser().get();
+        if (!currentUser.getId().equals(groupChosen.getAdmin().getId())) {
+            return "redirect:/403_error";
+        }
+
         var listRequest = groupMembershipRepository.findAll().stream()
                 .filter(group -> group.getGroup().getId() == id && group.isCensored() == false)
                 .toList();
@@ -191,62 +209,84 @@ public class GroupController {
     }
 
     @PostMapping("/reject-request")
-    public String rejectRequest(@Param("idSender") Long idSender,
+    public String rejectRequest(
+            @RequestParam("idSender") Long idSender,
             @RequestParam("idGroup") Long idGroup,
             @RequestParam("fromRoleUser") String fromRoleUser,
             RedirectAttributes redirectAttributes) {
-        User sender = userRepository.findById(idSender).get();
-        Group group = groupRepository.findById(idGroup).get();
+
+        User sender = userRepository.findById(idSender)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + idSender));
+        Group group = groupRepository.findById(idGroup)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid group Id:" + idGroup));
+
         groupMembershipService.removeRequest(sender, group);
-        if (fromRoleUser.equals("userJoint")) {
+
+        if ("userJoint".equals(fromRoleUser)) {
             redirectAttributes.addFlashAttribute("message", "Hủy yêu cầu thành công");
             return "redirect:/groups/" + idGroup;
-        } else if (fromRoleUser.equals("adminGroup")) {
+        } else if ("adminGroup".equals(fromRoleUser)) {
             redirectAttributes.addFlashAttribute("message", "Từ chối thành công");
             return "redirect:/groups/list-request/" + idGroup;
-        } else if (fromRoleUser.equals("leaveGroup")) {
+        } else if ("leaveGroup".equals(fromRoleUser)) {
             redirectAttributes.addFlashAttribute("message", "Rời nhóm thành công");
             return "redirect:/groups/" + idGroup;
+        } else if ("adminRemoveMember".equals(fromRoleUser)) {
+            redirectAttributes.addFlashAttribute("message", "Xóa thành viên thành công");
+            return "redirect:/groups/" + idGroup + "/member";
         }
-        return null;
+        return "redirect:/groups";
     }
 
     @GetMapping("/{idGroup}/review-list-post")
     public String reviewListPost(@PathVariable("idGroup") Long idGroup,
-                                @Param("notiId") Long notiId,
-                                 Model model) {
+            @Param("notiId") Long notiId,
+            Model model) {
+
+        if (notiId != null) {
+            notificationService.markRead(notiId);
+        }
+
         List<Post> listReviewPost = postRepository.findAll().stream()
-                .filter(post -> !post.getIsCensored() && 
-                                post.getGroupReceive() != null && 
-                                post.getGroupReceive().getId().equals(idGroup))
+                .filter(post -> !post.getIsCensored() &&
+                        post.getGroupReceive() != null &&
+                        post.getGroupReceive().getId().equals(idGroup))
                 .toList();
-        
+
         Group group = groupRepository.findById(idGroup).get();
-        model.addAttribute("group", group);
+        model.addAttribute("groupChosen", group);
         model.addAttribute("listReviewPost", listReviewPost);
-        return "group/review-list-post"; 
+        return "group/review-list-post";
     }
 
     @PostMapping("/approve-post")
     public String approvePost(@RequestParam("idPost") Long idPost,
-                              @RequestParam("idGroup") Long idGroup,
-                              RedirectAttributes redirectAttributes)
-    {
+            @RequestParam("idGroup") Long idGroup,
+            RedirectAttributes redirectAttributes) {
         Post post = postRepository.findById(idPost).get();
         Group group = groupRepository.findById(idGroup).get();
-        postService.approvePost(post);   
-        notificationService.approvePost(group.getAdmin(),post.getSender(),post,group);
-        redirectAttributes.addFlashAttribute("message","Chấp nhận bài viết thành công!");
-        return "redirect:/groups/" + idGroup +"/review-list-post";
+        postService.approvePost(post);
+        notificationService.approvePost(group.getAdmin(), post.getSender(), post, group);
+        redirectAttributes.addFlashAttribute("message", "Chấp nhận bài viết thành công!");
+        return "redirect:/groups/" + idGroup + "/review-list-post";
     }
 
     @PostMapping("/reject-post")
     public String rejectPost(@RequestParam("idPost") Long idPost,
-                            @RequestParam("idGroup") Long idGroup,
-                            RedirectAttributes redirectAttributes)
-    {
+            @RequestParam("idGroup") Long idGroup,
+            RedirectAttributes redirectAttributes) {
         postService.deletePostById(idPost);
-        redirectAttributes.addFlashAttribute("message","Từ chối bài viết thành công");
-        return "redirect:/groups/" + idGroup +"/review-list-post";
+        redirectAttributes.addFlashAttribute("message", "Từ chối bài viết thành công");
+        return "redirect:/groups/" + idGroup + "/review-list-post";
+    }
+
+    @GetMapping("{idGroup}/member")
+    public String memberGroup(@PathVariable("idGroup") Long idGroup, Model model) {
+        Group group = groupRepository.findById(idGroup).get();
+        model.addAttribute("groupChosen", group);
+
+        var memberList = groupMembershipService.getMember(idGroup);
+        model.addAttribute("memberList", memberList);
+        return "group/member";
     }
 }

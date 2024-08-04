@@ -22,4 +22,9 @@ public class GroupService {
     public List<Group> search(String keyword) {
         return groupRepository.findByNameContainingIgnoreCase(keyword);
     }  
+
+    public List<Group> getListGroup(User admin)
+    {
+        return groupRepository.findByAdmin(admin);
+    }
 }
