@@ -133,6 +133,7 @@ public class PostController {
 
         if (List.of("profile", "homePage").contains(sourcePage)) {
             postJustPosted.setIsCensored(true);
+            postRepository.save(postJustPosted);            
         }
 
         if ("groupPage".equals(sourcePage)) {
@@ -181,6 +182,10 @@ public class PostController {
         }
 
         if (notiId != null) {
+            boolean notificationExists = notificationService.existsById(notiId); 
+            if (!notificationExists) {
+                return "redirect:/404_error"; 
+            }
             notificationService.markRead(notiId);
         }
 

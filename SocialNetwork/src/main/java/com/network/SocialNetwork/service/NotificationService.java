@@ -112,18 +112,33 @@ public class NotificationService {
         User sender = post.getSender();
         User receiver = post.getReceiver();
     
-        // Nếu người bình luận là người gửi
-        if (userComment.getId().equals(sender.getId())) {
-            createAndSaveNotification(post, userComment, receiver);
-        }
-        // Nếu người bình luận là người nhận
-        else if (userComment.getId().equals(receiver.getId())) {
-            createAndSaveNotification(post, userComment, sender);
-        }
-        // Nếu người bình luận là người thứ ba
-        else {
-            createAndSaveNotification(post, userComment, sender);
-            createAndSaveNotification(post, userComment, receiver);
+        // Check if receiver is null
+        if (receiver != null) {
+            // If the commenter is the sender
+            if (userComment.getId().equals(sender.getId())) {
+                // Do nothing or handle if needed
+            }
+            // If the commenter is the receiver
+            else if (userComment.getId().equals(receiver.getId())) {
+                // Do nothing or handle if needed
+            }
+            // If the commenter is a third party
+            else {
+                createAndSaveNotification(post, userComment, sender);
+                createAndSaveNotification(post, userComment, receiver);
+            }
+        } else {
+            Group groupReceive = post.getGroupReceive();
+            if (groupReceive != null) {
+                // Notify all members of the group
+                for (GroupMembership membership : groupReceive.getGroupMemberships()) {
+                    User member = membership.getUser();
+                    // Only notify the members if the commenter is a third party
+                    if (!userComment.getId().equals(sender.getId())) {
+                        createAndSaveNotification(post, userComment, sender);
+                    }
+                }
+            }
         }
     }
     
@@ -132,24 +147,29 @@ public class NotificationService {
         newNoti.setPost(post);
         newNoti.setRequester(requester);
         newNoti.setAddressee(addressee);
-        newNoti.setType("comment");
-        if(addressee.getId() == post.getSender().getId())
-        {
-            newNoti.setContent(requester.getFullName() + " đã bình luận bài viết của bạn");
+        newNoti.setType("COMMENT");
+        
+        if (addressee.getId().equals(post.getSender().getId())) {
+            newNoti.setContent(requester.getFullName() + " đã bình luận bài viết của bạn!");
+        } else if (addressee.getId().equals(post.getReceiver().getId())) {
+            newNoti.setContent(requester.getFullName() + " đã bình luận về một bài viết liên quan đến bạn!");
+        } else {
+            newNoti.setContent(requester.getFullName() + " đã bình luận về một bài viết!");
         }
-        else if(addressee.getId() == post.getReceiver().getId())
-        {
-            newNoti.setContent(requester.getFullName() + "đã bình luận về một bài viết liên quan đến bạn");
-        }
+        
+        newNoti.setCreated_at(LocalDateTime.now());
+        newNoti.setIsRead(false);
         notificationRepository.save(newNoti);
     }
     
+    
+
     public Notifications notiBirthday(List<User> usersHaveBirthday) {
         User currentUser = getCurrentUser().orElseThrow(() -> new IllegalStateException("User not authenticated"));
-    
+
         Notifications newNotification = new Notifications();
         newNotification.setType("BIRTHDAY");
-    
+
         if (usersHaveBirthday.size() == 1) {
             User user = usersHaveBirthday.get(0);
             newNotification.setRequester(user);
@@ -158,34 +178,35 @@ public class NotificationService {
                 newNotification.setContent("Hôm nay là ngày sinh nhật của bạn. Chúc bạn sinh nhật vui vẻ 🎂🎂");
             } else {
                 newNotification.setAddressee(currentUser);
-                newNotification.setContent("Hôm nay là sinh nhật của " + user.getFullName() + ". Hãy chúc mừng nhật bạn ấy thôi nào 🎂🎂");
+                newNotification.setContent(
+                        "Hôm nay là sinh nhật của " + user.getFullName() + ". Hãy chúc mừng nhật bạn ấy thôi nào 🎂🎂");
             }
         } else {
-            newNotification.setRequester(usersHaveBirthday.get(0)); 
+            newNotification.setRequester(usersHaveBirthday.get(0));
             newNotification.setAddressee(currentUser);
             for (User user : usersHaveBirthday) {
                 if (user.equals(currentUser)) {
-                    newNotification.setContent("Hôm nay là sinh nhật của bạn và " + (usersHaveBirthday.size() - 1) + " người khác. Chúc mừng sinh nhật 🎂🎂");
+                    newNotification.setContent("Hôm nay là sinh nhật của bạn và " + (usersHaveBirthday.size() - 1)
+                            + " người khác. Chúc mừng sinh nhật 🎂🎂");
                     break;
                 } else {
-                    newNotification.setContent("Hôm nay là sinh nhật của " + usersHaveBirthday.size() + " người bạn. Chúc mừng sinh nhật họ 🎂🎂");
+                    newNotification.setContent("Hôm nay là sinh nhật của " + usersHaveBirthday.size()
+                            + " người bạn. Chúc mừng sinh nhật họ 🎂🎂");
                 }
             }
         }
-    
+
         boolean exists = notificationRepository.existsByTypeAndAddresseeAndContent(
-            newNotification.getType(), newNotification.getAddressee(), newNotification.getContent()
-        );
-    
+                newNotification.getType(), newNotification.getAddressee(), newNotification.getContent());
+
         if (!exists) {
             return notificationRepository.save(newNotification);
         } else {
-            return null; 
+            return null;
         }
     }
 
-    public Notifications postOnSBProfile(User sender, User receiver,Post post)
-    {
+    public Notifications postOnSBProfile(User sender, User receiver, Post post) {
         Notifications newNoti = new Notifications();
         newNoti.setRequester(sender);
         newNoti.setAddressee(receiver);
@@ -194,7 +215,7 @@ public class NotificationService {
         newNoti.setContent(sender.getFullName() + " đã đăng bài viết lên trang cá nhân của bạn");
         return notificationRepository.save(newNoti);
     }
-    
+
     public void sendReportToAdmin(Long postId, String reason, Long userIdReport) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
         User userReport = userRepository.findById(userIdReport)
@@ -216,8 +237,7 @@ public class NotificationService {
         }
     }
 
-    public Notifications acceptFriendRequestNoti(Long idUserSendRequest,Long idAccepter)
-    {
+    public Notifications acceptFriendRequestNoti(Long idUserSendRequest, Long idAccepter) {
         User requester = userRepository.findById(idUserSendRequest).get();
         User accepter = userRepository.findById(idAccepter).get();
 
@@ -229,8 +249,7 @@ public class NotificationService {
         return notificationRepository.save(newNoti);
     }
 
-    public Notifications sendRequestToAdminGroup(Long idSender,Group group)
-    {
+    public Notifications sendRequestToAdminGroup(Long idSender, Group group) {
         User sender = userRepository.findById(idSender).get();
 
         Notifications newNoti = new Notifications();
@@ -242,19 +261,18 @@ public class NotificationService {
         return notificationRepository.save(newNoti);
     }
 
-    public Notifications notiForAcceptToRequester(User requester,Group group) // function này để thông báo khi cha
+    public Notifications notiForAcceptToRequester(User requester, Group group) // function này để thông báo khi cha
     {
         Notifications newNoti = new Notifications();
         newNoti.setRequester(group.getAdmin());
         newNoti.setAddressee(requester);
         newNoti.setGroup(group);
         newNoti.setType("ACCEPTED_JOINING_GROUP");
-        newNoti.setContent("Chúc mừng! Bạn đã là thành viên của nhóm " + group.getName() +"😍😍");
+        newNoti.setContent("Chúc mừng! Bạn đã là thành viên của nhóm " + group.getName() + "😍😍");
         return notificationRepository.save(newNoti);
     }
 
-    public Notifications sendRequestToPost(User sender, User receiver, Post post,Group group)
-    {
+    public Notifications sendRequestToPost(User sender, User receiver, Post post, Group group) {
         Notifications newNoti = new Notifications();
         newNoti.setRequester(sender);
         newNoti.setAddressee(receiver);
@@ -264,9 +282,8 @@ public class NotificationService {
         newNoti.setGroup(group);
         return notificationRepository.save(newNoti);
     }
-    
-    public Notifications approvePost(User sender, User receiver, Post post,Group group)
-    {
+
+    public Notifications approvePost(User sender, User receiver, Post post, Group group) {
         Notifications newNoti = new Notifications();
         newNoti.setRequester(sender);
         newNoti.setAddressee(receiver);
@@ -276,4 +293,9 @@ public class NotificationService {
         newNoti.setContent("Bài viết của bạn đã được chấp nhận");
         return notificationRepository.save(newNoti);
     }
+
+    public boolean existsById(Long notiId) {
+        return notificationRepository.existsById(notiId);
+    }
+
 }

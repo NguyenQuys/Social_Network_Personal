@@ -73,6 +73,9 @@ public class GroupController {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private GroupService groupService;
+
     private Optional<User> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()
@@ -138,11 +141,11 @@ public class GroupController {
             String avatarUrl = saveFile(group.getAvatarFile(), "src/main/resources/static/user/assets/images/profile/");
             group.setAvatar(avatarUrl);
         }
-        groupRepository.save(group);
-        groupMembershipService.createGroup(group);
+        //groupRepository.save(group);
+        //groupMembershipService.createGroup(group);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Tạo nhóm thành công");
-        return "redirect:/personal-account-settings#create-group";
+        redirectAttributes.addFlashAttribute("message", "Tạo nhóm thành công");
+        return "redirect:/groups/groupList";
     }
 
     public String saveFile(MultipartFile file, String directory) {
@@ -288,5 +291,15 @@ public class GroupController {
         var memberList = groupMembershipService.getMember(idGroup);
         model.addAttribute("memberList", memberList);
         return "group/member";
+    }
+
+    @GetMapping("/groupList")
+    public String groupList(Model model)
+    {
+        User currentUser = getCurrentUser().get();
+        // Lấy list group
+        var listGroup = groupService.getListGroup(currentUser);
+        model.addAttribute("listGroup", listGroup);
+        return "group/listGroup";
     }
 }

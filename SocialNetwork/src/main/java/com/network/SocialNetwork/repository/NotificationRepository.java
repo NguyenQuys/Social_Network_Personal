@@ -17,4 +17,6 @@ public interface NotificationRepository extends JpaRepository<Notifications,Long
     List<Notifications> findByPostId(Long postId);
 
     boolean existsByTypeAndAddresseeAndContent(String type, User addressee, String content);
+
+    boolean existsById(Long id);
 }

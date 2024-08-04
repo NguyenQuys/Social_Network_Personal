@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security5"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{_layout}">
+
+<head>
+    <title>Danh sách yêu cầu tham gia nhóm</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <style>
+        div.fixed {
+            position: fixed;
+            margin-top: 0;
+            bottom: 15px;
+            right: 10px;
+            width: 300px;
+            border: 5px solid #73AD21;
+        }
+    </style>
+</head>
+
+<body>
+    <main layout:fragment="content">
+        <div style="margin-top: 100px; width:40%" class="container">
+            <div class="row">
+                <div class="col-9">
+                    <h2 class="mt-4 mb-3">Danh sách hội nhóm của bạn</h2>
+                </div>
+                <div class="col-3">
+                    <div class="share-content-box w-100">
+                        <button class="edit-btn mt-4 mb-3" type="submit" data-toggle="modal" data-target="#textbox">Tạo
+                            nhóm</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal start -->
+            <div class="modal fade" id="textbox" tabindex="-1" role="dialog" aria-labelledby="textboxLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="textboxLabel">Tạo nhóm</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="container mb-4">
+                            <form th:action="@{/groups/create}" method="post" enctype="multipart/form-data"
+                                class="mt-3">
+                                <div class="form-group">
+                                    <label for="name">Tên nhóm</label>
+                                    <input type="text" class="form-control" name="name" placeholder="Nhập tên nhóm"
+                                        required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description">Mô tả nhóm</label>
+                                    <textarea class="form-control" rows="3" name="description" placeholder="Nhập mô tả"
+                                        required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="avatarFile">Ảnh đại diện</label>
+                                    <input type="file" class="form-control" th:name="avatarFile">
+                                </div>
+                                <input type="hidden" th:name="admin" th:value="${currentlyUser.id}">
+                                <button style="background-color: #73AD21; float: right;" type="submit" class="btn btn-primary p-3">Tạo nhóm</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal end -->
+
+            <div th:if="${listGroup.size() == 0}">
+                <h3>Bạn chưa có hội nhóm nào</h3>
+            </div>
+            <div class="row my-2" th:each="group : ${listGroup}">
+                <a th:href="@{|/groups/${group.id}|}" class="list-group-item list-group-item-action p-4">
+                    <div class="row">
+                        <div class="col-2 mx-3">
+                            <img th:src="@{|${group.avatar}|}" alt="Avatar" class="rounded-circle"
+                                style="width: 80px; height: 80px;">
+                        </div>
+                        <div class=" col-5 d-flex align-items-center">
+                            <div>
+                                <strong th:text="${group.name}" class="ml-3 bold">Tên người dùng</strong>
+                                <p th:text="${group.description}" class="ml-3 bold">Bio</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <script th:inline="javascript">
+            $(document).ready(function () {
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "newestOnTop": false,
+                    "progressBar": true,
+                    "positionClass": "toast-bottom-right",
+                    "preventDuplicates": false,
+                    "onclick": null,
+                    "showDuration": "300",
+                    "hideDuration": "1000",
+                    "timeOut": "5000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "swing",
+                    "showMethod": "slideDown",
+                    "hideMethod": "slideUp"
+                };
+                var successMessage = /*[[${message}]]*/ null;
+                if (successMessage) {
+                    toastr.success(successMessage);
+                }
+            });
+        </script>
+    </main>
+
+</body>
+
+</html>

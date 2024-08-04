@@ -256,14 +256,8 @@ public String home(Model model, @RequestParam(value = "message", required = fals
     }
 
     @GetMapping("/personal-account-settings")
-    public String accountSettings(Model model)
+    public String accountSettings()
     {
-        // Lấy list group
-        String username = GetUserName();
-        User currentUser = userRepository.findByUsername(username).get();
-        var listGroup = groupService.getListGroup(currentUser);
-        model.addAttribute("listGroup", listGroup);
-
         return "account-settings";
     }
 
@@ -276,7 +270,11 @@ public String home(Model model, @RequestParam(value = "message", required = fals
     @GetMapping("/not-found-error")
     public String NotFoundError() {
         return "errors/notFound_error";
+    }
 
+    @GetMapping("/404_error")
+    public String notExist() {
+        return "errors/404_error";
     }
     // --------------------ERROR AREA ENDS------------------------------
 }
