@@ -80,10 +80,41 @@
                                 <button class="edit-btn">Quản lý</button>
                                 <div class="dropdown-content">
                                     <a th:href="@{|/groups/${groupChosen.id}/review-list-post|}">Duyệt bài viết</a>
-                                    <a th:href="@{/targetPage2}">BBBBB</a>
+                                    <div class="p-3">
+                                        <button data-toggle="modal" data-target="#deleteGroup">Xóa nhóm</button>
+                                        <!-- <form th:action="@{/groups/delete}" method="post">
+                                            <input type="hidden" name="idGroup" th:value="${groupChosen.id}">
+                                            <button type="submit">Xóa nhóm</button>
+                                        </form> -->
+
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <!-- delete group modal starts -->
+                        <div class="modal fade" id="deleteGroup" tabindex="-1" role="dialog"
+                            aria-labelledby="profileEditModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="profileEditModalLabel">Bạn có chắc chắn muốn xóa
+                                            nhóm
+                                            <span class="text-danger" th:text="${groupChosen.name}"></span> ??
+                                        </h5>
+                                    </div>
+                                    <div style="justify-content:space-around;" class="modal-footer d-flex">
+                                        <form th:action="@{/groups/delete}" method="post">
+                                            <input type="hidden" name="idGroup" th:value="${groupChosen.id}">
+                                            <button class="btn p-2" style="background-color:green; color: white;"
+                                                type="submit">Vẫn xóa</button>
+                                        </form>
+                                        <button style="background-color: red; color: white;" class="btn p-2"
+                                            type="button" data-dismiss="modal">Hủy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- delete group modal ends -->
                         <style>
                             .dropdown {
                                 position: relative;
@@ -613,18 +644,22 @@
                                                         <input type="hidden" id="authorName1" name="authorName"
                                                             th:value="${currentlyUser.fullName}" />
 
+                                                        <!-- Input comment area starts-->
                                                         <div class="share-text-box">
-                                                            <textarea cols="70" id="content1" name="content"
-                                                                placeholder="Nhập bình luận" class="contentComment"
-                                                                required></textarea>
+                                                            <textarea cols="70" name="content"
+                                                                placeholder="Nhập bình luận"
+                                                                class="inputTextareaContent"
+                                                                th:attr="data-cmt=${post.id}" required></textarea>
                                                             <div class="modal-footer">
                                                                 <button type="button"
                                                                     class="post-share-btn btn btn-secondary"
                                                                     data-dismiss="modal">Hủy</button>
-                                                                <button type="submit"
-                                                                    class="post-share-btn btn btn-primary">Đăng</button>
+                                                                <button class="post-share-btn btn btn-primary"
+                                                                    th:attr="data-id=${post.id}, data-cmt=${post.id}">Đăng</button>
                                                             </div>
                                                         </div>
+
+                                                        <!-- input comment area ends  -->
                                                     </form>
                                                 </div>
                                             </div>
@@ -638,7 +673,7 @@
                                             var $icon = $button.find('i');
                                             var $likeCount = $button.find('span');
                                             var currentLikes = parseInt($likeCount.text());
-                            
+
                                             if ($icon.css('color') === 'rgb(255, 0, 0)') { // if red
                                                 $icon.css('color', '');
                                                 $likeCount.text(currentLikes - 1);
@@ -648,7 +683,7 @@
                                             }
                                         });
                                     }
-                            
+
                                     $(document).ready(function () {
                                         $('button.post-meta-like').click(function () {
                                             var postId = $(this).siblings('input[name="postId"]').val();
@@ -960,6 +995,35 @@
                 .catch(error => {
                     console.error(error);
                 });
+
+            $(document).ready(function () {
+                $('.post-share-btn').click(function () {
+                    var shareTextBox = $(this).closest('.share-text-box');
+                    var content = shareTextBox.find('.inputTextareaContent').val();
+                    var postId = $(this).data('id'); // Lấy giá trị từ data-id của nút
+
+                    console.log("nguoi gui:" + currentName);
+                    console.log("POST HIEN TAI: " + postId);
+                    console.log("BÌNH LUẬN: " + content);
+
+
+                    // Thực hiện AJAX nếu cần
+                    $.ajax({
+                        url: '/addComment',
+                        type: 'GET',
+                        data: { content: content, postId: postId },
+                        success: function (response) {
+                            var content = '<div style="background-color: rgb(199, 192, 192); padding: 10px; margin: 5px 0;border-radius: 15px">' +
+                                '<div>' + '<strong>' + currentName + '</strong>' + '</div>' +
+                                '<div>' + response + '</div>' +
+                                '</div>';
+                            $('.displayContent').append(content);
+                            $('.inputTextareaContent').val(''); // Clear the textarea after submission
+                        }
+                    });
+                });
+            });
+
         </script>
 </main>
 

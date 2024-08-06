@@ -16,6 +16,10 @@ public class Video {
     private Long id;
     private String url;
 
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
+
     public Video(String url) {
         this.url = url;
     }

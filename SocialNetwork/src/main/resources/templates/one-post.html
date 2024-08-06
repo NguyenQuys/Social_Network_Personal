@@ -342,7 +342,7 @@
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
-                                    <form id="commentForm" th:action="@{/addComment}" method="post"
+                                    <form id="commentForm-${postChosen.id}" th:action="@{/addComment}" method="post"
                                         class="modal-body custom-scroll myForm">
                                         <div class="form-group submittedContent">
                                             <ul th:each="comment : ${postChosen.comments}">
@@ -350,8 +350,7 @@
                                                     style="background-color: rgb(199, 192, 192); width: 100%; border-radius: 15px">
                                                     <div class="row d-flex align-items-center">
                                                         <div class="col-2">
-                                                            <img th:src="${comment.user.avatar}"
-                                                                style="border-radius: 50%">
+                                                            <img th:src="${comment.user.avatar}" style="border-radius: 50%">
                                                         </div>
                                                         <div class="col-10">
                                                             <h6 class="author">
@@ -364,29 +363,27 @@
                                                 </li>
                                                 <div class="d-flex">
                                                     <p class="mr-3">like</p>
-                                                    <p class="mr-3">sua</p>
+                                                    <p class="mr-3">sửa</p>
                                                     <form th:action="@{/delete-comment}" method="post">
-                                                        <input type="hidden" th:value="${comment.id}"
-                                                            th:name="commentId">
+                                                        <input type="hidden" th:value="${comment.id}" th:name="commentId">
                                                         <button type="submit">Xóa</button>
                                                     </form>
                                                 </div>
                                                 <hr>
                                             </ul>
+                                            <div id="displayContent-[[${post.id}]]" class="displayContent">
+                                            </div>
                                         </div>
-                                        <input type="hidden" name="postId" th:value="${postChosen.id}" />
-                                        <input type="hidden" id="authorName" name="authorName"
-                                            th:value="${currentlyUser.fullName}" />
+
 
                                         <div class="share-text-box">
-                                            <textarea cols="70" id="content" name="content" placeholder="Nhập bình luận"
-                                                class="contentComment" required></textarea>
+                                            <textarea cols="70" id="content" name="content" placeholder="Nhập bình luận" class="contentComment" required></textarea>
 
+                
                                             <div class="modal-footer">
                                                 <button type="button" class="post-share-btn btn btn-secondary"
                                                     data-dismiss="modal">Hủy</button>
-                                                <button type="submit"
-                                                    class="post-share-btn btn btn-primary">Đăng</button>
+                                                <button type="submit" class="post-share-btn btn btn-primary">Đăng</button>
                                             </div>
                                         </div>
                                     </form>
@@ -395,6 +392,8 @@
                         </div>
                     </ul>
                 </div>
+                <h1 th:text="${currentlyUser.username}"></h1>
+
             </div>
 
             <!-- post status end -->
@@ -404,7 +403,10 @@
         <!-- <script th:src="@{|/js/main.js|}"></script> -->
         <script th:inline="javascript">
             /*<![CDATA[*/
-
+            var currentlyUser = /*[[${currentlyUser.username}]]*/ 'anonymous';
+            var currentName = /*[[${currentlyUser.fullName}]]*/ 'anonymous';
+            var postId = /*[[${postChosen.id}]]*/ 'anonymous';
+            
             $(document).ready(function () {
                 toastr.options = {
                     "closeButton": true,
@@ -427,10 +429,47 @@
                 if (successMessage) {
                     toastr.success(successMessage);
                 }
-            });
+        
+                $(document).ready(function () {
+                $('.post-share-btn').click(function () {
+                    var shareTextBox = $(this).closest('.share-text-box');
+                    var content = document.getElementById("content").value;
+                    // var postId = $(this).data('id'); // Lấy giá trị từ data-id của nút
 
+                    // var content = $('.inputTextareaContent').val(); // Lấy giá trị của textarea
+                    // var postDiv = $(this).closest('.post'); // Tìm phần tử cha với class 'post'
+                    // var postId = postDiv.find('.postId').data('id'); // Lấy ID từ data-id của input bên trong phần tử cha
+
+                    console.log("nguoi gui:" + currentName);
+                    console.log("POST HIEN TAI: " + postId);
+                    console.log("BÌNH LUẬN: " + content);
+
+
+                    // Thực hiện AJAX nếu cần
+                    $.ajax({
+                        url: '/addComment',
+                        type: 'GET',
+                        data: { content: content, postId: postId },
+                        success: function (response) {
+                            var content = '<div style="background-color: rgb(199, 192, 192); padding: 10px; margin: 5px 0;border-radius: 15px">' +
+                                '<div>' + '<strong>' + currentName + '</strong>' + '</div>' +
+                                '<div>' + response + '</div>' +
+                                '</div>';
+                            $('.displayContent').append(content);
+                            $('.inputTextareaContent').val(''); // Clear the textarea after submission
+                        }
+
+                        // error: function (xhr, status, error) {
+                        //     console.error('Error:', error);
+                        //     $('.displayContent').append('<p>An error occurred: ' + error + '</p>');
+                        // }
+                    });
+                });
+            });
+            });
             /*]]>*/
         </script>
+        
     </main>
 
 </body>

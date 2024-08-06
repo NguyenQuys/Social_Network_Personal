@@ -112,31 +112,34 @@ public class NotificationService {
         User sender = post.getSender();
         User receiver = post.getReceiver();
     
-        // Check if receiver is null
+        // If receiver is null
         if (receiver != null) {
-            // If the commenter is the sender
-            if (userComment.getId().equals(sender.getId())) {
-                // Do nothing or handle if needed
-            }
-            // If the commenter is the receiver
-            else if (userComment.getId().equals(receiver.getId())) {
-                // Do nothing or handle if needed
-            }
-            // If the commenter is a third party
-            else {
-                createAndSaveNotification(post, userComment, sender);
-                createAndSaveNotification(post, userComment, receiver);
+            // If the post is on sender's own page (sender = receiver)
+            if (sender.getId().equals(userComment.getId())) {
+                // Do not notify if the commenter is the sender or receiver
+                if (userComment.getId().equals(sender.getId())) {
+                    return;
+                }
+            } else {
+                // Case 2: If usercmt is not sender or receiver(freind of sender or receiver)
+                // Notify both sender and receiver
+                if (sender != receiver && !userComment.getId().equals(sender.getId()) && !userComment.getId().equals(receiver.getId())) {
+                    createAndSaveNotification(post, userComment, sender);
+                    createAndSaveNotification(post, userComment, receiver);
+
+                }
+                // Notify usercmt is receiver cmt on sender'post to receiver
+                else if (!userComment.getId().equals(sender.getId())) {
+                    createAndSaveNotification(post, userComment, sender);
+                }
             }
         } else {
+            // Case 3: If the receiver is null (post in a group)
             Group groupReceive = post.getGroupReceive();
             if (groupReceive != null) {
-                // Notify all members of the group
-                for (GroupMembership membership : groupReceive.getGroupMemberships()) {
-                    User member = membership.getUser();
-                    // Only notify the members if the commenter is a third party
-                    if (!userComment.getId().equals(sender.getId())) {
-                        createAndSaveNotification(post, userComment, sender);
-                    }
+                // Notify the sender if someone comments
+                if (!userComment.getId().equals(sender.getId())) {
+                    createAndSaveNotification(post, userComment, sender);
                 }
             }
         }
@@ -148,7 +151,7 @@ public class NotificationService {
         newNoti.setRequester(requester);
         newNoti.setAddressee(addressee);
         newNoti.setType("COMMENT");
-        
+    
         if (addressee.getId().equals(post.getSender().getId())) {
             newNoti.setContent(requester.getFullName() + " đã bình luận bài viết của bạn!");
         } else if (addressee.getId().equals(post.getReceiver().getId())) {
@@ -156,11 +159,12 @@ public class NotificationService {
         } else {
             newNoti.setContent(requester.getFullName() + " đã bình luận về một bài viết!");
         }
-        
+    
         newNoti.setCreated_at(LocalDateTime.now());
         newNoti.setIsRead(false);
         notificationRepository.save(newNoti);
     }
+    
     
     
 

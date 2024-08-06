@@ -31,7 +31,6 @@ import lombok.Setter;
 public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
     private Long id;
 
     @Column
@@ -50,9 +49,12 @@ public class Group {
     @JoinColumn
     private User admin;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
-    private List<GroupMembership> groupMemberships = new ArrayList<>();
+    @OneToMany(mappedBy = "groupReceive", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts = new ArrayList<>();
 
-    // @ManyToMany(mappedBy = "groups")
-    // private List<User> members;
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GroupMembership> groupMemberships = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notifications> notifications = new ArrayList<>();
 }

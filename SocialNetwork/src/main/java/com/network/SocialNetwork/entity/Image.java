@@ -15,6 +15,10 @@ public class Image {
     private Long id;
     private String url;
 
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
+
     public Image(String url) {
         this.url = url;
     }

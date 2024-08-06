@@ -141,10 +141,19 @@ public class GroupController {
             String avatarUrl = saveFile(group.getAvatarFile(), "src/main/resources/static/user/assets/images/profile/");
             group.setAvatar(avatarUrl);
         }
-        //groupRepository.save(group);
-        //groupMembershipService.createGroup(group);
+        groupRepository.save(group);
+        groupMembershipService.createGroup(group);
 
         redirectAttributes.addFlashAttribute("message", "Tạo nhóm thành công");
+        return "redirect:/groups/groupList";
+    }
+
+    @PostMapping("/delete")
+    public String deleteGroup(@RequestParam("idGroup") Long idGroup,
+            RedirectAttributes redirectAttributes) {
+        Group group = groupRepository.findById(idGroup).get();
+        groupRepository.delete(group);
+        redirectAttributes.addFlashAttribute("message", "Xóa nhóm thành công");
         return "redirect:/groups/groupList";
     }
 
@@ -294,8 +303,7 @@ public class GroupController {
     }
 
     @GetMapping("/groupList")
-    public String groupList(Model model)
-    {
+    public String groupList(Model model) {
         User currentUser = getCurrentUser().get();
         // Lấy list group
         var listGroup = groupService.getListGroup(currentUser);

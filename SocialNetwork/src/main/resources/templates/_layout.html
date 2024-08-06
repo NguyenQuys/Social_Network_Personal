@@ -180,12 +180,12 @@
 
                                                         <!-- Conditional anchor tag -->
                                                         <!-- LIKE POST and cmt-->
-                                                        <div th:if="${noti.type == 'LIKE' || noti.type == 'COMMENT' || noti.type =='APPROVE_POST'}">
+                                                        <div th:if="${noti.type == 'LIKE' || noti.type == 'COMMENT' || noti.type =='APPROVE_POST' || noti.type == 'POST'}">
                                                             <a th:href="@{|/post-detail/${noti.post.id}?notiId=${noti.id}|}"
                                                                 class="p-0">
                                                                 <div class="row">
                                                                     <!-- profile picture start -->
-                                                                    <div th:if="${noti.type == 'LIKE' || noti.type == 'COMMENT'}" class="profile-thumb col-2">
+                                                                    <div th:if="${noti.type == 'LIKE' || noti.type == 'COMMENT' || noti.type == 'POST'}" class="profile-thumb col-2">
                                                                         <figure class="profile-thumb-middle">
                                                                             <img th:src="${noti.requester.avatar}"
                                                                                 alt="profile picture">

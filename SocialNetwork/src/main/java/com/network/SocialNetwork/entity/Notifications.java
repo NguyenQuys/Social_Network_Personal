@@ -36,11 +36,11 @@ public class Notifications {
     private User addressee;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "post_id")
     private Post post;
 
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "group_id")
     private Group group;
 
     @Column(nullable = false)
@@ -55,3 +55,5 @@ public class Notifications {
     @Column(nullable = false)
     private LocalDateTime created_at = LocalDateTime.now();
 }
+
+
