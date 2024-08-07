@@ -1,8 +1,9 @@
-Sẽ có 3 account(có thể tạo thêm):
-user1: 123456Vv
-user2: 123456Vv
+Sẽ có 4 account(có thể tạo thêm):
+quy: 123456Vv
+nam: 123456Vv
+viet: 123456Vv
 admin: 123456Vv
 
-- admin có thể xem số lượng truy cập trong ngày, số lượng bài post,kiểm tra post bị report, xóa post.
-- user có thể đăng bài
-- group do user tạo ra (admin của group), admin của group sẽ duyệt thành viên, duyệt post
+- admin có thể xem số lượng truy cập trong ngày (chartjs), số lượng bài post,kiểm tra post bị report, xóa post.
+- user có thể đăng bài, đăng trong nhóm, đăng trên trường nhà bạn
+- group do user tạo ra (admin của group), admin của group sẽ duyệt thành viên, duyệt post, ẩn group, xóa group
