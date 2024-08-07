@@ -106,32 +106,54 @@ public class GroupController {
             notificationService.markRead(notiId);
         }
 
+        User currentUser = getCurrentUser().get();
+
         Group groupChosen = groupRepository.findById(id).orElse(null);
-        if (groupChosen == null) {
+        if (currentUser.getId() == groupChosen.getAdmin().getId() || groupChosen.getIsActive()) {
+
+            model.addAttribute("groupChosen", groupChosen);
+
+            List<Post> listPosts = postService.getAllPost().stream()
+                    .filter(post -> post.getGroupReceive() != null &&
+                            post.getGroupReceive().getId().equals(id) &&
+                            post.getIsCensored())
+                    .sorted(Comparator.comparing(Post::getTimestamp).reversed())
+                    .toList();
+
+            model.addAttribute("listPosts", listPosts);
+
+            List<Post> postsLikedByCurrentUser = listPosts.stream()
+                    .filter(post -> post.getLikedBy().stream()
+                            .anyMatch(user -> user.getId().equals(getCurrentUser().get().getId())))
+                    .collect(Collectors.toList());
+            model.addAttribute("postsLikedByCurrentUser", postsLikedByCurrentUser);
+
+            var checkIfSentRequest = groupMembershipService.specificGroupMembership(groupChosen,
+                    getCurrentUser().orElse(null));
+            model.addAttribute("checkIfSentRequest", checkIfSentRequest);
+
+            // COunt the number of post wanna post
+            List<Post> listReviewPost = postRepository.findAll().stream()
+                    .filter(post -> !post.getIsCensored() &&
+                            post.getGroupReceive() != null &&
+                            post.getGroupReceive().getId().equals(id))
+                    .toList();
+
+            model.addAttribute("listReviewPost", listReviewPost);
+
+            // Count the number of user wanna join group
+            var listRequest = groupMembershipRepository.findAll().stream()
+                    .filter(group -> group.getGroup().getId() == id && group.isCensored() == false)
+                    .toList();
+
+            var listUserRequestToJoin = listRequest.stream().map(GroupMembership::getUser).toList();
+            model.addAttribute("listUserRequestToJoin", listUserRequestToJoin);
+
+            return "group";
+        } else if (groupChosen == null || !groupChosen.getIsActive()) {
             return "redirect:/not-found-error";
         }
-        model.addAttribute("groupChosen", groupChosen);
-
-        List<Post> listPosts = postService.getAllPost().stream()
-                .filter(post -> post.getGroupReceive() != null &&
-                        post.getGroupReceive().getId().equals(id) &&
-                        post.getIsCensored())
-                .sorted(Comparator.comparing(Post::getTimestamp).reversed())
-                .toList();
-
-        model.addAttribute("listPosts", listPosts);
-
-        List<Post> postsLikedByCurrentUser = listPosts.stream()
-                .filter(post -> post.getLikedBy().stream()
-                        .anyMatch(user -> user.getId().equals(getCurrentUser().get().getId())))
-                .collect(Collectors.toList());
-        model.addAttribute("postsLikedByCurrentUser", postsLikedByCurrentUser);
-
-        var checkIfSentRequest = groupMembershipService.specificGroupMembership(groupChosen,
-                getCurrentUser().orElse(null));
-        model.addAttribute("checkIfSentRequest", checkIfSentRequest);
-
-        return "group";
+        return null;
     }
 
     @PostMapping("/create")
@@ -155,6 +177,26 @@ public class GroupController {
         groupRepository.delete(group);
         redirectAttributes.addFlashAttribute("message", "Xóa nhóm thành công");
         return "redirect:/groups/groupList";
+    }
+
+    @PostMapping("/switch-status")
+    public String switchStatus(@RequestParam("idGroup") Long idGroup,
+                                RedirectAttributes redirectAttributes)
+    {
+        Group group = groupRepository.findById(idGroup).get();
+        if(group.getIsActive())
+        {
+            group.setIsActive(false);
+            redirectAttributes.addFlashAttribute("message","Tắt hoạt động thành công");
+        }
+        else
+        {
+            group.setIsActive(true);
+            redirectAttributes.addFlashAttribute("message","Bật hoạt động thành công");
+        }
+                
+        groupRepository.save(group);
+        return "redirect:/groups/" + idGroup;
     }
 
     public String saveFile(MultipartFile file, String directory) {

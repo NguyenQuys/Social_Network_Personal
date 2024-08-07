@@ -49,6 +49,9 @@ public class Group {
     @JoinColumn
     private User admin;
 
+    @Column
+    private Boolean isActive = true;
+
     @OneToMany(mappedBy = "groupReceive", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 

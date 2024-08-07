@@ -2,9 +2,6 @@ package com.network.SocialNetwork.entity;
 
 import java.time.LocalDateTime;
 
-import org.springframework.cglib.core.Local;
-import org.springframework.context.annotation.Primary;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

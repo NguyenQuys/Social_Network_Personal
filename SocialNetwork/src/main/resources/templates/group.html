@@ -77,20 +77,37 @@
                         <!-- If currentUser is Admin -->
                         <div th:if="${groupChosen.admin.id} == ${currentlyUser.id}">
                             <div class="dropdown">
-                                <button class="edit-btn">Quản lý</button>
+                                <button class="edit-btn">Quản lý </button>
+                                <span
+                                    class="badge badge-warning p-2" th:if="${listUserRequestToJoin.size() + listReviewPost.size() != 0}"
+                                    th:text="${listUserRequestToJoin.size() +listReviewPost.size()}">Quantity</span>
                                 <div class="dropdown-content">
-                                    <a th:href="@{|/groups/${groupChosen.id}/review-list-post|}">Duyệt bài viết</a>
+                                    <div>
+                                        <a th:href="@{|/groups/${groupChosen.id}/review-list-post|}">Duyệt bài viết
+                                            <span class="badge badge-danger" th:if="${listReviewPost.size() != 0}"
+                                                th:text="${listReviewPost.size()}">Quantity</span></a>
+                                    </div>
+                                    <div>
+                                        <a th:href="@{|/groups/list-request/${groupChosen.id}|}">Duyệt thành viên <span
+                                                class="badge badge-danger" th:if="${listUserRequestToJoin.size() != 0}"
+                                                th:text="${listUserRequestToJoin.size()}">Quantity</span></a>
+                                    </div>
+                                    <div class="p-3" style="background-color: red" th:if="${groupChosen.isActive}">
+                                        <button style="color: white;" data-toggle="modal"
+                                            data-target="#deactiveGroup">Tắt hoạt động</button>
+                                    </div>
+                                    <div class="p-3" style="background-color: green"
+                                        th:unless="${groupChosen.isActive}">
+                                        <button style="color: white;" data-toggle="modal"
+                                            data-target="#deactiveGroup">Bật hoạt động</button>
+                                    </div>
                                     <div class="p-3">
                                         <button data-toggle="modal" data-target="#deleteGroup">Xóa nhóm</button>
-                                        <!-- <form th:action="@{/groups/delete}" method="post">
-                                            <input type="hidden" name="idGroup" th:value="${groupChosen.id}">
-                                            <button type="submit">Xóa nhóm</button>
-                                        </form> -->
-
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <!-- MODAL STARTS -->
                         <!-- delete group modal starts -->
                         <div class="modal fade" id="deleteGroup" tabindex="-1" role="dialog"
                             aria-labelledby="profileEditModalLabel" aria-hidden="true">
@@ -115,7 +132,71 @@
                             </div>
                         </div>
                         <!-- delete group modal ends -->
+
+                        <!-- Deactive group starts -->
+                        <div class="modal fade" id="deactiveGroup">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content" th:if="${groupChosen.isActive}">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="profileEditModalLabel">Tắt hoạt động của nhóm
+                                            <span class="text-danger" th:text="${groupChosen.name}"></span> ??
+                                        </h5>
+                                    </div>
+                                    <div class="p-3">
+                                        <span style="font-weight: bold;" class="text text-danger align-center">Cảnh
+                                            báo:</span>
+                                        <p class="align-center">Tắt hoạt động sẽ ẩn hết tất cả mọi thứ liên quan đến
+                                            nhóm như bài viết, tìm kiếm ??</p>
+                                        <p class="align-center">Vẫn tiếp tục??</p>
+                                    </div>
+                                    <div style="justify-content:space-around;" class="modal-footer d-flex">
+                                        <form th:action="@{/groups/switch-status}" method="post">
+                                            <input type="hidden" th:name="idGroup" th:value="${groupChosen.id}">
+                                            <button style="background-color: green; color: white;" class="btn p-2"
+                                                type="submit">Vẫn tắt</button>
+                                        </form>
+
+                                        <button style="background-color: red; color: white;" class="btn p-2"
+                                            type="button" data-dismiss="modal">Hủy</button>
+                                    </div>
+                                </div>
+                                <div class="modal-content" th:unless="${groupChosen.isActive}">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="profileEditModalLabel">Bật lại hoạt động của nhóm
+                                            <span class="text-danger" th:text="${groupChosen.name}"></span> ??
+                                        </h5>
+                                    </div>
+                                    <div class="p-3">
+                                        <span style="font-weight: bold;" class="text text-danger align-center">Cảnh
+                                            báo:</span>
+                                        <p class="align-center">Bật hoạt động sẽ hiển thị lại tất cả mọi thứ liên quan đến
+                                            nhóm như bài viết, tìm kiếm ??</p>
+                                        <p class="align-center">Vẫn tiếp tục??</p>
+                                    </div>
+                                    <div style="justify-content:space-around;" class="modal-footer d-flex">
+                                        <form th:action="@{/groups/switch-status}" method="post">
+                                            <input type="hidden" th:name="idGroup" th:value="${groupChosen.id}">
+                                            <button style="background-color: green; color: white;" class="btn p-2"
+                                                type="submit">Vẫn bật</button>
+                                        </form>
+
+                                        <button style="background-color: red; color: white;" class="btn p-2"
+                                            type="button" data-dismiss="modal">Hủy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Deactive group ends -->
+
+                        <!-- MODAL ENDS -->
+
                         <style>
+                            .align-center {
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                            }
+
                             .dropdown {
                                 position: relative;
                                 display: inline-block;

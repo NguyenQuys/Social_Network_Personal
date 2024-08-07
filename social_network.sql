@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `test` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `test`;
 -- MySQL dump 10.13  Distrib 8.0.36, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: test
@@ -61,7 +63,7 @@ CREATE TABLE `comment` (
   KEY `FK8kcum44fvpupyw6f5baccx25c` (`user_id`),
   CONSTRAINT `FK8kcum44fvpupyw6f5baccx25c` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FKs1slvnkuemjsq2kj4h3vhx7i1` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,6 +72,7 @@ CREATE TABLE `comment` (
 
 LOCK TABLES `comment` WRITE;
 /*!40000 ALTER TABLE `comment` DISABLE KEYS */;
+INSERT INTO `comment` VALUES (2,'fgdf','2024-08-06 13:59:52.522913',2,2),(3,'vv','2024-08-06 14:00:15.120248',2,2),(4,'j','2024-08-06 14:01:36.505243',2,2),(5,'ff','2024-08-06 14:18:54.776125',2,1),(6,'ggg','2024-08-06 14:19:42.087976',2,2),(7,'dg','2024-08-06 14:20:23.232035',2,2),(8,'dg','2024-08-06 14:22:40.346874',2,2),(9,'dg','2024-08-06 14:24:43.689736',2,2),(10,'vbc','2024-08-06 14:25:58.856126',3,2),(11,'dfdf','2024-08-06 14:27:05.961739',3,1),(12,'gfd','2024-08-06 14:28:56.317177',3,3),(13,'gfd','2024-08-06 14:30:49.483859',3,3),(14,'yu','2024-08-06 14:31:23.480367',3,1),(15,'','2024-08-06 14:32:46.493946',3,1),(16,'dfs','2024-08-06 14:33:19.726450',3,2),(17,'dfgg','2024-08-06 14:34:28.321800',4,3),(18,'dfgg','2024-08-06 14:35:31.403880',4,3),(19,'jh','2024-08-06 15:40:19.084609',4,1),(20,'dsfd','2024-08-06 15:48:24.935452',3,1),(21,'dsfsdf','2024-08-06 16:51:56.050508',3,1),(22,'vvvv','2024-08-06 16:53:55.496335',3,1),(23,'fff','2024-08-06 16:54:58.387869',3,1),(24,'fdfdf','2024-08-06 17:00:05.448296',3,1),(25,'yggy','2024-08-06 17:00:35.427474',3,1),(26,'ssss','2024-08-06 17:01:16.839988',3,1),(27,'rrr','2024-08-06 17:02:38.991077',3,1);
 /*!40000 ALTER TABLE `comment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -120,7 +123,7 @@ CREATE TABLE `friend_requests` (
   KEY `FKri3588r9atpppe038o2abrasc` (`requester_id`),
   CONSTRAINT `FKri3588r9atpppe038o2abrasc` FOREIGN KEY (`requester_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FKsoyl82l4vmnu6mhihbuua8ddy` FOREIGN KEY (`addressee_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,7 +132,7 @@ CREATE TABLE `friend_requests` (
 
 LOCK TABLES `friend_requests` WRITE;
 /*!40000 ALTER TABLE `friend_requests` DISABLE KEYS */;
-INSERT INTO `friend_requests` VALUES (1,'2024-08-04 10:43:13.370103','2024-08-04 03:43:08','ACCEPTED',1,2);
+INSERT INTO `friend_requests` VALUES (1,'2024-08-06 13:59:47.750122','2024-08-06 06:59:45','ACCEPTED',1,2),(2,'2024-08-06 14:28:46.878273','2024-08-06 07:28:32','ACCEPTED',2,3);
 /*!40000 ALTER TABLE `friend_requests` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -150,7 +153,7 @@ CREATE TABLE `group_membership` (
   KEY `FK5226h4qqd80sxck7cg5s55u44` (`user_id`),
   CONSTRAINT `FK5226h4qqd80sxck7cg5s55u44` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FKqoye24ka7bmdd6snx0frflcmv` FOREIGN KEY (`group_id`) REFERENCES `group_table` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -159,7 +162,7 @@ CREATE TABLE `group_membership` (
 
 LOCK TABLES `group_membership` WRITE;
 /*!40000 ALTER TABLE `group_membership` DISABLE KEYS */;
-INSERT INTO `group_membership` VALUES (1,_binary '',1,1),(2,_binary '',1,2);
+INSERT INTO `group_membership` VALUES (4,_binary '',3,1),(6,_binary '',3,3),(7,_binary '\0',3,2);
 /*!40000 ALTER TABLE `group_membership` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -176,10 +179,11 @@ CREATE TABLE `group_table` (
   `description` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `admin_id` bigint DEFAULT NULL,
+  `is_active` bit(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FKjti7kb2rl6bfdb77s7cx81xw0` (`admin_id`),
   CONSTRAINT `FKjti7kb2rl6bfdb77s7cx81xw0` FOREIGN KEY (`admin_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -188,7 +192,7 @@ CREATE TABLE `group_table` (
 
 LOCK TABLES `group_table` WRITE;
 /*!40000 ALTER TABLE `group_table` DISABLE KEYS */;
-INSERT INTO `group_table` VALUES (1,'/user/assets/images/profile/2189f93c-8669-4c2b-9eaf-0287ed6d725a_GauTruc.png','aaaa','hoi nhom cua quy',1);
+INSERT INTO `group_table` VALUES (3,'/user/assets/images/profile/32f653fc-92d2-43ca-98fe-fdc0529d08fc_GauTruc.png','aaa','aaaa',1,_binary '');
 /*!40000 ALTER TABLE `group_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -202,8 +206,11 @@ DROP TABLE IF EXISTS `image`;
 CREATE TABLE `image` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `url` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `post_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKe2l07hc93u2bbjnl80meu3rn4` (`post_id`),
+  CONSTRAINT `FKe2l07hc93u2bbjnl80meu3rn4` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -212,6 +219,7 @@ CREATE TABLE `image` (
 
 LOCK TABLES `image` WRITE;
 /*!40000 ALTER TABLE `image` DISABLE KEYS */;
+INSERT INTO `image` VALUES (1,'user/assets/images/post/279455187_594598114865951_7440947279832479676_n.jpg',NULL);
 /*!40000 ALTER TABLE `image` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -241,7 +249,7 @@ CREATE TABLE `notifications` (
   CONSTRAINT `FK4ba33qvlquxq8icg5nfaqlhy7` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`),
   CONSTRAINT `FK71e8feaf5xvh8byj81w1fm5pq` FOREIGN KEY (`requester_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FKcuf29gvqg0junohi1ubmnog5o` FOREIGN KEY (`group_id`) REFERENCES `group_table` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -250,7 +258,7 @@ CREATE TABLE `notifications` (
 
 LOCK TABLES `notifications` WRITE;
 /*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
-INSERT INTO `notifications` VALUES (1,'user1 nguyen đã chấp nhận lời mời kết bạn của bạn','2024-08-04 10:43:13.376563',_binary '','ACCEPT FRIENDREQUEST',2,NULL,NULL,1),(2,'đã gửi yêu cầu tham gia nhóm hoi nhom cua quy','2024-08-04 10:46:11.452205',_binary '','REQUEST_TO_JOIN_GROUP',1,1,NULL,2),(3,'Chúc mừng! Bạn đã là thành viên của nhóm hoi nhom cua quy??','2024-08-04 10:46:17.562923',_binary '','ACCEPTED_JOINING_GROUP',2,1,NULL,1),(4,'đã gửi yêu cầu đăng bài trong nhóm hoi nhom cua quy','2024-08-04 10:46:53.912674',_binary '','REVIEW_POST',1,1,2,2),(5,'Bài viết của bạn đã được chấp nhận','2024-08-04 10:47:55.773314',_binary '','APPROVE_POST',2,1,2,1);
+INSERT INTO `notifications` VALUES (5,'user1 nguyen đã chấp nhận lời mời kết bạn của bạn','2024-08-06 13:59:47.757597',_binary '','ACCEPT FRIENDREQUEST',2,NULL,NULL,1),(6,' đã thích bài viết của bạn!','2024-08-06 13:59:50.202131',_binary '','LIKE',1,NULL,2,2),(7,'user2 tran đã bình luận bài viết của bạn!','2024-08-06 13:59:52.528913',_binary '','COMMENT',1,NULL,2,2),(8,'user2 tran đã bình luận bài viết của bạn!','2024-08-06 13:59:52.532999',_binary '','COMMENT',1,NULL,2,2),(9,'user2 tran đã bình luận bài viết của bạn!','2024-08-06 14:00:15.124252',_binary '','COMMENT',1,NULL,2,2),(10,'user2 tran đã bình luận bài viết của bạn!','2024-08-06 14:00:15.127253',_binary '','COMMENT',1,NULL,2,2),(11,'user2 tran đã bình luận bài viết của bạn!','2024-08-06 14:23:22.196050',_binary '','COMMENT',1,NULL,2,2),(12,'user2 tran đã bình luận bài viết của bạn!','2024-08-06 14:24:54.245915',_binary '','COMMENT',1,NULL,2,2),(13,'user2 tran đã đăng bài viết lên trang cá nhân của bạn','2024-08-06 14:25:25.551660',_binary '','POST',1,NULL,3,2),(14,'user1 nguyen đã bình luận bài viết của bạn!','2024-08-06 14:27:38.025155',_binary '','COMMENT',2,NULL,3,1),(15,'user2 tran đã chấp nhận lời mời kết bạn của bạn','2024-08-06 14:28:46.882849',_binary '','ACCEPT FRIENDREQUEST',3,NULL,NULL,2),(16,'admin LE đã bình luận bài viết của bạn!','2024-08-06 14:31:03.357415',_binary '','COMMENT',2,NULL,3,3),(17,'admin LE đã bình luận về một bài viết liên quan đến bạn!','2024-08-06 14:31:04.458137',_binary '','COMMENT',1,NULL,3,3),(18,'user1 nguyen đã bình luận bài viết của bạn!','2024-08-06 14:33:05.888870',_binary '','COMMENT',2,NULL,3,1),(19,'admin LE đã bình luận bài viết của bạn!','2024-08-06 14:34:45.727036',_binary '','COMMENT',2,NULL,4,3),(20,'admin LE đã bình luận bài viết của bạn!','2024-08-06 14:34:46.078188',_binary '','COMMENT',2,NULL,4,3),(21,'admin LE đã bình luận bài viết của bạn!','2024-08-06 14:35:51.360965',_binary '','COMMENT',2,NULL,4,3),(22,'user1 nguyen đã bình luận bài viết của bạn!','2024-08-06 15:40:21.295856',_binary '\0','COMMENT',2,NULL,4,1),(23,'user1 nguyen đã bình luận bài viết của bạn!','2024-08-06 15:48:26.878387',_binary '\0','COMMENT',2,NULL,3,1),(24,'user1 nguyen đã bình luận bài viết của bạn!','2024-08-06 16:51:57.448870',_binary '\0','COMMENT',2,NULL,3,1),(25,'user1 nguyen đã bình luận bài viết của bạn!','2024-08-06 16:53:58.895153',_binary '\0','COMMENT',2,NULL,3,1),(26,'user1 nguyen đã bình luận bài viết của bạn!','2024-08-06 16:54:59.261019',_binary '\0','COMMENT',2,NULL,3,1),(27,'user1 nguyen đã bình luận bài viết của bạn!','2024-08-06 17:00:06.139833',_binary '\0','COMMENT',2,NULL,3,1),(28,'user1 nguyen đã bình luận bài viết của bạn!','2024-08-06 17:00:36.281184',_binary '\0','COMMENT',2,NULL,3,1),(29,'user1 nguyen đã bình luận bài viết của bạn!','2024-08-06 17:01:17.484400',_binary '\0','COMMENT',2,NULL,3,1),(30,'user1 nguyen đã bình luận bài viết của bạn!','2024-08-06 17:02:39.479176',_binary '\0','COMMENT',2,NULL,3,1),(31,'đã gửi yêu cầu tham gia nhóm aaaa','2024-08-06 23:37:58.811826',_binary '','REQUEST_TO_JOIN_GROUP',1,3,NULL,2),(32,'đã gửi yêu cầu tham gia nhóm aaaa','2024-08-06 23:38:09.345544',_binary '','REQUEST_TO_JOIN_GROUP',1,3,NULL,3),(33,'Chúc mừng! Bạn đã là thành viên của nhóm aaaa??','2024-08-06 23:40:56.466949',_binary '\0','ACCEPTED_JOINING_GROUP',2,3,NULL,1),(34,'Chúc mừng! Bạn đã là thành viên của nhóm aaaa??','2024-08-06 23:41:02.387384',_binary '\0','ACCEPTED_JOINING_GROUP',3,3,NULL,1),(35,'đã gửi yêu cầu đăng bài trong nhóm aaaa','2024-08-06 23:59:16.098167',_binary '','REVIEW_POST',1,3,5,2),(36,'Bài viết của bạn đã được chấp nhận','2024-08-07 00:00:01.551439',_binary '\0','APPROVE_POST',2,3,5,1),(37,'đã gửi yêu cầu tham gia nhóm aaaa','2024-08-07 10:54:56.095974',_binary '','REQUEST_TO_JOIN_GROUP',1,3,NULL,2),(38,'đã gửi yêu cầu đăng bài trong nhóm aaaa','2024-08-07 10:58:17.716497',_binary '','REVIEW_POST',1,3,6,3);
 /*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -304,7 +312,7 @@ CREATE TABLE `post` (
   CONSTRAINT `FK8feg631ui1tkuajoegcy3u28n` FOREIGN KEY (`group_receive_id`) REFERENCES `group_table` (`id`),
   CONSTRAINT `FKnkflk5bc8b0bebnvpagehvnd8` FOREIGN KEY (`sender_id`) REFERENCES `user` (`id`),
   CONSTRAINT `FKrbhqp3fuiaoff9fscafs3042l` FOREIGN KEY (`receiver_id`) REFERENCES `user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -313,34 +321,8 @@ CREATE TABLE `post` (
 
 LOCK TABLES `post` WRITE;
 /*!40000 ALTER TABLE `post` DISABLE KEYS */;
-INSERT INTO `post` VALUES (1,'<p>aaa</p>',_binary '\0',0,'2024-08-04 10:42:05.530351',NULL,1,1),(2,'<p>user2 tedsst hoi nhom</p>',_binary '',0,'2024-08-04 10:46:53.908478',1,NULL,2);
+INSERT INTO `post` VALUES (2,'<p>dgvdfg</p>',_binary '',1,'2024-08-06 13:59:34.336690',NULL,1,1),(3,'<p>gdffdg</p>',_binary '',0,'2024-08-06 14:25:25.540135',NULL,1,2),(4,'<p>fdgf</p>',_binary '',0,'2024-08-06 14:34:15.531924',NULL,2,2),(5,'<p>asas</p>',_binary '',0,'2024-08-06 23:59:16.084413',3,NULL,2),(6,'<p>dfgdg</p>',_binary '\0',0,'2024-08-07 10:58:17.701496',3,NULL,3);
 /*!40000 ALTER TABLE `post` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `post_images`
---
-
-DROP TABLE IF EXISTS `post_images`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `post_images` (
-  `post_id` bigint NOT NULL,
-  `images_id` bigint NOT NULL,
-  UNIQUE KEY `UKm78offcf9uxb8jox1hpjfcftf` (`images_id`),
-  KEY `FK4436mqgshkhub17yvq5ku91f7` (`post_id`),
-  CONSTRAINT `FK4436mqgshkhub17yvq5ku91f7` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`),
-  CONSTRAINT `FK7qbn4kangy50vix0gbupf9rkp` FOREIGN KEY (`images_id`) REFERENCES `image` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `post_images`
---
-
-LOCK TABLES `post_images` WRITE;
-/*!40000 ALTER TABLE `post_images` DISABLE KEYS */;
-/*!40000 ALTER TABLE `post_images` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -366,33 +348,8 @@ CREATE TABLE `post_likes` (
 
 LOCK TABLES `post_likes` WRITE;
 /*!40000 ALTER TABLE `post_likes` DISABLE KEYS */;
+INSERT INTO `post_likes` VALUES (2,2);
 /*!40000 ALTER TABLE `post_likes` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `post_videos`
---
-
-DROP TABLE IF EXISTS `post_videos`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `post_videos` (
-  `post_id` bigint NOT NULL,
-  `videos_id` bigint NOT NULL,
-  UNIQUE KEY `UKaft9mjkc31ju0awgngvbtremx` (`videos_id`),
-  KEY `FK13hn7k9frbxaf4xfrlq46uj19` (`post_id`),
-  CONSTRAINT `FK13hn7k9frbxaf4xfrlq46uj19` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`),
-  CONSTRAINT `FKnucf5bll0mo5egfrk2ytw9h2s` FOREIGN KEY (`videos_id`) REFERENCES `video` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `post_videos`
---
-
-LOCK TABLES `post_videos` WRITE;
-/*!40000 ALTER TABLE `post_videos` DISABLE KEYS */;
-/*!40000 ALTER TABLE `post_videos` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -465,7 +422,7 @@ CREATE TABLE `statistic` (
   `visit_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `visitors` bigint NOT NULL,
   PRIMARY KEY (`id_statistic`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -474,7 +431,7 @@ CREATE TABLE `statistic` (
 
 LOCK TABLES `statistic` WRITE;
 /*!40000 ALTER TABLE `statistic` DISABLE KEYS */;
-INSERT INTO `statistic` VALUES (1,'2024-08-03 17:00:00',1),(2,'2024-08-03 17:00:00',1),(3,'2024-08-03 17:00:00',2),(4,'2024-08-03 17:00:00',3),(5,'2024-08-03 17:00:00',3),(6,'2024-08-03 17:00:00',1),(7,'2024-08-03 17:00:00',1),(8,'2024-08-03 17:00:00',2),(9,'2024-08-03 17:00:00',1),(10,'2024-08-03 17:00:00',2),(11,'2024-08-03 17:00:00',1),(12,'2024-08-03 17:00:00',1),(13,'2024-08-03 17:00:00',1),(14,'2024-08-03 17:00:00',2),(15,'2024-08-03 17:00:00',1),(16,'2024-08-03 17:00:00',1),(17,'2024-08-03 17:00:00',2),(18,'2024-08-03 17:00:00',2),(19,'2024-08-03 17:00:00',1),(20,'2024-08-03 17:00:00',1),(21,'2024-08-03 17:00:00',2),(22,'2024-08-03 17:00:00',2),(23,'2024-08-03 17:00:00',1),(24,'2024-08-03 17:00:00',1),(25,'2024-08-03 17:00:00',2),(26,'2024-08-03 17:00:00',2),(27,'2024-08-03 17:00:00',1),(28,'2024-08-03 17:00:00',2),(29,'2024-08-03 17:00:00',2),(30,'2024-08-03 17:00:00',1),(31,'2024-08-03 17:00:00',1),(32,'2024-08-03 17:00:00',1),(33,'2024-08-03 17:00:00',1),(34,'2024-08-03 17:00:00',1),(35,'2024-08-03 17:00:00',1),(36,'2024-08-03 17:00:00',1),(37,'2024-08-03 17:00:00',1),(38,'2024-08-03 17:00:00',2),(39,'2024-08-03 17:00:00',2),(40,'2024-08-03 17:00:00',1),(41,'2024-08-03 17:00:00',2),(42,'2024-08-03 17:00:00',1),(43,'2024-08-03 17:00:00',1);
+INSERT INTO `statistic` VALUES (1,'2024-08-05 17:00:00',1),(2,'2024-08-05 17:00:00',2),(3,'2024-08-05 17:00:00',1),(4,'2024-08-05 17:00:00',1),(5,'2024-08-05 17:00:00',2),(6,'2024-08-05 17:00:00',2),(7,'2024-08-05 17:00:00',1),(8,'2024-08-05 17:00:00',1),(9,'2024-08-05 17:00:00',1),(10,'2024-08-05 17:00:00',2),(11,'2024-08-05 17:00:00',1),(12,'2024-08-05 17:00:00',1),(13,'2024-08-05 17:00:00',2),(14,'2024-08-05 17:00:00',1),(15,'2024-08-05 17:00:00',2),(16,'2024-08-05 17:00:00',1),(17,'2024-08-05 17:00:00',1),(18,'2024-08-05 17:00:00',2),(19,'2024-08-05 17:00:00',2),(20,'2024-08-05 17:00:00',2),(21,'2024-08-05 17:00:00',1),(22,'2024-08-05 17:00:00',1),(23,'2024-08-05 17:00:00',3),(24,'2024-08-05 17:00:00',2),(25,'2024-08-05 17:00:00',3),(26,'2024-08-05 17:00:00',1),(27,'2024-08-05 17:00:00',2),(28,'2024-08-05 17:00:00',3),(29,'2024-08-05 17:00:00',2),(30,'2024-08-05 17:00:00',2),(31,'2024-08-05 17:00:00',3),(32,'2024-08-05 17:00:00',3),(33,'2024-08-05 17:00:00',3),(34,'2024-08-05 17:00:00',3),(35,'2024-08-05 17:00:00',3),(36,'2024-08-05 17:00:00',2),(37,'2024-08-05 17:00:00',2),(38,'2024-08-05 17:00:00',2),(39,'2024-08-05 17:00:00',1),(40,'2024-08-05 17:00:00',1),(41,'2024-08-05 17:00:00',1),(42,'2024-08-05 17:00:00',1),(43,'2024-08-05 17:00:00',1),(44,'2024-08-05 17:00:00',1),(45,'2024-08-05 17:00:00',1),(46,'2024-08-05 17:00:00',1),(47,'2024-08-05 17:00:00',1),(48,'2024-08-05 17:00:00',2),(49,'2024-08-05 17:00:00',3),(50,'2024-08-05 17:00:00',1),(51,'2024-08-05 17:00:00',1),(52,'2024-08-06 17:00:00',1),(53,'2024-08-06 17:00:00',1),(54,'2024-08-06 17:00:00',2),(55,'2024-08-06 17:00:00',2),(56,'2024-08-06 17:00:00',2),(57,'2024-08-06 17:00:00',2),(58,'2024-08-06 17:00:00',2),(59,'2024-08-06 17:00:00',1),(60,'2024-08-06 17:00:00',1),(61,'2024-08-06 17:00:00',1),(62,'2024-08-06 17:00:00',2),(63,'2024-08-06 17:00:00',2),(64,'2024-08-06 17:00:00',1),(65,'2024-08-06 17:00:00',2),(66,'2024-08-06 17:00:00',2),(67,'2024-08-06 17:00:00',1),(68,'2024-08-06 17:00:00',1),(69,'2024-08-06 17:00:00',1),(70,'2024-08-06 17:00:00',1),(71,'2024-08-06 17:00:00',1),(72,'2024-08-06 17:00:00',1),(73,'2024-08-06 17:00:00',1),(74,'2024-08-06 17:00:00',1),(75,'2024-08-06 17:00:00',2),(76,'2024-08-06 17:00:00',3);
 /*!40000 ALTER TABLE `statistic` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -508,7 +465,7 @@ CREATE TABLE `user` (
   UNIQUE KEY `UK4bgmpi98dylab6qdvf9xyaxu4` (`phone_number`),
   KEY `FKn82ha3ccdebhokx3a8fgdqeyy` (`role_id`),
   CONSTRAINT `FKn82ha3ccdebhokx3a8fgdqeyy` FOREIGN KEY (`role_id`) REFERENCES `role` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -517,7 +474,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,_binary '',_binary '','/user/assets/images/profile/6884bc3c-46ff-4268-9070-2bd63b7adb17_324042873_892292125299907_176441753814452640_n.jpg','',NULL,'2024-08-04','2024-08-14','user1@gmail.com','user1 nguyen',_binary '\0','2024-08-04 10:40:55.909397','$2a$10$PcZ2VnuVbqVBp8ghUf/l7.7ZpsO4B6.woylfkeKwv8BvVkxXb/47i','0123456789','user1',2),(2,_binary '',_binary '','/user/assets/images/profile/a4102182-02af-4a6e-bb6b-22cc04c06817_324961088_1197653667553080_5512993496072532610_n.jpg','',NULL,'2024-08-04','2024-08-07','user2@gmail.com','user2 tran',_binary '','2024-08-04 10:48:12.632660','$2a$10$eFnelhmDmneB20FCwzqmwOL7IoZSHU04KiOxJZC.ypVMK4xTsq9da','0321654987','user2',2),(3,_binary '',_binary '\0','/user/assets/images/profile/da9c6fdc-7129-438b-af0f-4518e59b500d_Screenshot 2024-08-02 214556.png','',NULL,'2024-08-04','2024-08-10','admin@gmail.com','admin LE',_binary '','2024-08-04 10:41:54.256743','$2a$10$R5UoKTF8ngIXYEJdNdcH2O/5ehO7KrfW.BPQhGFsG5NqugA1KesrK','0987654321','admin',1),(7,_binary '',_binary '\0',NULL,NULL,NULL,'2024-08-04','2024-08-17','aaa@gmail.com','user1 n',_binary '',NULL,'$2a$10$xUWtraolm0nLTiMtIpmtTuoeZSPmRE9ZaLPEmlKS05FbMlDkYXIVW','0147852369','aaa',2);
+INSERT INTO `user` VALUES (1,_binary '',_binary '',NULL,NULL,NULL,'2024-08-06','2024-08-16','user1@gmail.com','user1 nguyen',_binary '','2024-08-07 00:46:31.856745','$2a$10$mcTLY35DI.Z/b6VX8t0a9.xrpgoFkwazI3QHf2BYAVWHX8nUsiA5.','0123456789','quy',2),(2,_binary '',_binary '\0',NULL,NULL,NULL,'2024-08-06','2024-08-01','user2@gmail.com','user2 tran',_binary '','2024-08-07 10:57:58.189785','$2a$10$3E7COTF4iwBPKM/pVCWLZeB0fyherjms268hkqkQ1FZO0bIJdFpme','0352477783','nam',2),(3,_binary '',_binary '',NULL,NULL,NULL,'2024-08-06','2024-08-10','tranthihieu321@gmail.com','admin LE',_binary '','2024-08-06 15:08:10.992302','$2a$10$QJpJFOOju8uh20J7kR07TOr3mtEf0ab75mw2hH.80eSRI3gDOqF8K','0987654321','viet',2);
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -531,8 +488,11 @@ DROP TABLE IF EXISTS `video`;
 CREATE TABLE `video` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `url` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `post_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKm1rcfqyngqcam9rcq4bx21sbl` (`post_id`),
+  CONSTRAINT `FKm1rcfqyngqcam9rcq4bx21sbl` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -541,6 +501,7 @@ CREATE TABLE `video` (
 
 LOCK TABLES `video` WRITE;
 /*!40000 ALTER TABLE `video` DISABLE KEYS */;
+INSERT INTO `video` VALUES (1,'user/assets/images/post/video-1656257903.mp4',NULL);
 /*!40000 ALTER TABLE `video` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -553,4 +514,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-08-04 12:08:10
+-- Dump completed on 2024-08-07 11:00:39

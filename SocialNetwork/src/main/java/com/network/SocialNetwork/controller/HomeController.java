@@ -22,7 +22,6 @@ import com.network.SocialNetwork.eenum.Status;
 import com.network.SocialNetwork.entity.FriendBlock;
 import com.network.SocialNetwork.entity.FriendRequest;
 import com.network.SocialNetwork.entity.Group;
-import com.network.SocialNetwork.entity.Notifications;
 import com.network.SocialNetwork.entity.Post;
 import com.network.SocialNetwork.entity.Statistic;
 import com.network.SocialNetwork.entity.User;
@@ -50,9 +49,6 @@ public class HomeController {
 
     @Autowired
     private StatisticRepository statisticRepository;
-
-    @Autowired
-    private NotificationRepository notificationRepository;
 
     // ------------------SERVICE---------------------------
     @Autowired
@@ -88,109 +84,111 @@ public class HomeController {
     }
 
     @GetMapping
-public String home(Model model, @RequestParam(value = "message", required = false) String message) {
-    if (message != null) {
-        model.addAttribute("message", message);
-    }
-
-    List<Long> listIdFriendUser = new ArrayList<>();
-    List<User> listInfoFriendCurrently = new ArrayList<>();
-
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication != null && authentication.isAuthenticated()
-            && !(authentication instanceof AnonymousAuthenticationToken)) {
-        Optional<User> optionalUser;
-
-        if (authentication.getPrincipal() instanceof OAuth2User) {
-            OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
-            String email = oauth2User.getAttribute("email");
-            optionalUser = userRepository.findByEmail(email);
-        } else {
-            optionalUser = userRepository.findByUsername(authentication.getName());
+    public String home(Model model, @RequestParam(value = "message", required = false) String message) {
+        if (message != null) {
+            model.addAttribute("message", message);
         }
 
-        if (optionalUser.isPresent()) {
-            User currentlyUser = optionalUser.get();
-            Long idCurrentlyUser = currentlyUser.getId();
+        List<Long> listIdFriendUser = new ArrayList<>();
+        List<User> listInfoFriendCurrently = new ArrayList<>();
 
-            Map<String, Object> attributes = new HashMap<>();
-            User userChosen = optionalUser.get();
-            attributes.put("userChosen", userChosen);
-            userChosen.setActiveStatus(true);
-            userRepository.save(userChosen);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken)) {
+            Optional<User> optionalUser;
 
-            Statistic newsStatistic = new Statistic();
-            newsStatistic.setVisitors(idCurrentlyUser);
-            newsStatistic.setVisitAt(LocalDate.now());
-            statisticRepository.save(newsStatistic);
-
-            var getListFriend = friendRequestRepository.getListFriend(idCurrentlyUser);
-            List<FriendBlock> blockList = friendBlockRepository.findAll();
-
-            Set<Long> usersBlockedByCurrentUser = blockList.stream()
-                    .filter(block -> block.getRequester().getId().equals(idCurrentlyUser))
-                    .map(block -> block.getAddressee().getId())
-                    .collect(Collectors.toSet());
-
-            Set<Long> usersWhoBlockedCurrentUser = blockList.stream()
-                    .filter(block -> block.getAddressee().getId().equals(idCurrentlyUser))
-                    .map(block -> block.getRequester().getId())
-                    .collect(Collectors.toSet());
-
-            for (FriendRequest idFriendUser : getListFriend) {
-                Long friendId;
-                if (idFriendUser.getRequester().getId().equals(idCurrentlyUser)) {
-                    friendId = idFriendUser.getAddressee().getId();
-                } else {
-                    friendId = idFriendUser.getRequester().getId();
-                }
-                if (!usersBlockedByCurrentUser.contains(friendId)
-                        && !usersWhoBlockedCurrentUser.contains(friendId)) {
-                    listIdFriendUser.add(friendId);
-                }
-            }
-
-            for (Long friendId : listIdFriendUser) {
-                Optional<User> friendUserOptional = userRepository.findById(friendId);
-                friendUserOptional.ifPresent(listInfoFriendCurrently::add);
-            }
-            attributes.put("listInfoFriendCurrently", listInfoFriendCurrently);
-
-            List<Post> sortedPosts;
-            if (currentlyUser.getRole().getAuthority().equals("ADMIN")) {
-                sortedPosts = postService.getAllPost()
-                        .stream()
-                        .filter(post -> post.getIsCensored())
-                        .sorted(Comparator.comparing(Post::getTimestamp).reversed())
-                        .collect(Collectors.toList());
+            if (authentication.getPrincipal() instanceof OAuth2User) {
+                OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+                String email = oauth2User.getAttribute("email");
+                optionalUser = userRepository.findByEmail(email);
             } else {
-                sortedPosts = postService.getAllPost()
-                        .stream()
-                        .filter(post -> post.getIsCensored() &&
-                                (listInfoFriendCurrently.stream()
-                                .anyMatch(user -> user.getId().equals(post.getSender().getId())) ||
-                                post.getSender().getId().equals(idCurrentlyUser)) &&
-                                !usersBlockedByCurrentUser.contains(post.getSender().getId()) &&
-                                !usersWhoBlockedCurrentUser.contains(post.getSender().getId()))
-                        .sorted(Comparator.comparing(Post::getTimestamp).reversed())
-                        .collect(Collectors.toList());
+                optionalUser = userRepository.findByUsername(authentication.getName());
             }
-            attributes.put("posts", sortedPosts);
 
-            List<Post> postsLikedByCurrentUser = sortedPosts.stream()
-                    .filter(post -> post.getLikedBy().stream()
-                            .anyMatch(user -> user.getId().equals(idCurrentlyUser)))
-                    .collect(Collectors.toList());
-            attributes.put("postsLikedByCurrentUser", postsLikedByCurrentUser);
+            if (optionalUser.isPresent()) {
+                User currentlyUser = optionalUser.get();
+                Long idCurrentlyUser = currentlyUser.getId();
 
-            model.addAllAttributes(attributes);
+                Map<String, Object> attributes = new HashMap<>();
+                User userChosen = optionalUser.get();
+                attributes.put("userChosen", userChosen);
+                userChosen.setActiveStatus(true);
+                userRepository.save(userChosen);
 
-            return "users/like-fragment"; // ko trả về index là do lấy riêng div like vs comment ra để reload div đó
+                Statistic newsStatistic = new Statistic();
+                newsStatistic.setVisitors(idCurrentlyUser);
+                newsStatistic.setVisitAt(LocalDate.now());
+                statisticRepository.save(newsStatistic);
+
+                var getListFriend = friendRequestRepository.getListFriend(idCurrentlyUser);
+                List<FriendBlock> blockList = friendBlockRepository.findAll();
+
+                Set<Long> usersBlockedByCurrentUser = blockList.stream()
+                        .filter(block -> block.getRequester().getId().equals(idCurrentlyUser))
+                        .map(block -> block.getAddressee().getId())
+                        .collect(Collectors.toSet());
+
+                Set<Long> usersWhoBlockedCurrentUser = blockList.stream()
+                        .filter(block -> block.getAddressee().getId().equals(idCurrentlyUser))
+                        .map(block -> block.getRequester().getId())
+                        .collect(Collectors.toSet());
+
+                for (FriendRequest idFriendUser : getListFriend) {
+                    Long friendId;
+                    if (idFriendUser.getRequester().getId().equals(idCurrentlyUser)) {
+                        friendId = idFriendUser.getAddressee().getId();
+                    } else {
+                        friendId = idFriendUser.getRequester().getId();
+                    }
+                    if (!usersBlockedByCurrentUser.contains(friendId)
+                            && !usersWhoBlockedCurrentUser.contains(friendId)) {
+                        listIdFriendUser.add(friendId);
+                    }
+                }
+
+                for (Long friendId : listIdFriendUser) {
+                    Optional<User> friendUserOptional = userRepository.findById(friendId);
+                    friendUserOptional.ifPresent(listInfoFriendCurrently::add);
+                }
+                attributes.put("listInfoFriendCurrently", listInfoFriendCurrently);
+
+                List<Post> sortedPosts;
+                if (currentlyUser.getRole().getAuthority().equals("ADMIN")) {
+                    sortedPosts = postService.getAllPost()
+                            .stream()
+                            .filter(post -> post.getIsCensored() &&
+                                    (post.getGroupReceive() == null || post.getGroupReceive().getIsActive()))
+                            .sorted(Comparator.comparing(Post::getTimestamp).reversed())
+                            .collect(Collectors.toList());
+                } else {
+                    sortedPosts = postService.getAllPost()
+                            .stream()
+                            .filter(post -> post.getIsCensored() &&
+                                    (listInfoFriendCurrently.stream()
+                                            .anyMatch(user -> user.getId().equals(post.getSender().getId())) ||
+                                            post.getSender().getId().equals(idCurrentlyUser))
+                                    &&
+                                    (post.getGroupReceive() == null || post.getGroupReceive().getIsActive()) &&
+                                    !usersBlockedByCurrentUser.contains(post.getSender().getId()) &&
+                                    !usersWhoBlockedCurrentUser.contains(post.getSender().getId()))
+                            .sorted(Comparator.comparing(Post::getTimestamp).reversed())
+                            .collect(Collectors.toList());
+                }
+                attributes.put("posts", sortedPosts);
+
+                List<Post> postsLikedByCurrentUser = sortedPosts.stream()
+                        .filter(post -> post.getLikedBy().stream()
+                                .anyMatch(user -> user.getId().equals(idCurrentlyUser)))
+                        .collect(Collectors.toList());
+                attributes.put("postsLikedByCurrentUser", postsLikedByCurrentUser);
+
+                model.addAllAttributes(attributes);
+
+                return "users/like-fragment"; // ko trả về index là do lấy riêng div like vs comment ra để reload div đó
+            }
         }
+        return "redirect:/login";
     }
-    return "redirect:/login";
-}
-
 
     // Để xuất ra kết quả tìm kiếm
     @GetMapping("/search")
@@ -219,7 +217,9 @@ public String home(Model model, @RequestParam(value = "message", required = fals
 
             model.addAttribute("usersResult", userResults);
 
-            List<Group> groupResults = groupService.search(query);
+            List<Group> groupResults = groupService.search(query).stream()
+                                        .filter(group -> group.getIsActive())
+                                        .toList();
 
             model.addAttribute("groupsResult", groupResults);
         } else {
@@ -256,8 +256,7 @@ public String home(Model model, @RequestParam(value = "message", required = fals
     }
 
     @GetMapping("/personal-account-settings")
-    public String accountSettings()
-    {
+    public String accountSettings() {
         return "account-settings";
     }
 
