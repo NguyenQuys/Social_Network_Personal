@@ -669,89 +669,13 @@
                                 </div>
                                 <div class="post-meta">
                                     <div layout:fragment="likeContent"></div>
-
-                                    <ul class="comment-share-meta">
-                                        <li data-toggle="modal" th:attr="data-target='#commentModal-' + ${post.id}">
-                                            <button
-                                                class="post-comment d-flex justify-content-center align-items-center">
-                                                <i class="bi bi-chat-bubble"></i>
-                                                <span th:text="${post.comments.size()}">0</span>
-                                            </button>
-                                        </li>
-                                        <div class="modal fade" th:id="'commentModal-' + ${post.id}" tabindex="-1"
-                                            role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content" style="max-height: 80vh;">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="commentModalLabel">Bình luận</h5>
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                            aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <style>
-                                                        .custom-scroll {
-                                                            width: 100%;
-                                                            max-height: 750px;
-                                                            overflow-y: scroll;
-                                                        }
-                                                    </style>
-                                                    <div class="form-group submittedContent container custom-scroll">
-                                                        <ul th:each="comment : ${post.comments}">
-                                                            <li class="p-3 content"
-                                                                style="background-color: rgb(199, 192, 192); width: 100%; border-radius: 15px">
-                                                                <div class="row d-flex align-items-center">
-                                                                    <div class="col-2">
-                                                                        <img th:src="${comment.user.avatar}"
-                                                                            style="border-radius: 50%">
-                                                                    </div>
-                                                                    <div class="col-10">
-                                                                        <h6 class="author">
-                                                                            <a th:href="@{|/profile/${userId}(userId=${comment.user.id})}"
-                                                                                th:text="${comment.user.fullName}"></a>
-                                                                        </h6>
-                                                                        <p th:text="${comment.content}">Comment content
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                            <div class="d-flex">
-                                                                <p class="mr-3">like</p>
-                                                                <p class="mr-3">sua</p>
-                                                                <form th:action="@{/delete-comment}" method="post">
-                                                                    <input type="hidden" th:value="${comment.id}"
-                                                                        th:name="commentId">
-                                                                    <button type="submit">Xóa</button>
-                                                                </form>
-                                                            </div>
-                                                            <hr>
-                                                        </ul>
-                                                        <input type="hidden" class="postId"
-                                                            th:attr="data-id=${post.id}" />
-                                                        <div id="displayContent-[[${post.id}]]" class="displayContent">
-                                                        </div>
-                                                    </div>
-
-
-                                                    <!-- Input comment area starts-->
-                                                    <div class="share-text-box">
-                                                        <textarea cols="70" name="content" placeholder="Nhập bình luận"
-                                                            class="inputTextareaContent" th:attr="data-cmt=${post.id}"
-                                                            required></textarea>
-                                                        <div class="modal-footer">
-                                                            <button type="button"
-                                                                class="post-share-btn btn btn-secondary"
-                                                                data-dismiss="modal">Hủy</button>
-                                                            <button class="post-share-btn btn btn-primary"
-                                                                th:attr="data-id=${post.id}, data-cmt=${post.id}">Đăng</button>
-                                                        </div>
-                                                    </div>
-
-                                                    <!-- input comment area ends  -->
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </ul>
+                                    <div class="comment-share-meta">
+                                        <a th:href="@{|/post-detail/${post.id}|}"
+                                            class="post-comment d-flex justify-content-center align-items-center">
+                                            <i class="bi bi-chat-bubble"></i>
+                                            <span th:text="${post.comments.size()}">0</span>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                             <hr>
@@ -982,72 +906,6 @@
             </section>
         </div>
         </div>
-        <script>
-            $(document).ready(function () {
-                $('#commentForm1').submit(function (e) {
-                    e.preventDefault(); // Ngăn chặn việc gửi form mặc định
-                    var formData = $(this).serialize();
-                    var url = $(this).attr('action');
-
-                    $.ajax({
-                        type: 'POST',
-                        url: url,
-                        data: formData,
-                        success: function (response) {
-                            // Load lại nội dung modal
-                            $.get(url + '?postId=' + response.post.id, function (data) {
-                                $('#commentModal1-' + response.post.id + ' .modal-body').html(data);
-                                $('#commentModal1-' + response.post.id).modal('show');
-                            });
-                        },
-                        error: function (error) {
-                            console.log('Lỗi:', error);
-                        }
-                    });
-                });
-
-                document.getElementById('commentForm1').addEventListener('submit', function (event) {
-                    event.preventDefault(); // Ngăn chặn form gửi đi và reload trang
-
-                    // Lấy giá trị của textarea
-                    var inputContent = document.getElementById('content1').value;
-
-                    if (inputContent) {
-                        // Lấy giá trị của authorName từ input ẩn
-                        var authorName = document.getElementById('authorName1').value;
-
-                        // Tạo một phần tử li mới để chứa nội dung
-                        var newLi = document.createElement('li');
-                        newLi.classList.add('content', 'submitted-item', 'bg-light', 'w-100', 'rounded'); // Thêm lớp CSS cho phần tử mới
-
-                        // Tạo phần tử h6 chứa tên tác giả
-                        var authorTag = document.createElement('h6');
-                        var authorLink = document.createElement('a');
-                        authorLink.href = '/profile'; // Điều chỉnh đường dẫn tới profile tùy vào nhu cầu
-                        authorLink.textContent = authorName;
-                        authorTag.appendChild(authorLink);
-
-                        // Tạo phần tử p chứa nội dung bình luận
-                        var contentTag = document.createElement('p');
-                        contentTag.textContent = inputContent;
-
-                        // Thêm authorTag và contentTag vào newLi
-                        newLi.appendChild(authorTag);
-                        newLi.appendChild(contentTag);
-
-                        // Thêm newLi vào submittedContent
-                        var submittedContent = document.querySelector('.submittedContent ul');
-                        submittedContent.appendChild(newLi);
-                        submittedContent.appendChild(document.createElement('hr')); // Thêm dòng ngăn cách
-
-                        // Xóa nội dung trong textarea để chuẩn bị cho lần nhập tiếp theo
-                        document.getElementById('content1').value = '';
-                    } else {
-                        console.error("Textarea is empty");
-                    }
-                });
-            });
-        </script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
         <script th:inline="javascript">
@@ -1120,33 +978,33 @@
                     console.error(error);
                 });
 
-            $(document).ready(function () {
-                $('.post-share-btn').click(function () {
-                    var shareTextBox = $(this).closest('.share-text-box');
-                    var content = shareTextBox.find('.inputTextareaContent').val();
-                    var postId = $(this).data('id'); // Lấy giá trị từ data-id của nút
+            // $(document).ready(function () {
+            //     $('.post-share-btn').click(function () {
+            //         var shareTextBox = $(this).closest('.share-text-box');
+            //         var content = shareTextBox.find('.inputTextareaContent').val();
+            //         var postId = $(this).data('id'); // Lấy giá trị từ data-id của nút
 
-                    console.log("nguoi gui:" + currentName);
-                    console.log("POST HIEN TAI: " + postId);
-                    console.log("BÌNH LUẬN: " + content);
+            //         console.log("nguoi gui:" + currentName);
+            //         console.log("POST HIEN TAI: " + postId);
+            //         console.log("BÌNH LUẬN: " + content);
 
 
-                    // Thực hiện AJAX nếu cần
-                    $.ajax({
-                        url: '/addComment',
-                        type: 'GET',
-                        data: { content: content, postId: postId },
-                        success: function (response) {
-                            var content = '<div style="background-color: rgb(199, 192, 192); padding: 10px; margin: 5px 0;border-radius: 15px">' +
-                                '<div>' + '<strong>' + currentName + '</strong>' + '</div>' +
-                                '<div>' + response + '</div>' +
-                                '</div>';
-                            $('.displayContent').append(content);
-                            $('.inputTextareaContent').val(''); // Clear the textarea after submission
-                        }
-                    });
-                });
-            });
+            //         // Thực hiện AJAX nếu cần
+            //         $.ajax({
+            //             url: '/addComment',
+            //             type: 'GET',
+            //             data: { content: content, postId: postId },
+            //             success: function (response) {
+            //                 var content = '<div style="background-color: rgb(199, 192, 192); padding: 10px; margin: 5px 0;border-radius: 15px">' +
+            //                     '<div>' + '<strong>' + currentName + '</strong>' + '</div>' +
+            //                     '<div>' + response + '</div>' +
+            //                     '</div>';
+            //                 $('.displayContent').append(content);
+            //                 $('.inputTextareaContent').val(''); // Clear the textarea after submission
+            //             }
+            //         });
+            //     });
+            // });
 
         </script>
     </main>

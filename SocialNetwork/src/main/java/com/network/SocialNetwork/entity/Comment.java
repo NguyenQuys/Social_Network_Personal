@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import org.springframework.web.multipart.MultipartFile;
+
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -22,6 +24,11 @@ public class Comment {
     private User user;
 
     private String content;
+
+    private String image;
+
+    @Transient
+    private MultipartFile imageComment;
 
     private LocalDateTime timestamp = LocalDateTime.now();
 

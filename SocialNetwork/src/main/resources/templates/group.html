@@ -668,84 +668,13 @@
                                         </i>
                                         <span th:text="${post.likes}" id="countLike">0</span>
                                     </button>
-                                    <ul class="comment-share-meta">
-                                        <li data-toggle="modal" th:attr="data-target='#commentModal1-' + ${post.id}">
-                                            <button
-                                                class="post-comment d-flex justify-content-center align-items-center">
-                                                <i class="bi bi-chat-bubble"></i>
-                                                <span th:text="${post.comments.size()}">0</span>
-                                            </button>
-                                        </li>
-
-                                        <div class="modal fade" th:id="'commentModal1-' + ${post.id}" tabindex="-1"
-                                            role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content" style="max-height: 80vh;">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="commentModalLabel">Bình luận</h5>
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                            aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <form id="commentForm1" th:action="@{/addComment}" method="post"
-                                                        class="modal-body custom-scroll myForm">
-                                                        <div class="form-group submittedContent">
-                                                            <ul th:each="comment : ${post.comments}">
-                                                                <li class="p-3 content"
-                                                                    style="background-color: rgb(199, 192, 192); width: 100%; border-radius: 15px">
-                                                                    <div class="row d-flex align-items-center">
-                                                                        <div class="col-2">
-                                                                            <img th:src="${comment.user.avatar}"
-                                                                                style="border-radius: 50%">
-                                                                        </div>
-                                                                        <div class="col-10">
-                                                                            <h6 class="author">
-                                                                                <a th:href="@{|/profile/${userId}(userId=${comment.user.id})}"
-                                                                                    th:text="${comment.user.fullName}"></a>
-                                                                            </h6>
-                                                                            <p th:text="${comment.content}">Comment
-                                                                                content</p>
-                                                                        </div>
-                                                                    </div>
-                                                                </li>
-                                                                <div class="d-flex">
-                                                                    <p class="mr-3">like</p>
-                                                                    <p class="mr-3">sua</p>
-                                                                    <form th:action="@{/delete-comment}" method="post">
-                                                                        <input type="hidden" th:value="${comment.id}"
-                                                                            th:name="commentId">
-                                                                        <button type="submit">Xóa</button>
-                                                                    </form>
-                                                                </div>
-                                                                <hr>
-                                                            </ul>
-                                                        </div>
-                                                        <input type="hidden" name="postId" th:value="${post.id}" />
-                                                        <input type="hidden" id="authorName1" name="authorName"
-                                                            th:value="${currentlyUser.fullName}" />
-
-                                                        <!-- Input comment area starts-->
-                                                        <div class="share-text-box">
-                                                            <textarea cols="70" name="content"
-                                                                placeholder="Nhập bình luận"
-                                                                class="inputTextareaContent"
-                                                                th:attr="data-cmt=${post.id}" required></textarea>
-                                                            <div class="modal-footer">
-                                                                <button type="button"
-                                                                    class="post-share-btn btn btn-secondary"
-                                                                    data-dismiss="modal">Hủy</button>
-                                                                <button class="post-share-btn btn btn-primary"
-                                                                    th:attr="data-id=${post.id}, data-cmt=${post.id}">Đăng</button>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- input comment area ends  -->
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </ul>
+                                    <div class="comment-share-meta">
+                                        <a th:href="@{|/post-detail/${post.id}|}"
+                                            class="post-comment d-flex justify-content-center align-items-center">
+                                            <i class="bi bi-chat-bubble"></i>
+                                            <span th:text="${post.comments.size()}">0</span>
+                                        </a>
+                                    </div>
                                 </div>
                                 <script th:inline="javascript">
                                     function loadContentLike(postId, button) {

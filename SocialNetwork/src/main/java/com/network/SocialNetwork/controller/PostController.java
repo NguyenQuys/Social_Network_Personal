@@ -9,6 +9,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.network.SocialNetwork.entity.Comment;
 import com.network.SocialNetwork.entity.Group;
 import com.network.SocialNetwork.entity.Image;
 import com.network.SocialNetwork.entity.Notifications;
@@ -168,13 +170,10 @@ public class PostController {
     @GetMapping("/post-detail/{postId}")
     public String postDetail(Model model,
             @PathVariable("postId") Long postId,
-            @Param("notiId") Long notiId) {
-        Optional<User> currentlyUserOptional = getCurrentUser();
-        if (currentlyUserOptional.isEmpty()) {
-            return "redirect:/error";
-        }
+            @Param("notiId") Long notiId) 
+    {
 
-        User currentlyUser = currentlyUserOptional.get();
+        User currentlyUser = getCurrentUser().get();
         Post post = postRepository.findById(postId).orElse(null);
 
         if (post == null) {
@@ -194,8 +193,12 @@ public class PostController {
 
         model.addAttribute("isPostLikedByCurrentUser", isPostLikedByCurrentUser);
         model.addAttribute("postChosen", post);
-        model.addAttribute("currentlyUser", currentlyUser);
 
+        var sortedComments = post.getComments().stream()
+                              .sorted(Comparator.comparing(Comment::getTimestamp).reversed())
+                              .toList();
+        model.addAttribute("comments", sortedComments);
+                        
         return "users/like-fragment-one-post";
     }
 
@@ -425,23 +428,5 @@ public class PostController {
             throw new RuntimeException("Could not create upload directory: " + e.getMessage());
         }
         return null;
-    }
-
-    private String calculateElapsedTime(LocalDateTime currentTime, LocalDateTime postTime) {
-        Duration duration = Duration.between(postTime, currentTime);
-        long seconds = duration.getSeconds();
-
-        if (seconds < 60) {
-            return seconds + " seconds ago";
-        } else if (seconds < 3600) {
-            long minutes = seconds / 60;
-            return minutes + " minutes ago";
-        } else if (seconds < 86400) {
-            long hours = seconds / 3600;
-            return hours + " hours ago";
-        } else {
-            long days = seconds / 86400;
-            return days + " days ago";
-        }
     }
 }

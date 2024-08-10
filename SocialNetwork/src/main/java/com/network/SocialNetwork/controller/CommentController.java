@@ -8,7 +8,11 @@ import com.network.SocialNetwork.repository.PostRepository;
 import com.network.SocialNetwork.service.CommentService;
 import com.network.SocialNetwork.service.NotificationService;
 import com.network.SocialNetwork.service.UserService;
+
+import jakarta.mail.Multipart;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -22,7 +26,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.util.StringUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -72,39 +85,70 @@ public class CommentController {
         }
     }
 
-    @GetMapping("/addComment")
-    @ResponseBody
-    public String addComment(@RequestParam Long postId, @RequestParam String content, Model model) {
+    @PostMapping("/addComment")
+    public String addComment(@RequestParam Long postId,
+            @RequestParam String content,
+            @RequestParam("imageFile") MultipartFile imageFile,
+            Model model,
+            RedirectAttributes redirectAttributes) {
         Post post = postRepository.findById(postId).orElse(null);
         User currentUser = getCurrentUser().get();
-            Comment comment = commentService.createComment(currentUser, content, post);
+        Comment comment = commentService.createComment(currentUser, content, post);
 
-            
-            notificationService.notiPostRelevant(post, currentUser);
-            
-            post.getComments().add(comment);
-            postRepository.save(post);
-            model.addAttribute("post", post);
-            // if (!currentUser.get().getId().equals(post.getSender().getId())) {
-            //     notificationService.addComment(postId, currentUser.get().getId());
-            // }
-            return content; // Return the comment content
-       
+        post.getComments().add(comment);
+        if (!imageFile.isEmpty()) {
+            String avatarUrl = saveFile(imageFile, "src/main/resources/static/user/assets/images/comment/");
+            comment.setImage(avatarUrl);
+        }
+        postRepository.save(post);
+        notificationService.notiPostRelevant(post, currentUser);
+
+        redirectAttributes.addFlashAttribute("message", "Thêm bình luận thành công");
+        return "redirect:/post-detail/" + postId; // Return the comment content
+
     }
 
     @PostMapping("/delete-comment")
-    public ResponseEntity<Map<String, String>> deleteComment(@RequestParam("commentId") Long commentId) {
-        Map<String, String> response = new HashMap<>();
-        Optional<Comment> comOptional = commentRepository.findById(commentId);
-        if (comOptional.isPresent()) {
-            commentRepository.delete(comOptional.get());
-            response.put("status", "success");
-            response.put("message", "Comment deleted successfully");
-            return ResponseEntity.ok(response);
+    public String deleteComment(@RequestParam("commentId") Long commentId,
+            @RequestParam("postId") Long postId,
+            RedirectAttributes redirectAttributes) {
+        commentRepository.deleteById(commentId);
+        redirectAttributes.addFlashAttribute("message", "Xóa bình luận thành công");
+        return "redirect:/post-detail/" + postId;
+    }
+
+    @PostMapping("/edit-comment")
+    public String editComment(@RequestParam("commentId") Long commentId,
+            String content,
+            @RequestParam("postId") Long postId,
+            RedirectAttributes redirectAttributes) {
+        Comment comment = commentRepository.findById(commentId).get();
+        commentService.editCommentService(comment, content);
+        redirectAttributes.addFlashAttribute("message", "Chỉnh sửa bình luận thành công");
+        return "redirect:/post-detail/" + postId;
+    }
+
+    private String saveFile(MultipartFile file, String uploadDir) {
+        try {
+            Path uploadPath = Paths.get(uploadDir);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+            if (!file.isEmpty()) {
+                String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+                try (InputStream inputStream = file.getInputStream()) {
+                    Path filePath = uploadPath.resolve(fileName);
+                    Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+                    return "user/assets/images/post/" + fileName; // Assuming you are storing images in the /images/
+                                                                  // directory
+                } catch (IOException e) {
+                    throw new RuntimeException("Could not save file: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Could not create upload directory: " + e.getMessage());
         }
-        response.put("status", "error");
-        response.put("message", "Comment not found");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        return null;
     }
 
 }

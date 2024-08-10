@@ -46,6 +46,12 @@ public class CommentService {
         commentRepository.deleteById(commentId);
     }
 
+    public Comment editCommentService(Comment comment,String content)
+    {
+        comment.setContent(content);
+        return commentRepository.save(comment);
+    }
+
 
     public Comment getCommentById(Long commentId) {
         return commentRepository.findById(commentId)
