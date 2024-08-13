@@ -30,7 +30,8 @@
 3. * Username: viet
 
 **For Admins**
-Username: admin
+
+* Username: admin
 
 Password for all: 123456Vv
 
