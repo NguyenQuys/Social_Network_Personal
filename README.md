@@ -23,7 +23,7 @@
    - **See Statistics:** Admins can view statistics such as the number of posts made and the number of visitors per day over the past 7 days.
    - **Block Users:** Admins can block users from logging in.
 
-### Exited account:
+### Existed account:
 **For users**
 1. * Username: quy
 2. * Username: nam
@@ -46,7 +46,6 @@ Password for all: 123456Vv
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/NguyenQuys/Social_Network_Personal
-
 
 2. **Set Up MySQL**
 - Create a database named "test".
