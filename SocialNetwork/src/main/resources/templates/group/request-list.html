@@ -3,91 +3,186 @@
     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{_layout}">
 
 <head>
-    <title>Danh sách yêu cầu tham gia nhóm</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <style>
-        div.fixed {
-            position: fixed;
-            margin-top: 0;
-            bottom: 15px;
-            right: 10px;
-            width: 300px;
-            border: 5px solid #73AD21;
-        }
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+
 </head>
-
-<body>
-    <main layout:fragment="content">
-        <div style="margin-top: 100px; width:40%" class="container">
-            <h2 class="mt-4 mb-3">Danh sách yêu cầu tham gia nhóm <span class="text-danger" th:text="${groupChosen.name}"></span></h2>
-            <div th:if="${listUserRequestToJoin.size() == 0}">
-                <h3>Bạn chưa có lời mời kết bạn nào🥲🥲 Hãy đi kết bạn thôi nào!!!</h3>
-            </div>
-            <div class="row my-2" th:each="user : ${listUserRequestToJoin}">
-                <a th:href="@{|/profile/${user.id}|}" class="list-group-item list-group-item-action p-4">
-                    <div class="row">
-                        <div class="col-2 mx-3">
-                            <img th:src="@{|${user.avatar}|}" alt="Avatar" class="rounded-circle"
-                                style="width: 80px; height: 80px;">
+<!-- <main> -->
+<main layout:fragment="content">
+    <div class="main-wrapper">
+        <div class="profile-banner-large bg-img" data-bg="assets/images/banner/profile-banner.jpg">
+        </div>
+        <div class="profile-menu-area bg-white" style="min-height: 80vh;">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-3 col-md-3">
+                        <div class="profile-picture-box">
+                            <figure class="profile-picture">
+                                <a href="profile.html">
+                                    <img th:src="@{${groupChosen.avatar}}" alt="profile picture">
+                                </a>
+                            </figure>
                         </div>
-                        <div class=" col-5 d-flex align-items-center">
-                            <div>
-                                <strong th:text="${user.fullName}" class="ml-3 bold">Tên người dùng</strong>
-                                <p th:text="${user.bio}" class="ml-3 bold">Bio</p>
-                            </div>
-                        </div>
-                        <div class="col-4 d-flex align-items-center">
-                            <div class="mx-4 d-flex">
-                                <form th:action="@{/groups/accept-request}" method="post">
-                                    <input type="hidden" name="idUserHasBeenAccepted" th:value="${user.id}">
-                                    <input type="hidden" name="idGroup" th:value="${groupChosen.id}">
-                                    <button style="background-color: green;" class="btn text-white p-2 mr-2" type="submit">Đồng ý</button>
-                                </form>
-                                
-                                <form th:action="@{/groups/reject-request}" method="post">
-                                    <input type="hidden" name="idSender" th:value="${user.id}">
-                                    <input type="hidden" name="idGroup" th:value="${groupChosen.id}">
-                                    <input type="hidden" th:name="fromRoleUser" th:value="adminGroup">
-                                    <button style="background-color: red;" class="btn text-white p-2 ml-2"
-                                        type="submit">Từ chối</button>
-                                </form>
-                            </div>
-                        </div>
-
                     </div>
-                </a>
+                    <div class="col-lg-6 col-md-6 offset-lg-1">
+                        <div class="profile-menu-wrapper">
+                            <div class="main-menu-inner header-top-navigation">
+                                <nav>
+                                    <ul class="main-menu">
+                                        <li class="active"><a th:href="@{|/groups/${groupChosen.id}|}">timeline</a></li>
+                                        <!-- <li><a href="about.html">Thông tin</a></li> -->
+                                        <li><a th:href="@{|/groups/${groupChosen.id}/member|}">Thành viên</a></li>
+                                        <!-- <li><a href="friends.html">friends</a></li> -->
+                                        <!-- <li><a href="about.html">more</a></li> -->
+                                        <!-- <li class="d-inline-block d-md-none"><a href="profile.html">edit profile</a></li> -->
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="container">
+                <div class="row d-flex justify-content-center">
+
+
+                    <div class="col-lg-6 order-1 order-lg-2">
+                        <!-- share box start -->
+                        <div class="card card-small">
+                            <div class="share-box-inner">
+                            </div>
+                        </div>
+                        <!-- share box end -->
+                        <!-- post status start -->
+                        <h2 class="mt-4 mb-3">Danh sách yêu cầu tham gia nhóm <span class="text-danger"
+                                th:text="${groupChosen.name}"></span></h2>
+                        <div th:if="${listUserRequestToJoin.size() == 0}">
+                            <h3 class="d-flex justify-content-center align-items-center">Danh sách trống</h3>
+                        </div>
+                        <div class="row my-2" th:each="user : ${listUserRequestToJoin}">
+                            <a th:href="@{|/profile/${user.id}|}" class="list-group-item list-group-item-action p-4">
+                                <div class="row">
+                                    <div class="col-2 mx-3">
+                                        <img width="60px" height="60px" th:src="@{|${user.avatar}|}" alt="Avatar"
+                                            class="rounded-circle">
+                                    </div>
+                                    <div class=" col-5 d-flex align-items-center">
+                                        <div>
+                                            <strong th:text="${user.fullName}" class="ml-3 bold">Tên người dùng</strong>
+                                            <p th:text="${user.bio}" class="ml-3 bold">Bio</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 d-flex align-items-center">
+                                        <div class="mx-4 d-flex">
+                                            <form th:action="@{/groups/accept-request}" method="post">
+                                                <input type="hidden" name="idUserHasBeenAccepted" th:value="${user.id}">
+                                                <input type="hidden" name="idGroup" th:value="${groupChosen.id}">
+                                                <button style="background-color: green;" class="btn text-white p-2 mr-2"
+                                                    type="submit">Đồng ý</button>
+                                            </form>
+
+                                            <form th:action="@{/groups/reject-request}" method="post">
+                                                <input type="hidden" name="idSender" th:value="${user.id}">
+                                                <input type="hidden" name="idGroup" th:value="${groupChosen.id}">
+                                                <input type="hidden" th:name="fromRoleUser" th:value="adminGroup">
+                                                <button style="background-color: red;" class="btn text-white p-2 ml-2"
+                                                    type="submit">Từ chối</button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- post status end -->
+                </div>
             </div>
         </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-        <script th:inline="javascript">
-            $(document).ready(function () {
-                toastr.options = {
-                    "closeButton": true,
-                    "debug": false,
-                    "newestOnTop": false,
-                    "progressBar": true,
-                    "positionClass": "toast-bottom-right",
-                    "preventDuplicates": false,
-                    "onclick": null,
-                    "showDuration": "300",
-                    "hideDuration": "1000",
-                    "timeOut": "5000",
-                    "extendedTimeOut": "1000",
-                    "showEasing": "swing",
-                    "hideEasing": "swing",
-                    "showMethod": "slideDown",
-                    "hideMethod": "slideUp"
-                };
-                var successMessage = /*[[${message}]]*/ null;
-                if (successMessage) {
-                    toastr.success(successMessage);
-                }
-            });
-        </script>
-    </main>
+    </div>
 
-</body>
+
+    <!-- Scroll to top start -->
+    <div class="scroll-top not-visible">
+        <i class="bi bi-finger-index"></i>
+    </div>
+    <!-- Scroll to Top End -->
+    <script th:inline="javascript">
+        $(document).ready(function () {
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": false,
+                "progressBar": true,
+                "positionClass": "toast-bottom-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "swing",
+                "showMethod": "slideDown",
+                "hideMethod": "slideUp"
+            };
+            var mainMessage = /*[[${message != null ? message : 'null'}]]*/ 'null';
+            var subMessage = /*[[${subMessage != null ? subMessage : 'null'}]]*/ 'null';
+
+            if (mainMessage !== 'null') {
+                if (subMessage !== 'null') {
+                    toastr.success(subMessage, mainMessage);
+                } else {
+                    toastr.success(mainMessage);
+                }
+            }
+
+        });
+
+        // custom-ckeditor-config.js
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                toolbar: {
+                    items: [
+                        'heading', '|',
+                        'bold', 'italic', 'link', '|',
+                        'bulletedList', 'numberedList', '|',
+                        'blockQuote', '|',
+                        'undo', 'redo'
+                    ]
+                },
+                link: {
+                    decorators: {
+                        isExternal: {
+                            mode: 'manual',
+                            label: 'Open in a new tab',
+                            attributes: {
+                                target: '_blank',
+                                rel: 'noopener noreferrer'
+                            }
+                        }
+                    }
+                },
+                // Allow all HTML content
+                htmlSupport: {
+                    allow: [
+                        {
+                            name: /.*/,
+                            attributes: true,
+                            classes: true,
+                            styles: true
+                        }
+                    ],
+                    disallow: []
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+</main>
 
 </html>

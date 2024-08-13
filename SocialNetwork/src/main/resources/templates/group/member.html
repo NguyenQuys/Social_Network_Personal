@@ -14,7 +14,7 @@
     <div class="main-wrapper">
         <div class="profile-banner-large bg-img" data-bg="assets/images/banner/profile-banner.jpg">
         </div>
-        <div class="profile-menu-area bg-white">
+        <div class="profile-menu-area bg-white" style="min-height: 80vh;">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-lg-3 col-md-3">
@@ -31,8 +31,8 @@
                             <div class="main-menu-inner header-top-navigation">
                                 <nav>
                                     <ul class="main-menu">
-                                        <li class="active"><a href="#">timeline</a></li>
-                                        <li><a href="about.html">Thông tin</a></li>
+                                        <li class="active"><a th:href="@{|/groups/${groupChosen.id}|}">timeline</a></li>
+                                        <!-- <li><a href="about.html">Thông tin</a></li> -->
                                         <li><a th:href="@{|/groups/${groupChosen.id}/member|}">Thành viên</a></li>
                                         <!-- <li><a href="friends.html">friends</a></li> -->
                                         <!-- <li><a href="about.html">more</a></li> -->

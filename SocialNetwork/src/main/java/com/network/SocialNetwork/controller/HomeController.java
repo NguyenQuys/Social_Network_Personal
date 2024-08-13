@@ -27,6 +27,7 @@ import com.network.SocialNetwork.entity.Statistic;
 import com.network.SocialNetwork.entity.User;
 import com.network.SocialNetwork.repository.FriendBlockRepository;
 import com.network.SocialNetwork.repository.FriendRequestRepository;
+import com.network.SocialNetwork.repository.GroupRepository;
 import com.network.SocialNetwork.repository.NotificationRepository;
 import com.network.SocialNetwork.repository.StatisticRepository;
 import com.network.SocialNetwork.repository.UserRepository;
@@ -49,6 +50,9 @@ public class HomeController {
 
     @Autowired
     private StatisticRepository statisticRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
 
     // ------------------SERVICE---------------------------
     @Autowired
@@ -182,8 +186,12 @@ public class HomeController {
                         .collect(Collectors.toList());
                 attributes.put("postsLikedByCurrentUser", postsLikedByCurrentUser);
 
-                model.addAllAttributes(attributes);
+                List<Group> listGroup = groupRepository.findAll().stream()
+                                        .filter(group -> group.getIsActive())
+                                        .toList();
 
+                attributes.put("listGroup", listGroup);
+                model.addAllAttributes(attributes);
                 return "users/like-fragment"; // ko trả về index là do lấy riêng div like vs comment ra để reload div đó
             }
         }

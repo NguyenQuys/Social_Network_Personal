@@ -341,8 +341,8 @@
                         <div class="share-text-box">
                             <textarea style="width: 100%;" th:name="content" placeholder="Nhập bình luận"
                                 class="contentComment" required></textarea>
-                                <input type="file" id="file-input" style="display: none;"
-                                name="images" multiple accept="image/*">
+                            <input type="file" id="file-input" style="display: none;" name="imageComment" multiple
+                                accept="image/*">
                             <label for="file-input">
                                 <p>Chọn ảnh</p>
                                 <span class="material-symbols-outlined">
@@ -356,7 +356,7 @@
                             </div>
                         </div>
                     </form>
-                    
+
                 </div>
                 <div class="form-group custom-scroll">
                     <ul th:each="comment : ${comments}">
@@ -369,11 +369,13 @@
                                 </div>
                                 <div class="col-7">
                                     <h6 class="author">
-                                        <a th:href="@{|/profile/${userId}(userId=${comment.user.id})}"
+                                        <a th:href="@{|/profile/${comment.user.id}|}"
                                             th:text="${comment.user.fullName}"></a>
                                     </h6>
                                     <p th:text="${comment.content}">Comment content</p>
-                                    <a th:href="@{|../${comment.image}|}" target="_blank"><img height="100px" width="100px" th:if="${comment.image}" th:src="@{|../${comment.image}|}" alt="ảnh"></a>
+                                    <a th:href="@{|../${comment.image}|}" target="_blank"><img height="100px"
+                                            width="100px" th:if="${comment.image}" th:src="@{|../${comment.image}|}"
+                                            alt="ảnh"></a>
                                 </div>
                                 <div class="col-3">
                                     <p th:text="${#temporals.format(comment.timestamp, 'dd-MM-yyyy HH:mm')}"></p>
@@ -410,20 +412,32 @@
                                     <div class="modal-body">
                                         <form th:action="@{/edit-comment}" method="post" enctype="multipart/form-data">
                                             <div class="form-group">
+                                                <!-- Hidden input fields for commentId and postId -->
                                                 <input type="hidden" th:name="commentId" th:value="${comment.id}">
                                                 <input type="hidden" th:name="postId" th:value="${postChosen.id}">
+                                                
+                                                <!-- Textarea for the comment content -->
                                                 <label>Nhập bình luận</label>
-                                                <textarea style="width: 100%;" rows="3" th:name="content"
-                                                    th:text="${comment.content}"
+                                                <textarea style="width: 100%;" rows="3" th:name="content" th:text="${comment.content}" 
                                                     placeholder="Nhập bình bình luận..."></textarea>
+                                                
+                                                <!-- File input for the image -->
+                                                <input type="file" id="edit-image-input" style="display: none;" th:name="imageComment" accept="image/*">
+                                                <label for="edit-image-input" style="cursor: pointer;">
+                                                    <p>Chọn ảnh</p>
+                                                    <span class="material-symbols-outlined">
+                                                        image
+                                                    </span>
+                                                </label>
                                             </div>
+                                            
+                                            <!-- Action buttons -->
                                             <div style="float:right;">
-                                                <button type="button" class="post-share-btn btn btn-secondary"
-                                                    data-dismiss="modal">Hủy</button>
-                                                <button type="submit" class="post-share-btn btn btn-primary">Cập
-                                                    nhật</button>
+                                                <button type="button" class="post-share-btn btn btn-secondary" data-dismiss="modal">Hủy</button>
+                                                <button type="submit" class="post-share-btn btn btn-primary">Cập nhật</button>
                                             </div>
                                         </form>
+                                        
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"

@@ -88,7 +88,7 @@ public class CommentController {
     @PostMapping("/addComment")
     public String addComment(@RequestParam Long postId,
             @RequestParam String content,
-            @RequestParam("imageFile") MultipartFile imageFile,
+            @RequestParam("imageComment") MultipartFile imageComment,
             Model model,
             RedirectAttributes redirectAttributes) {
         Post post = postRepository.findById(postId).orElse(null);
@@ -96,8 +96,8 @@ public class CommentController {
         Comment comment = commentService.createComment(currentUser, content, post);
 
         post.getComments().add(comment);
-        if (!imageFile.isEmpty()) {
-            String avatarUrl = saveFile(imageFile, "src/main/resources/static/user/assets/images/comment/");
+        if (!imageComment.isEmpty()) {
+            String avatarUrl = saveFile(imageComment, "src/main/resources/static/user/assets/images/comment/");
             comment.setImage(avatarUrl);
         }
         postRepository.save(post);
@@ -119,12 +119,31 @@ public class CommentController {
 
     @PostMapping("/edit-comment")
     public String editComment(@RequestParam("commentId") Long commentId,
-            String content,
             @RequestParam("postId") Long postId,
+            @RequestParam String content,
+            @RequestParam("imageComment") MultipartFile imageComment,
             RedirectAttributes redirectAttributes) {
-        Comment comment = commentRepository.findById(commentId).get();
+        // Find the existing comment
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid comment ID: " + commentId));
+
+        // Update the comment content
         commentService.editCommentService(comment, content);
+
+        // Check if a new image file is uploaded
+        if (!imageComment.isEmpty()) {
+            // Save the new image
+            String imageUrl = saveFile(imageComment, "src/main/resources/static/user/assets/images/comment/");
+            comment.setImage(imageUrl);
+        }
+
+        // Save the updated comment
+        commentRepository.save(comment);
+
+        // Add a success message
         redirectAttributes.addFlashAttribute("message", "Chỉnh sửa bình luận thành công");
+
+        // Redirect back to the post detail page
         return "redirect:/post-detail/" + postId;
     }
 
@@ -139,7 +158,7 @@ public class CommentController {
                 try (InputStream inputStream = file.getInputStream()) {
                     Path filePath = uploadPath.resolve(fileName);
                     Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-                    return "user/assets/images/post/" + fileName; // Assuming you are storing images in the /images/
+                    return "user/assets/images/comment/" + fileName; // Assuming you are storing images in the /images/
                                                                   // directory
                 } catch (IOException e) {
                     throw new RuntimeException("Could not save file: " + e.getMessage());

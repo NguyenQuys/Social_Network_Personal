@@ -181,98 +181,33 @@
 
                         <!-- widget single item start -->
                         <div class="card widget-item">
-                            <h4 class="widget-title">page you may like</h4>
+                            <h4 class="widget-title">Nhóm có thể bạn thích</h4>
                             <div class="widget-body">
-                                <ul class="like-page-list-wrapper">
+                                <ul class="like-page-list-wrapper" th:each="group : ${listGroup}">
                                     <li class="unorder-list">
-                                        <!-- profile picture end -->
+                                        <!-- profile picture start -->
                                         <div class="profile-thumb">
-                                            <a href="#">
+                                            <a th:href="@{|/groups/${group.id}|}">
                                                 <figure class="profile-thumb-small">
-                                                    <img src="user/assets/images/profile/profile-small-5.jpg"
-                                                        alt="profile picture">
+                                                    <img th:src="@{${group.avatar}}" alt="profile picture">
                                                 </figure>
                                             </a>
                                         </div>
                                         <!-- profile picture end -->
-
+                                
                                         <div class="unorder-list-info">
-                                            <h3 class="list-title"><a href="#">Travel The World</a></h3>
-                                            <p class="list-subtitle"><a href="#">adventure</a></p>
+                                            <h3 class="list-title">
+                                                <a th:href="@{|/groups/${group.id}|}" th:text="${group.name}">Group Name</a>
+                                            </h3>
+
                                         </div>
+                                
                                         <button class="like-button active">
-                                            <img class="heart" src="user/assets/images/icons/heart.png" alt="">
-                                            <img class="heart-color" src="user/assets/images/icons/heart-color.png"
-                                                alt="">
-                                        </button>
-                                    </li>
-                                    <li class="unorder-list">
-                                        <!-- profile picture end -->
-                                        <div class="profile-thumb">
-                                            <a href="#">
-                                                <figure class="profile-thumb-small">
-                                                    <img src="user/assets/images/profile/profile-small-5.jpg"
-                                                        alt="profile picture">
-                                                </figure>
-                                            </a>
-                                        </div>
-                                        <!-- profile picture end -->
-
-                                        <div class="unorder-list-info">
-                                            <h3 class="list-title"><a href="#">Foodcort Nirala</a></h3>
-                                            <p class="list-subtitle"><a href="#">food</a></p>
-                                        </div>
-                                        <button class="like-button">
-                                            <img class="heart" src="user/assets/images/icons/heart.png" alt="">
-                                            <img class="heart-color" src="user/assets/images/icons/heart-color.png"
-                                                alt="">
-                                        </button>
-                                    </li>
-                                    <li class="unorder-list">
-                                        <!-- profile picture end -->
-                                        <div class="profile-thumb">
-                                            <a href="#">
-                                                <figure class="profile-thumb-small">
-                                                    <img src="user/assets/images/profile/profile-small-5.jpg"
-                                                        alt="profile picture">
-                                                </figure>
-                                            </a>
-                                        </div>
-                                        <!-- profile picture end -->
-
-                                        <div class="unorder-list-info">
-                                            <h3 class="list-title"><a href="#">Rolin Theitar</a></h3>
-                                            <p class="list-subtitle"><a href="#">drama</a></p>
-                                        </div>
-                                        <button class="like-button">
-                                            <img class="heart" src="user/assets/images/icons/heart.png" alt="">
-                                            <img class="heart-color" src="user/assets/images/icons/heart-color.png"
-                                                alt="">
-                                        </button>
-                                    </li>
-                                    <li class="unorder-list">
-                                        <!-- profile picture end -->
-                                        <div class="profile-thumb">
-                                            <a href="#">
-                                                <figure class="profile-thumb-small">
-                                                    <img src="user/assets/images/profile/profile-small-5.jpg"
-                                                        alt="profile picture">
-                                                </figure>
-                                            </a>
-                                        </div>
-                                        <!-- profile picture end -->
-
-                                        <div class="unorder-list-info">
-                                            <h3 class="list-title"><a href="#">Active Mind</a></h3>
-                                            <p class="list-subtitle"><a href="#">fitness</a></p>
-                                        </div>
-                                        <button class="like-button">
-                                            <img class="heart" src="user/assets/images/icons/heart.png" alt="">
-                                            <img class="heart-color" src="user/assets/images/icons/heart-color.png"
-                                                alt="">
+                                            <!-- Optional: Add text or icon inside the button -->
                                         </button>
                                     </li>
                                 </ul>
+                                
                             </div>
                         </div>
                         <!-- widget single item end -->
